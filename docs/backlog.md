@@ -7,7 +7,7 @@ Cada fila es una ejecución del ciclo Spec Kit. El número final lo asigna `/spe
 |---|---|---|---|---|---|
 | 000 | Kit IA | `specify init`, constitución, skills, subagentes, hook, ADRs iniciales | — | — | Jue 12 |
 | 001 | `esqueleto-modular` | Proyecto Boot 4.1 + Maven, 5 módulos vacíos con capas hexagonales, `Modulith.verify()` + ArchUnit, Spotless, docker-compose con Postgres, Actuator health, CI mínima (build + test) | B2, B3, B9 | 001, 003 | Vie 13 |
-| 002 | `persistencia-dataset` | Flyway V1 (esquema por módulo) + V2 (dataset oficial con colores), JPA, OSIV off, Testcontainers base | B4 | 002 | Lun 16 |
+| 002 | `persistencia-dataset` | Flyway V1 (esquema por módulo) + V2 (dataset oficial con colores), JPA, OSIV off, Testcontainers base, ArchUnit sobre entidades (`@Entity` solo en `infrastructure.persistence`, tabla con prefijo del módulo, web nunca devuelve `@Entity`) | B4 | 002 | Lun 16 |
 | 003 | `despliegue-azure-esqueleto` | Dockerfile multi-stage no-root, Terraform (RG, ACR, Container Apps env + app, PostgreSQL Flexible, Log Analytics), GitHub Actions con OIDC → URL pública con `/actuator/health` | B12, C4, C5 | 012 (parte) | Lun 16 |
 | 004 | `errores-validacion` | Formato de error único + traceId, `@RestControllerAdvice`, Bean Validation, jerarquía de excepciones | B5, B6 | 004 | Mar 17 |
 | 005 | `catalogo` | home, categories, products, stores, recommendations por color + Swagger | B1, B5 | 005 | Mar 17 |
@@ -33,7 +33,7 @@ Keycloak/JWT, Grafana/Prometheus, OpenTelemetry completo, caché, k6, SonarCloud
 | Recomendaciones sin `skus` fallaban | 005 |
 | Id de pedido devuelto no consultable | 008 |
 | Líneas de pedido con nombre en vez de SKU | 008 |
-| Entidades duplicadas | 001/002 (ArchUnit + un dueño por tabla) |
+| Entidades duplicadas | 002 (ArchUnit: `@Entity` solo en `<módulo>.infrastructure.persistence` + tabla con prefijo del módulo dueño) |
 | Recomendaciones por categoría en vez de color | 005 |
 | Sin migraciones reales | 002 |
 | Secreto en el código | 001 (gitleaks/CI) y 003 |
