@@ -17,6 +17,12 @@
 - Q: ¿"Un PR solo puede fusionarse en verde" exige que la rama principal tenga el pipeline como comprobación obligatoria? → A: Sí; la rama principal exige el pipeline en verde para fusionar. La configura a mano el dueño del repositorio y el PR de esta spec lo documenta como paso de verificación.
 - Q: ¿El escaneo de secretos revisa solo el cambio empujado o todo el historial del repositorio? → A: Todo el historial en cada ejecución (el repositorio es pequeño y así ningún secreto antiguo queda sin detectar).
 
+### Session 2026-11-17
+
+- Q: Cuando la salud o la disponibilidad está en `DOWN`, ¿qué código HTTP debe devolver el endpoint? → A: `UP` → 200 y `DOWN` → 503, en salud general, vida y disponibilidad (las probes deciden por el código HTTP).
+- Q: ¿El esqueleto debe publicar ya Swagger UI y el documento OpenAPI, aunque aún no haya endpoints de negocio? → A: Sí, desde 001: ambos disponibles, sin rutas de negocio y sin incluir los endpoints de gestión (valida pronto la compatibilidad con la versión del framework). Un test de integración MUST verificar que `GET /v3/api-docs` responde 200.
+- Q: Los valores de desarrollo de la BD local (usuario/contraseña de ejemplo), ¿cómo conviven con el escaneo de secretos de todo el historial? → A (recomendación aceptada): se usan valores evidentemente no secretos (p. ej. `tractor`/`tractor`), sobrescribibles por variables de entorno, y si el escáner los marca se añaden a una lista de exclusiones explícita, versionada y limitada a esos archivos; nunca se desactiva una regla de forma global.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Proyecto base verificable con los cinco módulos (Priority: P1)
@@ -32,6 +38,7 @@ Como desarrollador quiero clonar el repositorio y, con un único comando de veri
 1. **Given** una máquina limpia con el kit de desarrollo y el motor de contenedores instalados, **When** el desarrollador ejecuta el comando de verificación completo, **Then** el proyecto compila y todos los tests (unitarios, de arquitectura e integración) pasan.
 2. **Given** el proyecto compilado, **When** se inspecciona la estructura de módulos detectada, **Then** aparecen exactamente los módulos `catalog`, `inventory`, `cart`, `order` y `notifications`, sin dependencias entre ellos.
 3. **Given** el proyecto en marcha, **When** se consulta cualquier ruta de negocio (`/api/v1/...`), **Then** no existe ningún endpoint de negocio todavía (respuesta de recurso no encontrado).
+4. **Given** el proyecto en marcha, **When** se abre la documentación interactiva de la API y se pide el documento OpenAPI, **Then** ambos responden correctamente (`GET /v3/api-docs` → HTTP 200) y el documento no lista rutas de negocio ni endpoints de gestión.
 
 ---
 
@@ -62,9 +69,9 @@ Como operador quiero un endpoint de salud que indique si la aplicación está vi
 
 **Acceptance Scenarios**:
 
-1. **Given** la base de datos local levantada y la aplicación arrancada, **When** se consulta el endpoint de salud, **Then** responde con estado `UP`.
+1. **Given** la base de datos local levantada y la aplicación arrancada, **When** se consulta el endpoint de salud, **Then** responde HTTP 200 con estado `UP`.
 2. **Given** la aplicación arrancada, **When** se consultan los grupos de vida (liveness) y disponibilidad (readiness), **Then** ambos responden por separado con su estado global.
-3. **Given** la aplicación arrancada correctamente y la base de datos que cae **después** del arranque, **When** se consulta la disponibilidad, **Then** responde `DOWN`, mientras que la vida sigue `UP` (la plataforma no debe reiniciar el contenedor por una caída de la BD).
+3. **Given** la aplicación arrancada correctamente y la base de datos que cae **después** del arranque, **When** se consulta la disponibilidad, **Then** responde HTTP 503 con estado `DOWN`, mientras que la vida sigue respondiendo 200 `UP` (la plataforma no debe reiniciar el contenedor por una caída de la BD).
 4. **Given** la aplicación arrancada, **When** se consulta el endpoint de salud sin credenciales, **Then** la respuesta contiene solo el estado global (`UP`/`DOWN`): ni la lista de componentes ni detalles internos (cadenas de conexión, usuarios, versiones).
 5. **Given** la base de datos no disponible, **When** se intenta arrancar la aplicación, **Then** el arranque falla de inmediato con un mensaje claro de conexión a la base de datos (fail-fast), en lugar de arrancar y reportar `DOWN`.
 6. **Given** la aplicación arrancada, **When** se consulta cualquier otro endpoint de gestión distinto de salud (variables de entorno, configuración, métricas, info), **Then** no está disponible.
@@ -110,6 +117,7 @@ Como equipo queremos un pipeline que, en cada push y en cada pull request, compr
 - ¿Qué pasa si la base de datos no está disponible al arrancar? Fail-fast: la aplicación termina con un mensaje claro que indica que no pudo conectar con la base de datos (la validación de esquema de FR-013 no puede ejecutarse sin ella) y la plataforma de despliegue la reinicia. No arranca en un estado degradado.
 - ¿Qué pasa si se ejecuta el comando de verificación sin motor de contenedores? Los tests de integración fallan con un mensaje claro de prerrequisito; los tests unitarios y de arquitectura siguen pudiendo ejecutarse por separado.
 - ¿Qué pasa si un módulo vacío no tiene clases en alguna capa? La verificación de arquitectura no debe fallar por capas vacías, pero los cinco módulos deben ser detectados.
+- ¿Qué pasa si el escáner de secretos marca los valores de desarrollo de la BD local? Se excluyen por archivo en una lista versionada (FR-015); un secreto real en cualquier otro archivo sigue haciendo fallar el pipeline.
 - ¿Qué pasa si el puerto de la base de datos local ya está ocupado? El comando falla con mensaje claro y el puerto es configurable por variable de entorno.
 - ¿Qué pasa si dos módulos declaran la misma entidad de persistencia? Fuera de alcance aquí: en esta spec no existen entidades; la regla que lo impide llega en la spec 002 (ver Assumptions).
 
@@ -124,14 +132,15 @@ Como equipo queremos un pipeline que, en cada push y en cada pull request, compr
 - **FR-005**: La verificación MUST fallar si un controller depende de un repositorio o adaptador de persistencia en lugar de un caso de uso.
 - **FR-006**: La verificación MUST fallar si el código no cumple el formato acordado, y MUST existir un comando que lo aplique automáticamente.
 - **FR-007**: La verificación MUST fallar si se introduce una base de datos en memoria para tests; los tests de integración MUST usar el mismo motor de base de datos que producción.
-- **FR-008**: El sistema MUST exponer un endpoint de salud con grupos separados de vida y disponibilidad; la disponibilidad MUST incluir el estado de la base de datos y la vida MUST NOT depender de ella.
+- **FR-008**: El sistema MUST exponer un endpoint de salud con grupos separados de vida y disponibilidad; la disponibilidad MUST incluir el estado de la base de datos y la vida MUST NOT depender de ella. El código HTTP MUST reflejar el estado: `UP` → 200, `DOWN` → 503, en la salud general y en ambos grupos.
 - **FR-009**: Para peticiones anónimas, el endpoint de salud y sus grupos MUST devolver solo el estado global (`UP`/`DOWN`), sin lista de componentes ni detalles. Ningún otro endpoint de gestión (entorno, configuración, métricas, info…) MUST quedar expuesto.
 - **FR-010**: El sistema MUST NOT exponer ningún endpoint de negocio en esta funcionalidad.
+- **FR-019**: El sistema MUST publicar la documentación interactiva de la API y el documento OpenAPI desde esta funcionalidad; el documento MUST NOT incluir los endpoints de gestión y, en esta spec, no contiene rutas de negocio. Un test de integración (contra la aplicación completa con su base de datos real) MUST verificar que `GET /v3/api-docs` responde HTTP 200.
 - **FR-011**: El repositorio MUST incluir un comando único para levantar la base de datos local, idempotente, con valores de desarrollo sobrescribibles por variables de entorno.
 - **FR-012**: La configuración MUST separarse por perfiles (`dev`, `test`, `prod`) y MUST NOT contener secretos reales; los valores sensibles de `prod` MUST venir solo de variables de entorno.
 - **FR-013**: El esquema de base de datos MUST ser validado (nunca generado) por la aplicación al arrancar; en esta spec no hay tablas de negocio. Si la base de datos no está disponible al arrancar, el arranque MUST fallar con un mensaje claro (fail-fast); una caída posterior solo afecta a la disponibilidad (FR-008).
 - **FR-014**: Un pipeline de CI MUST ejecutarse en cada push y en cada pull request, con etapas en este orden: escaneo de secretos → formato → tests (unitarios + arquitectura) → integración → build, fallando en la primera etapa rota.
-- **FR-015**: El escaneo de secretos MUST revisar todo el historial del repositorio en cada ejecución y MUST hacer fallar el pipeline si detecta un secreto, sin mostrar su valor en el log. Cubre la regresión "Secreto en el código" del backlog.
+- **FR-015**: El escaneo de secretos MUST revisar todo el historial del repositorio en cada ejecución y MUST hacer fallar el pipeline si detecta un secreto, sin mostrar su valor en el log. Los valores de desarrollo de la BD local MUST ser evidentemente no secretos; si el escáner los marca, se excluyen mediante una lista explícita y versionada limitada a esos archivos (nunca desactivando reglas de forma global). Cubre la regresión "Secreto en el código" del backlog.
 - **FR-016**: Un test de arquitectura MUST demostrar la regla de FR-003 con el caso concreto "`cart` usa una clase interna de `catalog`" (validado rompiéndolo a propósito y revirtiendo, documentado en el PR).
 - **FR-017**: El README (o documento equivalente) MUST listar prerrequisitos y los comandos para verificar, formatear, levantar la BD y arrancar la aplicación.
 - **FR-018**: La rama principal MUST exigir el pipeline de CI en verde como comprobación obligatoria antes de fusionar; la configuración la hace a mano el dueño del repositorio y se documenta en el PR.
@@ -146,7 +155,7 @@ No aplica: esta funcionalidad no introduce datos de negocio. Los únicos "elemen
 
 - **SC-001**: Un desarrollador sin el proyecto previamente instalado pasa de clonar el repositorio a una verificación completa en verde siguiendo solo la documentación, en menos de 15 minutos (excluyendo descargas iniciales).
 - **SC-002**: El 100 % de las cuatro violaciones comprobables en esta spec (módulo→interior de otro, dominio→framework, controller→repositorio, formato) son detectadas por la verificación: introducir cada una hace fallar el build y revertirla lo devuelve a verde.
-- **SC-003**: Con la base de datos local levantada, el endpoint de salud responde `UP` en menos de 1 segundo; si la base cae después del arranque, la disponibilidad pasa a `DOWN` en menos de 30 segundos sin que la vida cambie; si no está disponible al arrancar, la aplicación termina con error en lugar de arrancar.
+- **SC-003**: Con la base de datos local levantada, el endpoint de salud responde `UP` en menos de 1 segundo; si la base cae después del arranque, la disponibilidad pasa a `DOWN` (HTTP 503) en menos de 30 segundos sin que la vida cambie; si no está disponible al arrancar, la aplicación termina con error en lugar de arrancar.
 - **SC-004**: La base de datos local está lista con 1 solo comando y ninguna edición manual de archivos.
 - **SC-005**: El pipeline de CI se ejecuta en el PR de esta rama, termina en verde y tarda menos de 10 minutos.
 - **SC-006**: Cero endpoints de negocio expuestos y cero secretos reales en el repositorio.
