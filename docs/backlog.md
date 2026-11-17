@@ -13,7 +13,7 @@ Cada fila es una ejecución del ciclo Spec Kit. El número final lo asigna `/spe
 | 005 | `catalogo` | home, categories, products, stores, recommendations por color + Swagger | B1, B5 | 005 | Mar 17 |
 | 006 | `inventario` | `GET inventory/{sku}` + API pública de stock para cart | B4, B9 | — | Mié 18 |
 | 007 | `carrito-sesion` | Cookie `ts_session`, 4 endpoints de cart, precio desde catalog, CORS | B8 (adaptada), B9 | 006, 010 | Mié 18 |
-| 008 | `pedidos-eventos` | POST/GET orders ligado a sesión, `OrderPlaced` con Event Publication Registry → cart se vacía, inventory descuenta, notifications registra | B9, B10 | 007, 008 | Jue 19 |
+| 008 | `pedidos-eventos` | POST/GET orders ligado a sesión, `OrderPlaced` con Event Publication Registry → cart se vacía, inventory descuenta, notifications registra. Añade `spring-modulith-starter-jpa` y la migración Flyway con las tablas del Event Publication Registry (DDL PostgreSQL de la versión exacta de Modulith; pospuesto desde 001, ver `specs/001-esqueleto-modular/research.md` R2) | B9, B10 | 007, 008 | Jue 19 |
 | 009 | `integracion-e2e` | Flujo completo con Testcontainers + integración real con el front | B7 | 009 | Vie 20 |
 | 010 | `entrega-final` | CD a main con smoke test, logs JSON en prod, README, TESTING.md, DEPLOYMENT.md, ADRs pendientes | B11 (mín.), B12, C1, C7 | 011, 012 | Lun 23 – Mar 24 |
 | — | Margen + ensayo de demo | | | | Mar 24 – Mié 25 |
