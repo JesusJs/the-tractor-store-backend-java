@@ -1,3 +1,7 @@
+# Fixed project name: containers, network and volume names do not depend on the folder name
+# and never collide with the .NET stack (tractor-store-java-postgres-1, tractor-store-java_tractor-pgdata).
+name: tractor-store-java
+
 # Local PostgreSQL for the dev profile. Works without a .env file (defaults below);
 # copy .env.example to .env only to override them.
 services:

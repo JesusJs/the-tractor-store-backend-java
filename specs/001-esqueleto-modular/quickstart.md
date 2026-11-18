@@ -25,6 +25,7 @@ Solo unitarios y arquitectura (sin Docker): `./mvnw test`.
 
 ```bash
 docker compose up -d postgres
+docker compose ls                      # proyecto "tractor-store-java", running(1)
 docker compose up -d postgres          # segunda vez: no falla ni duplica (US4-2)
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
@@ -39,6 +40,8 @@ curl -i localhost:8080/v3/api-docs                  # 200, "paths":{}
 curl -i localhost:8080/actuator/env                 # 404
 curl -i localhost:8080/api/v1/catalog/products      # 404
 ```
+
+El proyecto de Compose se llama siempre `tractor-store-java` (`name:` en `compose.yaml`): no depende del nombre de la carpeta ni choca con el stack .NET. Por eso el contenedor es `tractor-store-java-postgres-1` y el volumen `tractor-store-java_tractor-pgdata`.
 
 Swagger UI: abrir `http://localhost:8080/swagger-ui.html`.
 
