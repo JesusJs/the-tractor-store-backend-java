@@ -124,3 +124,74 @@ Tras `./mvnw spotless:apply`: `./mvnw spotless:check` → `BUILD SUCCESS` y `git
 > Nota: `quickstart.md` §4 propone revertir con `git checkout -- src/ && git clean -fd src/`. Mientras haya
 > archivos nuevos sin commitear (como `HexagonalArchitectureTests.java` en esta fase) ese `git clean` también
 > los borraría; aquí se revirtió borrando solo los archivos temporales.
+
+## US3 + US4 — Salud y BD local (T028–T037)
+
+### ITs (`./mvnw verify`)
+
+```text
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0 -- in com.tractorstore.ApplicationIT
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0 -- in com.tractorstore.StartupFailFastIT
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0 -- in com.tractorstore.ReadinessWhenDatabaseDownIT
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+```
+
+Rojo previo a T031: `ApplicationIT` (raíz de health) y `ReadinessWhenDatabaseDownIT` (`Status expected:<503> but was:<200>`).
+`StartupFailFastIT` pasó sin código nuevo: el fail-fast ya es el comportamiento por defecto de Boot (test de caracterización).
+
+### quickstart §2 (perfil `dev`)
+
+`docker compose up -d postgres` dos veces: la segunda responde `Running` y sale con 0 (US4-2).
+
+BD arriba:
+
+```text
+$ curl -i localhost:8080/actuator/health
+HTTP/1.1 200
+{"groups":["liveness","readiness"],"status":"UP"}
+$ curl -i localhost:8080/actuator/health/liveness
+HTTP/1.1 200
+{"status":"UP"}
+$ curl -i localhost:8080/actuator/health/readiness
+HTTP/1.1 200
+{"status":"UP"}
+/v3/api-docs -> 200 ("paths":{}) · /actuator/env -> 404 · /api/v1/catalog/products -> 404
+```
+
+`docker compose stop postgres` (primera readiness tras parar: 503 en 5,0 s < 30 s, SC-003):
+
+```text
+$ curl -i localhost:8080/actuator/health
+HTTP/1.1 503
+{"groups":["liveness","readiness"],"status":"DOWN"}
+$ curl -i localhost:8080/actuator/health/liveness
+HTTP/1.1 200
+{"status":"UP"}
+$ curl -i localhost:8080/actuator/health/readiness
+HTTP/1.1 503
+{"status":"DOWN"}
+```
+
+`docker compose start postgres` → readiness `200 {"status":"UP"}` en ~1 s.
+
+Fail-fast con la BD parada: `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev` → exit 1 en 5 s:
+
+```text
+o.s.boot.SpringApplication : Application run failed
+Caused by: java.net.ConnectException: Connection refused (connect failed)
+Caused by: org.postgresql.util.PSQLException: Connection to localhost:5432 refused. ...
+```
+
+Puerto alternativo: `DB_PORT=55432 docker compose up -d postgres` (`0.0.0.0:55432->5432/tcp`) y
+`DB_PORT=55432 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev` → readiness `200 {"status":"UP"}`.
+
+### Desviaciones respecto a tasks/research
+
+- **`groups` en la raíz de `/actuator/health`**: Boot 4 siempre lista los nombres de grupo en la raíz (no hay propiedad
+  para ocultarlo). No son componentes ni detalles (FR-009 se cumple); el test de la raíz comprueba `status` y la
+  ausencia de `components`/`details`, y las probes siguen con cuerpo exacto. Nota ¹ en `contracts/operational-endpoints.md`.
+- **Timeouts de Hikari en milisegundos** (`5000`/`2000`, no `5s`/`2s`): `spring.datasource.hikari.*` se enlaza
+  directamente a los setters `long` de `HikariDataSource`, sin conversión de `Duration`.
+- **`StartupFailFastIT` pasa la configuración como argumentos `--...`**: `SpringApplicationBuilder.properties(...)` son
+  propiedades por defecto (prioridad mínima) y `${DB_URL}` de `application.yml` las pisaba.
