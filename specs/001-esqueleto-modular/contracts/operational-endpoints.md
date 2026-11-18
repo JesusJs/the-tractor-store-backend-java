@@ -8,9 +8,11 @@ Peticiones anónimas. El cuerpo es **exactamente** `{"status":"<ESTADO>"}`, sin 
 
 | Método y ruta | Incluye | BD arriba | BD caída tras arrancar |
 |---|---|---|---|
-| `GET /actuator/health` | todos los indicadores | 200 `{"status":"UP"}` | 503 `{"status":"DOWN"}` |
+| `GET /actuator/health` | todos los indicadores | 200 `{"status":"UP","groups":["liveness","readiness"]}` ¹ | 503 `{"status":"DOWN"}` |
 | `GET /actuator/health/liveness` | `livenessState` (no la BD) | 200 `{"status":"UP"}` | **200 `{"status":"UP"}`** |
 | `GET /actuator/health/readiness` | `readinessState`, `db` | 200 `{"status":"UP"}` | 503 `{"status":"DOWN"}` (< 30 s) |
+
+¹ Boot 4 siempre lista los nombres de los grupos en la raíz de health (no hay propiedad para ocultarlos). No son componentes ni detalles, así que FR-009 se cumple; descubierto en implement (T032).
 
 Sin BD al arrancar: el proceso no llega a escuchar y termina con error de conexión (FR-013, fail-fast).
 

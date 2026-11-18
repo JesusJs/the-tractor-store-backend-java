@@ -6,6 +6,11 @@ spring:
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+    hikari:
+      # Milliseconds: Hikari binds directly to HikariDataSource setters (no Duration conversion).
+      # Short timeouts make startup fail fast and let readiness notice a dead DB well under 30 s.
+      connection-timeout: 5000
+      validation-timeout: 2000
   jpa:
     hibernate:
       ddl-auto: validate
@@ -20,3 +25,21 @@ springdoc:
     path: /swagger-ui.html
   # Management endpoints never appear in the OpenAPI document (FR-019).
   show-actuator: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Only health is exposed; env, beans, metrics, info... stay unreachable (404).
+        include: health
+  endpoint:
+    health:
+      probes:
+        # /actuator/health/liveness and /readiness also outside Kubernetes.
+        enabled: true
+      show-details: never
+      show-components: never
+      group:
+        readiness:
+          # Readiness depends on the DB; liveness keeps only livenessState.
+          include: readinessState,db
