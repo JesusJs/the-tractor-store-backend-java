@@ -50,6 +50,7 @@ Fase 0 del plan. Versiones verificadas el 2026-11-17 contra start.spring.io (met
 - **Decision**: `com.diffplug.spotless:spotless-maven-plugin` **3.11.0** con `googleJavaFormat` **1.37.0**, `removeUnusedImports` y `formatAnnotations`. Ejecución `check` ligada a la fase `verify`. `./mvnw spotless:apply` formatea.
 - **Rationale**: google-java-format 2.0.0 salió el 2026-10-30 y es un salto mayor de hace menos de 3 semanas. 1.37.0 es la última 1.x, estable y compatible con Java 21. Ligar `check` a `verify` hace que `./mvnw verify` falle con código sin formato (FR-006). En CI se ejecuta además como etapa propia (`spotless:check`) para respetar el orden de FR-014.
 - **Alternatives**: Checkstyle (solo detecta, no formatea).
+- **Ajuste en implement (2026-11-17)**: con Spotless 3.11.0, `googleJavaFormat` 1.37.0 lanza `InvocationTargetException` al formatear cualquier Javadoc (el mismo jar fuera de Spotless funciona). 1.36.0 y 1.35.0 funcionan, así que se fija **1.36.0** en el POM. Revisar al subir Spotless.
 
 ## R8. Prohibir bases de datos en memoria (FR-007)
 

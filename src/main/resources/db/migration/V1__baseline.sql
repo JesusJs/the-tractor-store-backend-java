@@ -1,0 +1,1 @@
+-- Baseline: no tables yet. Business schema arrives with spec 002 (catalog).

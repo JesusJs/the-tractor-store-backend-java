@@ -1,0 +1,6 @@
+# Test profile: the datasource comes from @ServiceConnection (Testcontainers).
+logging:
+  level:
+    root: WARN
+    com.tractorstore: INFO
+    org.testcontainers: INFO
