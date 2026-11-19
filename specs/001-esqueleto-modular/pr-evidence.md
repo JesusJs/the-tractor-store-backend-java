@@ -248,6 +248,17 @@ secreto.
 3. Activar *Require a pull request before merging*.
 4. Comprobar: un PR con el check `build` en rojo muestra *Merging is blocked*.
 
+**Estado (2026-11-19)**: aplicado. Ruleset [`main-protection` (id 27647920)](https://github.com/JesusJs/the-tractor-store-backend-java/rules/27647920),
+`enforcement: active` sobre la rama por defecto, sin *bypass actors*. Reglas: PR obligatorio (0 aprobaciones), check
+**`build`** obligatorio, sin borrado de la rama y sin *force push*. La definición, sin ids ni fechas, está versionada en
+[`docs/github/ruleset-main.json`](../../docs/github/ruleset-main.json). Comprobación:
+
+```bash
+gh api repos/JesusJs/the-tractor-store-backend-java/rulesets/27647920
+```
+
+Cierra el hallazgo #1 de `review.md` (FR-018 / US5-5).
+
 ### Clon limpio (T044, SC-001)
 
 `git clone` a un directorio temporal + `./mvnw -B verify` con caché Maven local: **verde en 35 s** (< 15 min).
