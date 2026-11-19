@@ -5,6 +5,8 @@ target/
 .vscode/
 .DS_Store
 .env
+.env.*
+!.env.example
 *.log
 # Terraform
 infra/**/.terraform/

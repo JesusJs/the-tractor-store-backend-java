@@ -1,0 +1,6 @@
+# Dev profile: local defaults matching compose.yaml; every value can be overridden by env vars.
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:${DB_PORT:5432}/${DB_NAME:tractor}}
+    username: ${DB_USER:tractor}
+    password: ${DB_PASSWORD:tractor}

@@ -1,0 +1,10 @@
+# Prod profile: everything comes from the environment, no defaults (missing variable = startup fails).
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+server:
+  # Behind the Azure Container Apps ingress: honour X-Forwarded-* headers.
+  forward-headers-strategy: framework

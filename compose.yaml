@@ -1,0 +1,27 @@
+# Fixed project name: containers, network and volume names do not depend on the folder name
+# and never collide with the .NET stack (tractor-store-java-postgres-1, tractor-store-java_tractor-pgdata).
+name: tractor-store-java
+
+# Local PostgreSQL for the dev profile. Works without a .env file (defaults below);
+# copy .env.example to .env only to override them.
+services:
+  postgres:
+    # Keep in sync with TestcontainersConfiguration.POSTGRES_IMAGE
+    image: postgres:17.12
+    ports:
+      # Loopback only: the dev password is public
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME:-tractor}
+      POSTGRES_USER: ${DB_USER:-tractor}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-tractor}
+    volumes:
+      - tractor-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  tractor-pgdata:
