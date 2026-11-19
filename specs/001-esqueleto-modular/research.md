@@ -98,7 +98,7 @@ Fase 0 del plan. Versiones verificadas el 2026-11-17 contra start.spring.io (met
   3. `actions/setup-java@v5` (Temurin 21, `cache: maven`).
   4. Formato: `./mvnw -B spotless:check`.
   5. Unitarios + arquitectura: `./mvnw -B test`.
-  6. Integración: `./mvnw -B verify -DskipUnitTests -Dspotless.check.skip=true` (failsafe). Los unitarios no se repiten gracias a la propiedad `skipUnitTests` enlazada a `surefire.skipTests` en el POM.
+  6. Integración: `./mvnw -B verify -DskipUnitTests -Dspotless.check.skip=true` (failsafe). Los unitarios no se repiten gracias a la propiedad `skipUnitTests` enlazada a `<skip>` de surefire en el POM (así `-DskipTests` mantiene su significado habitual).
   7. Build: `./mvnw -B package -DskipTests -Dspotless.check.skip=true`, que deja el jar.
   Sin secretos de repositorio ni tokens. Los nombres de job y paso son estables para la comprobación obligatoria (FR-018).
 - **Versiones de actions**: checkout v6 y setup-java v5 son las líneas mayores vigentes con runtime Node 24 (las últimas release, v6.3.0 y v7.0.1, se comprueban al implementar; se fija la mayor que corra en Node 24).

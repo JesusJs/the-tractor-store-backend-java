@@ -10,9 +10,12 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
 
+  /** Pinned patch version; keep in sync with compose.yaml. */
+  static final String POSTGRES_IMAGE = "postgres:17.12";
+
   @Bean
   @ServiceConnection
   PostgreSQLContainer postgresContainer() {
-    return new PostgreSQLContainer(DockerImageName.parse("postgres:17"));
+    return new PostgreSQLContainer(DockerImageName.parse(POSTGRES_IMAGE));
   }
 }

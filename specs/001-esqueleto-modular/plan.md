@@ -115,9 +115,9 @@ specs/001-esqueleto-modular/
 ### Ejecución en `pom.xml` (resumen)
 
 - `maven-enforcer-plugin` (`validate`): `bannedDependencies` H2/HSQLDB/Derby/zonky (FR-007).
-- `maven-surefire-plugin`: `*Test`, `*Tests`; `<skipTests>${skipUnitTests}</skipTests>` (por defecto `false`).
+- `maven-surefire-plugin`: `*Test`, `*Tests`; `<skip>${skipUnitTests}</skip>` (por defecto `false`; `-DskipTests` sigue funcionando).
 - `maven-failsafe-plugin`: `integration-test` + `verify` para `*IT`.
-- `spotless-maven-plugin` 3.11.0: `googleJavaFormat` 1.37.0 + `removeUnusedImports`; `check` en `verify`.
+- `spotless-maven-plugin` 3.11.0: `googleJavaFormat` 1.36.0 (research R7) + `removeUnusedImports`; `check` en `validate`.
 - `spring-boot-maven-plugin`.
 
 ### Orden de implementación (inside-out, test primero)

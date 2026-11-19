@@ -6,9 +6,11 @@ name: tractor-store-java
 # copy .env.example to .env only to override them.
 services:
   postgres:
-    image: postgres:17
+    # Keep in sync with TestcontainersConfiguration.POSTGRES_IMAGE
+    image: postgres:17.12
     ports:
-      - "${DB_PORT:-5432}:5432"
+      # Loopback only: the dev password is public
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: ${DB_NAME:-tractor}
       POSTGRES_USER: ${DB_USER:-tractor}

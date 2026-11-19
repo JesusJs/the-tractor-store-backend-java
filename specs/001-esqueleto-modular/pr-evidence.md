@@ -260,5 +260,5 @@ secreto.
   `-DskipTests`, porque `<skipTests>${skipUnitTests}</skipTests>` fijaba el parámetro y anulaba la propiedad de línea
   de comandos. Ahora la propiedad se enlaza a `<skip>` de surefire: `-DskipUnitTests` salta solo los unitarios y
   `-DskipTests` vuelve a funcionar como en cualquier proyecto Maven.
-- **T039 en local**: no se ejecutó el binario de gitleaks en la máquina local; el escaneo del historial completo se
-  comprobó en el paso *Secret scan* del CI.
+- **T039 en local**: el escaneo del historial completo no se ejecutó en la máquina local, sino en el paso *Secret scan*
+  del CI (sin hallazgos, ver arriba). En local, gitleaks solo se ejecutó para la prueba negativa de US5-4.

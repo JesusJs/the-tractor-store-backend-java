@@ -4,11 +4,11 @@ En 001 **no hay endpoints de negocio** (`/api/v1/...` está vacío; contrato de 
 
 ## Salud (Actuator) — FR-008, FR-009
 
-Peticiones anónimas. El cuerpo es **exactamente** `{"status":"<ESTADO>"}`, sin `components` ni `details`. `Content-Type: application/vnd.spring-boot.actuator.v3+json` (o `application/json` si el cliente lo pide).
+Peticiones anónimas. El cuerpo es **exactamente** `{"status":"<ESTADO>"}` (más `groups` en la raíz ¹), sin `components` ni `details`. `Content-Type: application/vnd.spring-boot.actuator.v3+json` (o `application/json` si el cliente lo pide).
 
 | Método y ruta | Incluye | BD arriba | BD caída tras arrancar |
 |---|---|---|---|
-| `GET /actuator/health` | todos los indicadores | 200 `{"status":"UP","groups":["liveness","readiness"]}` ¹ | 503 `{"status":"DOWN"}` |
+| `GET /actuator/health` | todos los indicadores | 200 `{"status":"UP","groups":["liveness","readiness"]}` ¹ | 503 `{"status":"DOWN","groups":["liveness","readiness"]}` ¹ |
 | `GET /actuator/health/liveness` | `livenessState` (no la BD) | 200 `{"status":"UP"}` | **200 `{"status":"UP"}`** |
 | `GET /actuator/health/readiness` | `readinessState`, `db` | 200 `{"status":"UP"}` | 503 `{"status":"DOWN"}` (< 30 s) |
 

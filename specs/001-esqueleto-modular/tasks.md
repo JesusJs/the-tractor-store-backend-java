@@ -41,8 +41,8 @@ Un único proyecto Maven en la raíz del repositorio (sin `backend/`): código e
 
 **⚠️ CRITICAL**: ninguna historia empieza hasta terminar esta fase.
 
-- [X] T004 En `pom.xml`, configurar `maven-surefire-plugin` (incluye `**/*Test.java`, `**/*Tests.java`; `<skipTests>${skipUnitTests}</skipTests>` con la propiedad `skipUnitTests` = `false` por defecto) y `maven-failsafe-plugin` (goals `integration-test` + `verify`, incluye `**/*IT.java`) (research R13)
-- [X] T005 En `pom.xml`, configurar `com.diffplug.spotless:spotless-maven-plugin` **3.11.0** con `googleJavaFormat` **1.37.0**, `removeUnusedImports` y `formatAnnotations`; ejecución `check` ligada a la fase `verify` (research R7)
+- [X] T004 En `pom.xml`, configurar `maven-surefire-plugin` (incluye `**/*Test.java`, `**/*Tests.java`; `<skip>${skipUnitTests}</skip>` con la propiedad `skipUnitTests` = `false` por defecto) y `maven-failsafe-plugin` (goals `integration-test` + `verify`, incluye `**/*IT.java`) (research R13)
+- [X] T005 En `pom.xml`, configurar `com.diffplug.spotless:spotless-maven-plugin` **3.11.0** con `googleJavaFormat` **1.36.0**, `removeUnusedImports` y `formatAnnotations`; ejecución `check` ligada a la fase `validate` (research R7; 1.36.0 y `validate` por la revisión, ver review.md)
 - [X] T006 En `pom.xml`, configurar `maven-enforcer-plugin` (versión del parent) en fase `validate` con regla `bannedDependencies` que excluye `com.h2database:*`, `org.hsqldb:*`, `org.apache.derby:*`, `io.zonky.test:*` en todos los scopes (FR-007, research R8)
 - [X] T007 [P] Crear `src/main/resources/application.yml` (común): `spring.application.name`, `spring.datasource.url: ${DB_URL}`, `username: ${DB_USER}`, `password: ${DB_PASSWORD}` **sin valores por defecto**; `spring.jpa.hibernate.ddl-auto: validate`; `spring.jpa.open-in-view: false`; `spring.flyway.locations: classpath:db/migration` (data-model.md, "Configuración por perfil")
 - [X] T008 [P] Crear `src/main/resources/db/migration/V1__baseline.sql` con **solo un comentario SQL** (sin tablas; el esquema llega en la 002)
@@ -161,7 +161,7 @@ Cada módulo recibe 7 `package-info.java` (data-model.md, "Capas por módulo"): 
   5. *Unit + architecture*: `./mvnw -B test`;
   6. *Integration*: `./mvnw -B verify -DskipUnitTests -Dspotless.check.skip=true`;
   7. *Package*: `./mvnw -B package -DskipTests -Dspotless.check.skip=true`
-- [X] T039 [US5] Ejecutar gitleaks en local sobre todo el historial (`gitleaks git --redact --verbose .`). Si marca los valores de desarrollo `tractor`, crear `.gitleaks.toml` con `[allowlist] paths = [...]` limitado **solo** a `compose.yaml`, `.env.example` y `src/main/resources/application-dev.yml` (nunca desactivar reglas globalmente, FR-015). Si no marca nada, no crear el archivo
+- [X] T039 [US5] Ejecutar gitleaks en local sobre todo el historial (`gitleaks git --redact --verbose .`). Si marca los valores de desarrollo `tractor`, crear `.gitleaks.toml` con `[allowlist] paths = [...]` limitado **solo** a `compose.yaml`, `.env.example` y `src/main/resources/application-dev.yml` (nunca desactivar reglas globalmente, FR-015). Si no marca nada, no crear el archivo. *Desviación: el escaneo del historial se comprobó en el paso Secret scan del CI, no en local (pr-evidence.md)*
 - [X] T040 [US5] Empujar la rama, abrir el PR y comprobar el job `build` en verde y < 10 min (SC-005, US5-1). En ramas desechables comprobar: commit sin formato → falla *Format* y no corre lo siguiente (US5-2); clave AWS de ejemplo **no válida** → falla *Secret scan* mostrando archivo y regla con valor `REDACTED` (US5-4); borrar después esas ramas. Añadir enlaces/salidas a `specs/001-esqueleto-modular/pr-evidence.md`
 - [X] T041 [US5] Documentar en `specs/001-esqueleto-modular/pr-evidence.md` el paso manual de FR-018 (GitHub → Settings → Branches → regla para `main` → *Require status checks to pass* → `build`) para que el dueño del repo lo configure y compruebe que un PR en rojo no se puede fusionar (US5-5)
 

@@ -26,7 +26,7 @@ class ReadinessWhenDatabaseDownIT {
 
   @Container @ServiceConnection
   static PostgreSQLContainer postgres =
-      new PostgreSQLContainer(DockerImageName.parse("postgres:17"));
+      new PostgreSQLContainer(DockerImageName.parse(TestcontainersConfiguration.POSTGRES_IMAGE));
 
   @Autowired private RestTestClient client;
 
@@ -52,6 +52,18 @@ class ReadinessWhenDatabaseDownIT {
         .expectBody()
         .json("{\"status\":\"UP\"}", JsonCompareMode.STRICT);
 
-    client.get().uri("/actuator/health").exchange().expectStatus().isEqualTo(503);
+    client
+        .get()
+        .uri("/actuator/health")
+        .exchange()
+        .expectStatus()
+        .isEqualTo(503)
+        .expectBody()
+        .jsonPath("$.status")
+        .isEqualTo("DOWN")
+        .jsonPath("$.components")
+        .doesNotExist()
+        .jsonPath("$.details")
+        .doesNotExist();
   }
 }
