@@ -8,12 +8,12 @@ description: Reglas del monolito modular con Spring Modulith 2 (módulos, API p�
 | Módulo | Puede usar | Publica |
 |---|---|---|
 | catalog | — | — |
-| inventory | — | — |
+| inventory | eventos de order (`OrderPlaced`) | — |
 | cart | catalog.api (precio, nombre, imagen), inventory.api (stock) | — |
-| order | cart.api (leer carrito), catalog.api (tiendas) | `OrderPlaced` |
+| order | cart.api (leer y vaciar el carrito, síncrono y en la misma transacción; ADR 0007), catalog.api (tiendas) | `OrderPlaced` |
 | notifications | eventos de order | — |
 
-Escuchan `OrderPlaced`: cart (vaciar el carrito de la sesión), inventory (descontar stock), notifications (log "email enviado").
+Escuchan `OrderPlaced`: inventory (descontar stock) y notifications (log "email enviado"). `cart` **no** lo escucha: lo vacía `order` vía `cart.api` (ADR 0007, evita el ciclo cart ↔ order).
 No hay ciclos. Si necesitas una flecha nueva, crea una ADR antes.
 
 ## Mecánica
