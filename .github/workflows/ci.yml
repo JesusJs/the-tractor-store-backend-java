@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Secret scan
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          curl -sSfL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "$GITLEAKS_SHA256  gitleaks.tar.gz" | sha256sum --check --strict
+          tar -xzf gitleaks.tar.gz gitleaks
+          ./gitleaks git --redact --verbose --exit-code 1 .
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Format
+        run: ./mvnw -B spotless:check
+
+      - name: Unit + architecture
+        run: ./mvnw -B test
+
+      - name: Integration
+        run: ./mvnw -B verify -DskipUnitTests -Dspotless.check.skip=true
+
+      - name: Package
+        run: ./mvnw -B package -DskipTests -Dspotless.check.skip=true
