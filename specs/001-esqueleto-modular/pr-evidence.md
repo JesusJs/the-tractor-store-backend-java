@@ -195,3 +195,44 @@ Puerto alternativo: `DB_PORT=55432 docker compose up -d postgres` (`0.0.0.0:5543
   directamente a los setters `long` de `HikariDataSource`, sin conversión de `Duration`.
 - **`StartupFailFastIT` pasa la configuración como argumentos `--...`**: `SpringApplicationBuilder.properties(...)` son
   propiedades por defecto (prioridad mínima) y `${DB_URL}` de `application.yml` las pisaba.
+
+## US5 — Integración continua (T038–T041)
+
+Workflow [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml), job `build`. Run en verde sobre esta rama:
+<https://github.com/JesusJs/the-tractor-store-backend-java/actions/runs/44402794550> (1m17s < 10 min, SC-005).
+
+| Paso | Resultado | Duración |
+|---|---|---|
+| Checkout (full history) | ✓ | 1 s |
+| Secret scan | ✓ `gitleaks.tar.gz: OK` → `15 commits scanned` → `no leaks found` | 0 s |
+| Set up Java 21 | ✓ | 2 s |
+| Format | ✓ | 8 s |
+| Unit + architecture | ✓ `Tests run: 6` | 13 s |
+| Integration | ✓ surefire `Tests are skipped` · failsafe `Tests run: 16` | 40 s |
+| Package | ✓ `Tests are skipped` → jar | 3 s |
+
+- **T039**: gitleaks no marca los valores de desarrollo `tractor` sobre todo el historial, así que **no** se crea `.gitleaks.toml`.
+- **Pendiente (US5-2, US5-4)**: las pruebas negativas en ramas desechables (commit sin formato → falla *Format*;
+  clave AWS falsa → falla *Secret scan* con `REDACTED`) no se han ejecutado todavía.
+
+### Protección de rama (FR-018, paso manual del dueño del repo)
+
+1. GitHub → *Settings* → *Branches* → *Add branch ruleset* (o *Add rule*) para `main`.
+2. Activar *Require status checks to pass before merging* y seleccionar el check **`build`**.
+3. Activar *Require a pull request before merging*.
+4. Comprobar: un PR con el check `build` en rojo muestra *Merging is blocked*.
+
+### Clon limpio (T044, SC-001)
+
+`git clone` a un directorio temporal + `./mvnw -B verify` con caché Maven local: **verde en 35 s** (< 15 min).
+
+### Desviaciones respecto a tasks/research
+
+- **Versiones de actions**: `actions/checkout@v7` y `actions/setup-java@v6` (no v6/v5). R13 pedía fijar la mayor
+  vigente con runtime Node 24; a 2026-11-18 son v7.0.1 y v6.3.0, ambas `using: node24`, sin cambios que nos afecten.
+- **`skipUnitTests` en el POM**: el primer run mostró que *Package* volvía a ejecutar los unitarios pese a
+  `-DskipTests`, porque `<skipTests>${skipUnitTests}</skipTests>` fijaba el parámetro y anulaba la propiedad de línea
+  de comandos. Ahora la propiedad se enlaza a `<skip>` de surefire: `-DskipUnitTests` salta solo los unitarios y
+  `-DskipTests` vuelve a funcionar como en cualquier proyecto Maven.
+- **T039 en local**: no se ejecutó el binario de gitleaks en la máquina local; el escaneo del historial completo se
+  comprobó en el paso *Secret scan* del CI.
