@@ -162,7 +162,7 @@ Cada módulo recibe 7 `package-info.java` (data-model.md, "Capas por módulo"): 
   6. *Integration*: `./mvnw -B verify -DskipUnitTests -Dspotless.check.skip=true`;
   7. *Package*: `./mvnw -B package -DskipTests -Dspotless.check.skip=true`
 - [X] T039 [US5] Ejecutar gitleaks en local sobre todo el historial (`gitleaks git --redact --verbose .`). Si marca los valores de desarrollo `tractor`, crear `.gitleaks.toml` con `[allowlist] paths = [...]` limitado **solo** a `compose.yaml`, `.env.example` y `src/main/resources/application-dev.yml` (nunca desactivar reglas globalmente, FR-015). Si no marca nada, no crear el archivo
-- [ ] T040 [US5] Empujar la rama, abrir el PR y comprobar el job `build` en verde y < 10 min (SC-005, US5-1). En ramas desechables comprobar: commit sin formato → falla *Format* y no corre lo siguiente (US5-2); clave AWS de ejemplo **no válida** → falla *Secret scan* mostrando archivo y regla con valor `REDACTED` (US5-4); borrar después esas ramas. Añadir enlaces/salidas a `specs/001-esqueleto-modular/pr-evidence.md`
+- [X] T040 [US5] Empujar la rama, abrir el PR y comprobar el job `build` en verde y < 10 min (SC-005, US5-1). En ramas desechables comprobar: commit sin formato → falla *Format* y no corre lo siguiente (US5-2); clave AWS de ejemplo **no válida** → falla *Secret scan* mostrando archivo y regla con valor `REDACTED` (US5-4); borrar después esas ramas. Añadir enlaces/salidas a `specs/001-esqueleto-modular/pr-evidence.md`
 - [X] T041 [US5] Documentar en `specs/001-esqueleto-modular/pr-evidence.md` el paso manual de FR-018 (GitHub → Settings → Branches → regla para `main` → *Require status checks to pass* → `build`) para que el dueño del repo lo configure y compruebe que un PR en rojo no se puede fusionar (US5-5)
 
 **Checkpoint**: todo cambio futuro queda validado automáticamente.
@@ -176,7 +176,7 @@ Cada módulo recibe 7 `package-info.java` (data-model.md, "Capas por módulo"): 
 - [X] T042 [P] Actualizar `README.md` (FR-017): sustituir "En construcción…" por prerrequisitos (Java 21, Docker en marcha) y los comandos `./mvnw verify`, `./mvnw test`, `./mvnw spotless:apply`, `docker compose up -d postgres`, `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`, variables `DB_*` sobrescribibles con `.env`, y URLs `/actuator/health`, `/swagger-ui.html`, `/v3/api-docs`
 - [X] T043 [P] Revisar con `grep` que ningún archivo versionado contiene credenciales distintas de los valores de desarrollo `tractor` (US4-3, SC-006)
 - [X] T044 Ejecutar `./mvnw spotless:apply` y `./mvnw verify` completo desde un clon limpio (`git clone` a un directorio temporal) cronometrando de clonar a verde < 15 min sin descargas (SC-001)
-- [ ] T045 Pasar quickstart.md de punta a punta (§1–§5) y completar `specs/001-esqueleto-modular/pr-evidence.md` como cuerpo del PR (FR-016, SC-002, FR-018)
+- [X] T045 Pasar quickstart.md de punta a punta (§1–§5) y completar `specs/001-esqueleto-modular/pr-evidence.md` como cuerpo del PR (FR-016, SC-002, FR-018)
 
 ---
 

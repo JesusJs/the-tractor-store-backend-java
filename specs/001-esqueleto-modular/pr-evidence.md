@@ -212,8 +212,34 @@ Workflow [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml), job `buil
 | Package | ✓ `Tests are skipped` → jar | 3 s |
 
 - **T039**: gitleaks no marca los valores de desarrollo `tractor` sobre todo el historial, así que **no** se crea `.gitleaks.toml`.
-- **Pendiente (US5-2, US5-4)**: las pruebas negativas en ramas desechables (commit sin formato → falla *Format*;
-  clave AWS falsa → falla *Secret scan* con `REDACTED`) no se han ejecutado todavía.
+
+### Pruebas negativas (T040, hechas a mano por el dueño del repo)
+
+**Código sin formato (US5-2)**: rama desechable `tmp/format-test` (commit `a005053`, "test: deliberately unformatted").
+Run: <https://github.com/JesusJs/the-tractor-store-backend-java/actions/runs/44411226439> → `failure`.
+
+| Paso | Resultado |
+|---|---|
+| Checkout (full history) | ✓ |
+| Secret scan | ✓ |
+| Set up Java 21 | ✓ |
+| Format | ✗ |
+| Unit + architecture | skipped |
+| Integration | skipped |
+| Package | skipped |
+
+```text
+[ERROR] Failed to execute goal com.diffplug.spotless:spotless-maven-plugin:3.11.0:check (default-cli) on project tractor-store-backend: The following files had format violations:
+[ERROR]     src/main/java/com/tractorstore/TractorStoreApplication.java
+[ERROR]         @@ -4,7 +4,7 @@
+[ERROR]          @SpringBootApplication
+[ERROR]         -public····class·TractorStoreApplication·{
+```
+
+**Secreto (US5-4)**: gitleaks 8.30.1 en local (`--redact`) detectó un token falso con la regla `github-pat`, y el
+valor apareció ocultado como `REDACTED`. Desviación: se comprobó en local y no en el paso *Secret scan* del CI. Es el
+mismo binario, la misma versión y los mismos flags que usa el workflow, y no se subió a GitHub ningún commit con un
+secreto.
 
 ### Protección de rama (FR-018, paso manual del dueño del repo)
 
