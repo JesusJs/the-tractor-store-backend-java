@@ -6,3 +6,12 @@ spring:
     url: ${DB_URL:jdbc:postgresql://127.0.0.1:${DB_PORT:5432}/${DB_NAME:tractor}}
     username: ${DB_USER:tractor}
     password: ${DB_PASSWORD:tractor}
+
+server:
+  # Port the Angular front calls (API base URL in packages/shared-catalog tokens.ts).
+  port: 5271
+
+tractorstore:
+  cors:
+    # The four micro-frontend dev servers; never a wildcard (FR-027).
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:4201,http://localhost:4202,http://localhost:4203}
