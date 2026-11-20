@@ -58,7 +58,7 @@ exactos; ningún error fuera del formato único salvo el rechazo CORS (R10); dem
 | III. Pruebas primero | Orden dominio → aplicación → persistencia → web → E2E, cada paso con su test en rojo antes (ver "Orden de implementación"). Testcontainers PostgreSQL; enforcer sin H2. Regresiones .NET con `@DisplayName("regresión: …")`: recomendaciones por color (no categoría), sin `skus` → 200, sin migraciones reales, entidades duplicadas. | ✅ |
 | IV. Datos | Tablas `catalog_*`, sin FKs a otros módulos. Flyway `V2`/`V3`; `V1` no se toca. `NUMERIC(10,2)`/`BigDecimal`. `ddl-auto=validate` (ahora con test, review 001 #10) y OSIV off. | ✅ |
 | V. Eventos internos | No aplica: catálogo no publica ni consume eventos. | ✅ (n/a) |
-| VI. Seguridad proporcionada | `@Size` en path variables (Bean Validation); `X-Trace-Id` entrante saneado (regex, 64 chars); 500 sin stacktrace. CORS con orígenes explícitos por `CORS_ALLOWED_ORIGINS`, credenciales, fail-fast ante `*`. Sin secretos nuevos. Cookie `ts_session` no aplica (catálogo no tiene estado). | ✅ |
+| VI. Seguridad proporcionada | Bean Validation en toda entrada: `@Size(max = 20)` en path variables y `@Size(max = 50) List<@Size(max = 20) String> skus` en recomendaciones (corrección C2 de `/speckit-analyze`, 2026-11-20); `X-Trace-Id` entrante saneado (regex, 64 chars); 500 sin stacktrace. CORS con orígenes explícitos por `CORS_ALLOWED_ORIGINS`, credenciales, fail-fast ante `*`. Sin secretos nuevos. Cookie `ts_session` no aplica (catálogo no tiene estado). | ✅ |
 | VII. Simplicidad y plazo | Sin dependencias nuevas; sin caché; recomendaciones en memoria (47 variantes); URLs de imagen fijas en la migración en vez de propiedad configurable; `catalog.api` vacío hasta la 007. | ✅ |
 | VIII. Entregable y operable | Configuración por perfiles y env (`CORS_ALLOWED_ORIGINS`); health intacto. | ✅ |
 | Restricciones técnicas | Boot 4.1.2, skill `spring-boot-4-notes` aplicada (paquetes de slices verificados en los jars, `@MockitoBean`, Jackson 3, `RestTestClient`). | ✅ |
@@ -165,6 +165,8 @@ src/test/java/com/tractorstore/
 └── catalog/
     ├── domain/ColorTest.java              # @ParameterizedTest distancia, hex, promedio
     ├── domain/ProductTest.java            # price "desde", image, brand, description (R4)
+    ├── domain/CategoryFilterTest.java     # all / código exacto, sensible a mayúsculas
+    ├── domain/CatalogExceptionsTest.java  # code, mensaje y ErrorKind de las 3 excepciones
     ├── domain/ColorRecommendationPolicyTest.java   # regresiones .NET
     ├── application/*ServiceTest.java      # Mockito sobre los puertos
     ├── infrastructure/web/CatalogControllerTest.java   # @WebMvcTest, un @Nested por endpoint
@@ -182,11 +184,15 @@ no recibe clases todavía: ningún otro módulo consume catálogo hasta la 007 (
 0. **Documentación**: ADR 0008 + reescritura de `docs/api-contract.md` (Catalog, códigos genéricos
    y limitaciones: precio "desde", 403 de CORS con cuerpo de Spring, riesgo del CDN externo). La
    ADR 0009 y la constitución v1.1.0 ya están hechas (2026-11-20).
-1. 🔴 `ColorTest`, `ProductTest` (incluye `description` de `AU-01`, R4), `ColorRecommendationPolicyTest`
-   → 🟢 dominio de `catalog` y `shared.error`.
+1. 🔴 `ColorTest`, `ProductTest` (incluye `description` de `AU-01`, R4), `CategoryFilterTest`,
+   `CatalogExceptionsTest`, `ColorRecommendationPolicyTest` → 🟢 dominio de `catalog` y
+   `shared.error`. En `tasks.md`, la primera versión de `TraceIdFilterTest` y
+   `GlobalExceptionHandlerTest` (404 de negocio, 500, `traceId`) se adelanta a la fase
+   Foundational porque todos los endpoints la usan; el paso 4 la completa.
 2. 🔴 `*ServiceTest` con puertos mockeados → 🟢 casos de uso.
 3. 🔴 `CatalogPersistenceIT` → 🟢 `V2`, `V3`, entidades, repositorios Spring Data y adaptadores.
-4. 🔴 `TraceIdFilterTest`, `GlobalExceptionHandlerTest` → 🟢 `shared.infrastructure.web`.
+4. 🔴 `GlobalExceptionHandlerTest` completo (400/404/405/500, `traceId` en el log) → 🟢
+   `shared.infrastructure.web`.
 5. 🔴 `CatalogControllerTest` → 🟢 controller, DTOs, mapper, `@Operation`.
 6. 🔴 `CorsIT` → 🟢 CORS + puerto dev.
 7. 🔴 reglas ArchUnit nuevas + `ArchitectureRulesSelfTests` + `JpaSchemaValidationTests` → 🟢

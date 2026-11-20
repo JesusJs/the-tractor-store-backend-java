@@ -13,6 +13,8 @@ Se crea el módulo técnico `com.tractorstore.shared`, declarado `@ApplicationMo
 - `shared.error` (Java puro, usable desde `domain`): `BusinessException`, `ErrorKind` (`NOT_FOUND`, `CONFLICT`), `NotFoundException`.
 - `shared.infrastructure.web`: `ApiError`, `GlobalExceptionHandler` (`@RestControllerAdvice`), `TraceIdFilter`, `CorsProperties` y `CorsConfiguration`.
 
+Estructura: `shared` **no** sigue la plantilla `api`/`domain`/`application`/`infrastructure` que el principio II exige a cada módulo de dominio. No tiene casos de uso ni modelo de negocio que separar en capas, y al ser `Type.OPEN` todos sus tipos son públicos, así que un paquete `api` no aportaría nada. Solo admite dos paquetes: `shared.error` (Java puro, el equivalente a un `domain` técnico) y `shared.infrastructure.web` (adaptadores web transversales). Aclaración aprobada el 2026-11-20 (hallazgo M5 de `/speckit-analyze` en la spec 002).
+
 Reglas: `shared` no depende de ningún módulo de dominio y no contiene lógica de negocio, entidades ni tablas. Cada módulo de dominio lo declara en sus `allowedDependencies` cuando lo usa (`catalog` en la 002). La constitución pasa a v1.1.0: cinco módulos de dominio + `shared` técnico.
 
 ## Alternativas consideradas
@@ -28,5 +30,5 @@ Reglas: `shared` no depende de ningún módulo de dominio y no contiene lógica 
   - `Type.OPEN` expone todos los tipos de `shared`; el riesgo es que crezca como cajón de sastre. Se limita a lo técnico y transversal; cualquier otra cosa necesita ADR.
 - **Cómo se verifica:**
   - `ModularityTests`: `shared` sin dependencias; `catalog` solo con `shared` en `allowedDependencies`.
-  - `HexagonalArchitectureTests`: `shared.error` no depende de Spring, JPA ni Jackson (lo usan los `domain`).
+  - `HexagonalArchitectureTests`: `shared.error` no depende de Spring, JPA ni Jackson (lo usan los `domain`), y ninguna clase de `shared` lleva `@Entity`.
   - `GlobalExceptionHandlerTest`, `TraceIdFilterTest` y `CorsIT` (spec 002).

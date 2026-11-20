@@ -114,7 +114,8 @@ la spec están marcadas con **(aprobada 2026-11-20)**.
 - **Alternatives**: SQL con `sqrt(power(...))` (lógica de negocio en la BD); caché (fuera de
   alcance, constitución VII).
 - **Reglas** (FR-010 – FR-013): SKUs recibidos → `trim`, se descartan vacíos, duplicados cuentan
-  una vez, desconocidos se ignoran. Si no queda ninguno → lista por defecto (R1). Si no: color
+  una vez, desconocidos se ignoran (los límites de tamaño de `skus` se validan antes, en la capa
+  web; ver R8). Si no queda ninguno → lista por defecto (R1). Si no: color
   promedio (media aritmética de R, G y B, en `double`), distancia euclidiana de cada variante no
   recibida, orden por `(distancia, sku)`, primera aparición de cada producto, límite 4. Productos
   cuyas variantes están todas entre las recibidas desaparecen solos (no tienen variantes candidatas).
@@ -150,6 +151,7 @@ la spec están marcadas con **(aprobada 2026-11-20)**.
   | Excepción | HTTP | `code` | `details` |
   |---|---|---|---|
   | `BusinessException` (`ErrorKind.NOT_FOUND`) | 404 | el de la excepción (`PRODUCT_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `VARIANT_NOT_FOUND`) | — |
+  | `BusinessException` (`ErrorKind.CONFLICT`) | — | **no se traduce en 002** (YAGNI): la traducción a 409 la añade la spec 007, la primera que lanza conflictos; hasta entonces cae en el 500 genérico | — |
   | `MethodArgumentNotValidException` (`@Valid @RequestBody`) | 400 | `VALIDATION_ERROR` | campo → mensaje |
   | `HandlerMethodValidationException` (`@PathVariable`/`@RequestParam` con constraints, Spring 6.1+) | 400 | `VALIDATION_ERROR` | parámetro → mensaje |
   | `HttpMessageNotReadableException`, `MethodArgumentTypeMismatchException`, `MissingServletRequestParameterException` | 400 | `MALFORMED_REQUEST` | — |
@@ -163,8 +165,12 @@ la spec están marcadas con **(aprobada 2026-11-20)**.
   al contrato en la ADR de FR-025.
 - **Validación en catálogo**: `@PathVariable @Size(max = 20)` en `id` y `filter` (un valor más
   largo → 400 `VALIDATION_ERROR`; un valor corto pero desconocido → 404 de negocio, como pide la
-  spec). `skus` **no** lleva constraints: FR-013 exige que recomendaciones no falle nunca; un SKU
-  raro simplemente no coincide. El caso `MethodArgumentNotValidException` (cuerpo) se prueba con un
+  spec). `skus` lleva `@Size(max = 50) List<@Size(max = 20) String>` **(aprobada 2026-11-20,
+  corrección C2 de `/speckit-analyze`)**: la constitución VI exige Bean Validation en toda entrada,
+  y una lista sin límite se procesaría entera en memoria. Solo una entrada abusiva recibe 400
+  `VALIDATION_ERROR` (`details.skus`); dentro de los límites, un SKU raro simplemente no coincide y
+  FR-013 sigue sin errores de negocio. El front envía las variantes de un producto (unos pocos SKUs de
+  8 caracteres, como `AU-01-SI`), lejos de ambos límites. El caso `MethodArgumentNotValidException` (cuerpo) se prueba con un
   controller de test en el `@WebMvcTest` del handler, porque catálogo no tiene cuerpos.
 - **Alternatives**: `ProblemDetail` (RFC 9457) de Spring: forma distinta del contrato.
 
@@ -217,7 +223,10 @@ la spec están marcadas con **(aprobada 2026-11-20)**.
 - **`shared.error` sin frameworks** (ADR 0009): la regla `domainIsFrameworkFree` pasa a cubrir
   `..domain..` y `com.tractorstore.shared.error..`, porque los dominios dependen de ella.
 - **`@Entity` solo en persistence**: `classes().that().areAnnotatedWith(Entity.class).should()
-  .resideInAPackage("com.tractorstore.*.infrastructure.persistence..")`.
+  .resideInAPackage("com.tractorstore.*.infrastructure.persistence..")`. Como ese patrón también
+  aceptaría `shared.infrastructure.persistence`, se añade `noClasses().that().resideInAPackage(
+  "com.tractorstore.shared..").should().beAnnotatedWith(Entity.class)` (constitución II: `shared`
+  sin entidades ni tablas).
 - **Tablas con prefijo del módulo**: `ArchCondition` propia: toda `@Entity` de
   `com.tractorstore.<m>...` debe llevar `@Table(name = "<m>_…")`, y todo campo con
   `@CollectionTable`/`@JoinTable` también. Cubre la regresión .NET "entidades duplicadas".

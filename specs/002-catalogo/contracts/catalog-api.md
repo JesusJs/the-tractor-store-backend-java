@@ -103,7 +103,7 @@ Correspondencia con el front: `TeaserResponse` = `CategoryTeaser`; `ProductItemR
 
 | Parámetro | Regla |
 |---|---|
-| `skus` (query, opcional) | lista separada por comas; sin constraints (nunca falla) |
+| `skus` (query, opcional) | lista separada por comas; `@Size(max = 50)` en la lista y `@Size(max = 20)` en cada elemento (constitución VI) |
 
 **200** — array de hasta 4 `ProductItemResponse`. **`variants[0]` es el SKU recomendado**; el resto
 de SKUs del producto sigue en orden del dataset.
@@ -112,7 +112,12 @@ de SKUs del producto sigue en orden del dataset.
   recibidos; un producto como mucho una vez; la categoría no interviene.
 - Sin `skus`, `skus=`, `skus=,,` o solo SKUs desconocidos: **lista por defecto** →
   `CL-01` (`CL-01-GR`), `CL-02` (`CL-02-BL`), `CL-03` (`CL-03-GR`), `CL-04` (`CL-04-BL`).
-- Nunca devuelve 4xx (solo 500 ante fallo inesperado).
+- Nunca devuelve errores de negocio (ni 404 ni `VARIANT_NOT_FOUND`).
+
+| Caso | Respuesta |
+|---|---|
+| más de 50 SKUs, o un SKU de más de 20 caracteres | 400 `VALIDATION_ERROR`, `details.skus` |
+| fallo inesperado | 500 `INTERNAL_ERROR` |
 
 Ejemplo verificado con el dataset (`?skus=AU-01-SI`, plata `#C0C0C0`): el más cercano es
 autónomo y los siguientes son clásicos, lo que demuestra que la categoría no filtra.

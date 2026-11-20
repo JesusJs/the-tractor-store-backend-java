@@ -15,7 +15,8 @@ tablas y dataset en [data-model.md](data-model.md).
 ./mvnw test
 ```
 
-Esperado: verde. Incluye `ColorTest`, `ProductTest`, `ColorRecommendationPolicyTest` (regresiones
+Esperado: verde. Incluye `ColorTest`, `ProductTest`, `CategoryFilterTest`,
+`CatalogExceptionsTest`, `ColorRecommendationPolicyTest` (regresiones
 .NET), `*ServiceTest`, `CatalogControllerTest`, `GlobalExceptionHandlerTest`, `TraceIdFilterTest`,
 `ModularityTests`, `HexagonalArchitectureTests` (sin `allowEmptyShould` salvo la regla de `api`),
 `ArchitectureRulesSelfTests` y `JpaSchemaValidationTests`.
@@ -84,7 +85,13 @@ curl -s "localhost:5271/api/v1/catalog/recommendations" | jq '[.[] | .variants[0
 ```
 
 Esperado: `["CL-01-GR","CL-02-BL","CL-03-GR","CL-04-BL"]`; lo mismo con `?skus=`, `?skus=,,` y
-`?skus=NOPE-00`. Nunca 4xx.
+`?skus=NOPE-00`. Nunca un error de negocio.
+
+```bash
+curl -si "localhost:5271/api/v1/catalog/recommendations?skus=$(printf 'X%.0s' {1..21})" | head -1
+```
+
+Esperado: `400` (`VALIDATION_ERROR` con `details.skus`): solo una entrada abusiva se rechaza.
 
 ```bash
 curl -s localhost:5271/api/v1/catalog/stores | jq 'length'
@@ -99,6 +106,15 @@ curl -s localhost:5271/api/v1/catalog/categories/all | jq -r '.products[].image'
 ```
 
 Esperado: `23 200`.
+
+Tiempo de respuesta (SC-006; comprobación manual, sin test automático para evitar fallos
+intermitentes en CI). Tras una primera petición de calentamiento:
+
+```bash
+for p in home categories/all products/AU-07 "recommendations?skus=AU-01-SI" stores; do curl -s -o /dev/null -w "$p %{time_total}s\n" "localhost:5271/api/v1/catalog/$p"; done
+```
+
+Esperado: cada línea por debajo de `1` segundo.
 
 ## 4. Errores y traza (US4)
 

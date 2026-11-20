@@ -13,7 +13,6 @@ Sync Impact Report
     cinco módulos de dominio; actualizar en la implementación de la spec 002.
 - TODOs diferidos: ninguno.
 - Aprobación: usuario, 2026-11-20 (spec 002-catalogo, research R7).
-Este bloque es material temporal de revisión: elimínalo antes de hacer commit.
 -->
 
 # Constitución de Tractor Store — Backend Java

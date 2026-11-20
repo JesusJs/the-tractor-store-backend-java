@@ -17,7 +17,7 @@ Transversal: lo implementa el módulo `shared` y lo reutilizarán inventario, ca
 
 | HTTP | `code` | Cuándo | `details` |
 |---|---|---|---|
-| 400 | `VALIDATION_ERROR` | Bean Validation en cuerpo (`@Valid`) o en path/query con constraints | campo/parámetro → mensaje |
+| 400 | `VALIDATION_ERROR` | Bean Validation en cuerpo (`@Valid`) o en path/query con constraints (p. ej. `id`/`filter` > 20 caracteres, `skus` > 50 elementos o con un elemento > 20) | campo/parámetro → mensaje |
 | 400 | `MALFORMED_REQUEST` | cuerpo ilegible, tipo de parámetro incorrecto, parámetro obligatorio ausente | — |
 | 404 | `PRODUCT_NOT_FOUND` | `GET /products/{id}` con id inexistente | — |
 | 404 | `CATEGORY_NOT_FOUND` | `GET /categories/{filter}` con filtro no válido | — |

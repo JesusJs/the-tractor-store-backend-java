@@ -30,10 +30,10 @@ Keycloak/JWT, Grafana/Prometheus, OpenTelemetry completo, caché, k6, SonarCloud
 |---|---|
 | Quitar un SKU vaciaba el carrito | 007 |
 | Precio enviado por el cliente | 007 |
-| Recomendaciones sin `skus` fallaban | 005 |
+| Recomendaciones sin `skus` fallaban | 002 (fusionó la 005) |
 | Id de pedido devuelto no consultable | 008 |
 | Líneas de pedido con nombre en vez de SKU | 008 |
 | Entidades duplicadas | 002 (ArchUnit: `@Entity` solo en `<módulo>.infrastructure.persistence` + tabla con prefijo del módulo dueño) |
-| Recomendaciones por categoría en vez de color | 005 |
+| Recomendaciones por categoría en vez de color | 002 (fusionó la 005) |
 | Sin migraciones reales | 002 |
 | Secreto en el código | 001 (gitleaks/CI) y 003 |

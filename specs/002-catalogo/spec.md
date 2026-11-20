@@ -17,6 +17,14 @@
 - Q: En recomendaciones, ¿un SKU desconocido devuelve 404? → A: No. Los SKUs desconocidos se ignoran; si tras descartar vacíos y desconocidos no queda ninguno, se devuelve la lista por defecto. El endpoint nunca devuelve error de negocio. `VARIANT_NOT_FOUND` queda reservado para uso futuro (carrito).
 - Q: ¿Se aprueba la ADR de FR-025 que reescribe la sección Catalog del contrato según el front? → A: Sí, aprobada.
 
+### Session 2026-11-20 (tras `/speckit-analyze`)
+
+- Q: La constitución (principio VI) exige Bean Validation en toda entrada, pero `skus` iba sin
+  constraints; ¿cómo se concilia con "recomendaciones nunca falla"? → A: `skus` se valida con
+  `@Size(max = 50)` en la lista y `@Size(max = 20)` en cada elemento. Solo una entrada abusiva
+  (más de 50 SKUs o un SKU de más de 20 caracteres) recibe 400 `VALIDATION_ERROR`; el endpoint
+  sigue sin devolver errores de negocio.
+
 ## Contexto: el front manda, y el contrato documentado no coincide
 
 Se revisó el front (`packages/shared-catalog`: `models/catalog.models.ts`, `lib/catalog.service.ts`,
@@ -122,7 +130,9 @@ sigue la distancia de color y no la categoría; se piden sin `skus` y con `skus`
    **Then** se recibe 200 con la lista por defecto, nunca un error.
 4. **Given** un SKU que no existe en el catálogo, **When** se piden recomendaciones con él,
    **Then** se ignora: se calcula con los SKUs conocidos restantes o, si no queda ninguno, se
-   recibe 200 con la lista por defecto; nunca un error.
+   recibe 200 con la lista por defecto; nunca un error de negocio.
+5. **Given** una entrada abusiva (más de 50 SKUs, o un SKU de más de 20 caracteres), **When** se
+   piden recomendaciones, **Then** se recibe 400 `VALIDATION_ERROR` con `details.skus`.
 
 ---
 
@@ -182,6 +192,8 @@ dataset completo quedan creados, y que un segundo arranque no duplica ni altera 
 - `skus` con un SKU repetido: cuenta una vez para el color promedio.
 - Mezcla de SKUs existentes e inexistentes: los desconocidos se ignoran y se recomienda con los
   conocidos; si todos son desconocidos, lista por defecto (200).
+- `skus` con más de 50 elementos o con un elemento de más de 20 caracteres: 400
+  `VALIDATION_ERROR` (constitución VI); no es un error de negocio.
 - Todas las variantes de un producto están entre los SKUs recibidos (el front envía todas las del
   producto que se ve): ese producto no aparece en sus propias recomendaciones.
 - Dos variantes a la misma distancia de color: orden estable y determinista (por SKU).
@@ -232,9 +244,11 @@ dataset completo quedan creados, y que un segundo arranque no duplica ni altera 
 - **FR-012**: Sin parámetro `skus`, con `skus` vacío, o cuando tras descartar vacíos y desconocidos
   no queda ningún SKU, MUST responderse
   200 con la lista por defecto: la variante primera de cada uno de los 4 primeros productos del
-  dataset. Nunca error.
+  dataset.
 - **FR-013**: Los SKUs inexistentes entre los recibidos MUST ignorarse. Este endpoint MUST NOT
-  devolver ningún error de negocio (solo un 500 ante un fallo inesperado).
+  devolver ningún error de negocio. `skus` MUST validarse con Bean Validation (constitución VI):
+  como máximo 50 elementos y cada uno de como máximo 20 caracteres; si se supera, 400
+  `VALIDATION_ERROR` con `details.skus`. Fuera de eso, solo un 500 ante un fallo inesperado.
 
 **Errores**
 
@@ -352,4 +366,4 @@ dataset completo quedan creados, y que un segundo arranque no duplica ni altera 
   configuran por variable de entorno en la spec de despliegue.
 - **Fuera de alcance**: inventario (y el campo `stock`), carrito, pedidos, caché.
 - **Dependencias**: esqueleto de 001 (módulos, Flyway sin tablas, Testcontainers, ArchUnit,
-  Swagger); constitución v1.0.0.
+  Swagger); constitución v1.1.0 (módulo técnico `shared`, ADR 0009).
