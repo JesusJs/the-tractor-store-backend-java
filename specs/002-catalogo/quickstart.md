@@ -182,3 +182,21 @@ la consola. Evidencia (capturas) para el PR.
 
 Abrir `http://localhost:5271/swagger-ui.html`: tag `Catalog` con los 5 endpoints, cada uno con
 descripción y respuestas 200 y de error con el esquema `ApiError`.
+
+## Troubleshooting
+
+### `Connection refused` al arrancar con el perfil `dev` aunque postgres está arriba
+
+- **Causa**: en algunas máquinas (p. ej. Kali) `localhost` resuelve primero a `::1`
+  (compruébalo con `getent ahosts localhost`). `compose.yaml` publica postgres **solo** en
+  `127.0.0.1` (loopback IPv4, hallazgo #16 de la revisión 001: la contraseña de dev es pública) y
+  pgjdbc no reintenta por IPv4 si falla `::1`.
+- **Solución aplicada**: la URL por defecto de `application-dev.yml` y el ejemplo de `.env.example`
+  usan `127.0.0.1` en vez de `localhost`. Si defines `DB_URL` a mano, usa también `127.0.0.1`.
+
+### El puerto 8080 está ocupado (Kali)
+
+- **Causa**: en Kali, Burp Suite escucha por defecto en `127.0.0.1:8080` (su proxy). Compruébalo con
+  `ss -ltnp | grep 8080`.
+- **Solución**: el perfil `dev` escucha en el **5271** (T038). Si arrancas sin ese perfil o antes de
+  T038, cierra Burp o usa `-Dspring-boot.run.arguments=--server.port=5271`.
