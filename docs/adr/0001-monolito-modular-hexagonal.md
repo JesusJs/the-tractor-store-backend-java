@@ -18,3 +18,9 @@ Un solo despliegue Spring Boot con los módulos `catalog`, `inventory`, `cart`, 
 - Positivas: fronteras explícitas y testeables; extraer un módulo a servicio sería mecánico.
 - Negativas: más paquetes y mapeos (entidad ↔ dominio ↔ DTO).
 - Verificación: `ModularityTests` (Modulith) y `HexagonalArchitectureTests` (ArchUnit) en `./mvnw test`.
+
+## Actualización 2026-11-20
+La [ADR 0009](0009-modulo-shared-errores-web.md) añade el módulo técnico abierto `shared`
+(jerarquía de errores, `traceId`, CORS). Quedan cinco módulos de dominio más `shared`, que no tiene
+entidades ni tablas y del que los dominios solo usan `shared.error` (Java puro). La decisión
+original de este documento no cambia.
