@@ -17,9 +17,10 @@ class ModularityTests {
   }
 
   @Test
-  void detectsExactlyTheFiveBusinessModules() {
+  void detectsTheFiveBusinessModulesPlusShared() {
     assertThat(modules.stream().map(ApplicationModule::getIdentifier).map(Object::toString))
-        .containsExactlyInAnyOrder("catalog", "inventory", "cart", "order", "notifications");
+        .containsExactlyInAnyOrder(
+            "catalog", "inventory", "cart", "order", "notifications", "shared");
   }
 
   @Test
