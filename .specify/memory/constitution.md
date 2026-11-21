@@ -9,8 +9,8 @@ Sync Impact Report
 - Secciones añadidas: ninguna
 - Secciones eliminadas: ninguna
 - Plantillas dependientes: no se modifican (leen la constitución en tiempo de ejecución).
-  ⚠ Pendiente de revisar a mano: CLAUDE.md (§Arquitectura, "Módulos: …") y ADR 0001 citan solo los
-    cinco módulos de dominio; actualizar en la implementación de la spec 002.
+  ✅ Resuelto (2026-11-20, spec 002): CLAUDE.md (§Arquitectura) cita `shared` y ADR 0001 tiene la
+    sección "Actualización 2026-11-20".
 - TODOs diferidos: ninguno.
 - Aprobación: usuario, 2026-11-20 (spec 002-catalogo, research R7).
 -->

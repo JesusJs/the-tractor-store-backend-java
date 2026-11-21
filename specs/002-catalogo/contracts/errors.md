@@ -24,6 +24,7 @@ Transversal: lo implementa el módulo `shared` y lo reutilizarán inventario, ca
 | 404 | `VARIANT_NOT_FOUND` | reservado para carrito (ningún endpoint de catálogo lo devuelve) | — |
 | 404 | `NOT_FOUND` | **nuevo** — ruta sin handler (p. ej. `/api/v1/catalog/products`) | — |
 | 405 | `METHOD_NOT_ALLOWED` | **nuevo** — método no soportado (p. ej. `POST /api/v1/catalog/home`) | — |
+| 406, 415, otros 4xx de Spring MVC | `MALFORMED_REQUEST` | `Accept` no satisfacible, `Content-Type` no soportado…: se respeta el status de la excepción (review 002 #1); log `WARN` sin stacktrace | — |
 | 500 | `INTERNAL_ERROR` | cualquier otro fallo (incl. BD caída); mensaje genérico `Unexpected error`, sin stacktrace, clases ni SQL | — |
 
 Los códigos `NOT_FOUND` y `METHOD_NOT_ALLOWED` se añaden a `docs/api-contract.md` en la ADR 0008.

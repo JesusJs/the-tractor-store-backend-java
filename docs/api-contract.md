@@ -18,6 +18,7 @@ Los campos marcados con ⚠️ hay que confirmarlos contra los modelos TypeScrip
 | 400 | `VALIDATION_ERROR` (details = errores por campo/parámetro), `MALFORMED_REQUEST` (cuerpo ilegible, tipo incorrecto, parámetro obligatorio ausente) |
 | 404 | `PRODUCT_NOT_FOUND`, `VARIANT_NOT_FOUND`, `STORE_NOT_FOUND`, `ORDER_NOT_FOUND`, `CATEGORY_NOT_FOUND`, `NOT_FOUND` (ruta sin handler) |
 | 405 | `METHOD_NOT_ALLOWED` (método no soportado) |
+| 406, 415… | `MALFORMED_REQUEST` (otros errores de cliente de Spring MVC, con su status; review 002 #1) |
 | 409 | `OUT_OF_STOCK`, `CART_EMPTY` |
 | 500 | `INTERNAL_ERROR` (mensaje `Unexpected error`, sin stacktrace, clases ni SQL) |
 
