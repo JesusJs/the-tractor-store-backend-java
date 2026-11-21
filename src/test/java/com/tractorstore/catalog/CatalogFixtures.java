@@ -1,10 +1,10 @@
 package com.tractorstore.catalog;
 
-import com.tractorstore.catalog.domain.Category;
-import com.tractorstore.catalog.domain.Color;
-import com.tractorstore.catalog.domain.Product;
-import com.tractorstore.catalog.domain.Store;
-import com.tractorstore.catalog.domain.Variant;
+import com.tractorstore.catalog.domain.model.Category;
+import com.tractorstore.catalog.domain.model.Color;
+import com.tractorstore.catalog.domain.model.Product;
+import com.tractorstore.catalog.domain.model.Store;
+import com.tractorstore.catalog.domain.model.Variant;
 import java.math.BigDecimal;
 import java.util.List;
 

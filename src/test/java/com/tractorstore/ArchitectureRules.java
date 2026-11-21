@@ -38,6 +38,9 @@ public final class ArchitectureRules {
   public static final ArchRule ENTITIES_LIVE_IN_PERSISTENCE = entitiesLiveInPersistence(ROOT);
   public static final ArchRule SHARED_HAS_NO_ENTITIES = sharedHasNoEntities(ROOT);
   public static final ArchRule TABLES_ARE_PREFIXED_WITH_MODULE = tablesArePrefixedWithModule(ROOT);
+  public static final ArchRule USE_CASES_LIVE_IN_PORT_IN = useCasesLiveInPortIn(ROOT);
+  public static final ArchRule DOMAIN_REPOSITORIES_LIVE_IN_PORT_OUT =
+      domainRepositoriesLiveInPortOut(ROOT);
 
   private ArchitectureRules() {}
 
@@ -127,6 +130,30 @@ public final class ArchitectureRules {
         .resideInAPackage(root + "..")
         .should(haveTablesPrefixedWithTheirModule(root))
         .because("regresión .NET: entidades duplicadas entre módulos");
+  }
+
+  static ArchRule useCasesLiveInPortIn(String root) {
+    return classes()
+        .that()
+        .resideInAPackage(root + "..application..")
+        .and()
+        .areInterfaces()
+        .and()
+        .doNotHaveSimpleName("package-info")
+        .should()
+        .resideInAPackage(root + "..application.port.in..")
+        .because("inbound ports (use case interfaces) live in application.port.in (ADR 0001)");
+  }
+
+  static ArchRule domainRepositoriesLiveInPortOut(String root) {
+    return classes()
+        .that()
+        .resideInAPackage(root + "..domain..")
+        .and()
+        .haveSimpleNameEndingWith("Repository")
+        .should()
+        .resideInAPackage(root + "..domain.port.out..")
+        .because("outbound ports (domain repositories) live in domain.port.out (ADR 0001)");
   }
 
   private static ArchCondition<JavaClass> haveTablesPrefixedWithTheirModule(String root) {

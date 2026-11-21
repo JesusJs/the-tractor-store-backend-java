@@ -3,7 +3,7 @@ package com.tractorstore.catalog;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tractorstore.TestcontainersConfiguration;
-import com.tractorstore.catalog.application.GetRecommendations;
+import com.tractorstore.catalog.application.port.in.GetRecommendationsUseCase;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class GetRecommendationsDatasetIT {
 
-  @Autowired private GetRecommendations getRecommendations;
+  @Autowired private GetRecommendationsUseCase getRecommendations;
 
   static Stream<Arguments> referenceCases() {
     return Stream.of(

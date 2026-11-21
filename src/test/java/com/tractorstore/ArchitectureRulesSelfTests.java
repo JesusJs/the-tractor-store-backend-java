@@ -24,7 +24,9 @@ class ArchitectureRulesSelfTests {
         violation("entityplace", ArchitectureRules::entitiesLiveInPersistence),
         violation("sharedentity", ArchitectureRules::sharedHasNoEntities),
         violation("tableprefix", ArchitectureRules::tablesArePrefixedWithModule),
-        violation("collectionprefix", ArchitectureRules::tablesArePrefixedWithModule));
+        violation("collectionprefix", ArchitectureRules::tablesArePrefixedWithModule),
+        violation("portin", ArchitectureRules::useCasesLiveInPortIn),
+        violation("portout", ArchitectureRules::domainRepositoriesLiveInPortOut));
   }
 
   private static Arguments violation(String fixture, Function<String, ArchRule> rule) {

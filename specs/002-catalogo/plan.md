@@ -114,35 +114,45 @@ src/main/java/com/tractorstore/
     ├── package-info.java                          # allowedDependencies = {"shared"}
     ├── api/package-info.java                      # vacío hasta 007
     ├── domain/
-    │   ├── Color.java                             # record r,g,b; fromHex, distanceTo, average
-    │   ├── Variant.java, Product.java             # startPrice, mainImage, skus, brand, description
-    │   ├── Category.java, CategoryFilter.java     # filtro all|classic|autonomous
-    │   ├── Store.java
-    │   ├── Recommendation.java                    # (product, variant recomendada)
-    │   ├── ColorRecommendationPolicy.java         # FR-010..FR-013
-    │   ├── ProductNotFoundException.java          # PRODUCT_NOT_FOUND
-    │   ├── CategoryNotFoundException.java         # CATEGORY_NOT_FOUND
-    │   ├── VariantNotFoundException.java          # VARIANT_NOT_FOUND (reservado, carrito)
-    │   └── port/
+    │   ├── model/
+    │   │   ├── Color.java                         # record r,g,b; fromHex, distanceTo, average
+    │   │   ├── Variant.java, Product.java         # startPrice, mainImage, skus, brand, description
+    │   │   ├── Category.java, CategoryFilter.java # filtro all|classic|autonomous
+    │   │   ├── Store.java
+    │   │   ├── Recommendation.java                # (product, variant recomendada)
+    │   │   └── DomainChecks.java                  # package-private: invariantes comunes
+    │   ├── service/
+    │   │   └── ColorRecommendationPolicy.java     # FR-010..FR-013
+    │   ├── exception/
+    │   │   ├── ProductNotFoundException.java      # PRODUCT_NOT_FOUND
+    │   │   ├── CategoryNotFoundException.java     # CATEGORY_NOT_FOUND
+    │   │   └── VariantNotFoundException.java      # VARIANT_NOT_FOUND (reservado, carrito)
+    │   └── port/out/
     │       ├── ProductRepository.java
     │       ├── CategoryRepository.java
     │       └── StoreRepository.java
     ├── application/
-    │   ├── GetHomeTeasers.java + GetHomeTeasersService.java
-    │   ├── GetCategoryListing.java + GetCategoryListingService.java   # devuelve CategoryListing
-    │   ├── GetProductDetail.java + GetProductDetailService.java
-    │   ├── GetRecommendations.java + GetRecommendationsService.java
-    │   └── ListStores.java + ListStoresService.java
+    │   ├── port/in/                               # GetHomeTeasersUseCase, GetCategoryListingUseCase,
+    │   │                                          # GetProductDetailUseCase, GetRecommendationsUseCase,
+    │   │                                          # ListStoresUseCase
+    │   ├── service/                               # *Service (package-private) implementan su *UseCase
+    │   └── model/
+    │       └── CategoryListing.java               # modelo de lectura de GetCategoryListingUseCase
     └── infrastructure/
         ├── web/
-        │   ├── CatalogPaths.java                  # BASE = "/api/v1/catalog"
-        │   ├── CatalogController.java             # 5 endpoints + @Operation
-        │   └── dto/                               # TeaserResponse, CategoryResponse, ProductItemResponse,
-        │                                          # ProductDetailResponse, StoreResponse + CatalogDtoMapper
-        └── persistence/
-            ├── CategoryEntity.java, ProductEntity.java, VariantEntity.java, StoreEntity.java
-            ├── JpaProductRepository.java, JpaCategoryRepository.java, JpaStoreRepository.java
-            └── ProductRepositoryAdapter.java, CategoryRepositoryAdapter.java, StoreRepositoryAdapter.java
+        │   ├── controller/
+        │   │   ├── CatalogPaths.java              # BASE = "/api/v1/catalog"
+        │   │   └── CatalogController.java         # 5 endpoints + @Operation
+        │   ├── dto/                               # TeaserResponse, CategoryResponse, ProductItemResponse,
+        │   │                                      # ProductDetailResponse, StoreResponse
+        │   └── mapper/
+        │       └── CatalogDtoMapper.java
+        ├── persistence/
+        │   ├── entity/                            # CategoryEntity, ProductEntity, VariantEntity, StoreEntity
+        │   ├── repository/                        # JpaProductRepository, JpaCategoryRepository, JpaStoreRepository
+        │   └── adapter/                           # ProductRepositoryAdapter, CategoryRepositoryAdapter,
+        │                                          # StoreRepositoryAdapter
+        └── config/
 
 src/main/resources/
 ├── application.yml          # + logging.pattern.level con traceId, tractorstore.cors.allowed-origins
@@ -153,7 +163,8 @@ src/main/resources/
 
 src/test/java/com/tractorstore/
 ├── ArchitectureRules.java                 # reglas como constantes (reutilizadas)
-├── HexagonalArchitectureTests.java        # sin allowEmptyShould (salvo api), + api, @Entity, prefijos
+├── HexagonalArchitectureTests.java        # sin allowEmptyShould (salvo api), + api, @Entity, prefijos,
+│                                          # puertos en application.port.in / domain.port.out
 ├── ArchitectureRulesSelfTests.java        # cada regla falla con su fixture
 ├── archfixtures/…                         # una violación por regla (solo test)
 ├── JpaSchemaValidationTests.java          # ddl-auto=validate en todos los perfiles
@@ -163,14 +174,14 @@ src/test/java/com/tractorstore/
 │   ├── TraceIdFilterTest.java             # reutiliza/genera/sanea
 │   └── CorsIT.java                        # perfil dev: 4200-4203 sí, otro origen no
 └── catalog/
-    ├── domain/ColorTest.java              # @ParameterizedTest distancia, hex, promedio
-    ├── domain/ProductTest.java            # price "desde", image, brand, description (R4)
-    ├── domain/CategoryFilterTest.java     # all / código exacto, sensible a mayúsculas
-    ├── domain/CatalogExceptionsTest.java  # code, mensaje y ErrorKind de las 3 excepciones
-    ├── domain/ColorRecommendationPolicyTest.java   # regresiones .NET
-    ├── application/*ServiceTest.java      # Mockito sobre los puertos
-    ├── infrastructure/web/CatalogControllerTest.java   # @WebMvcTest, un @Nested por endpoint
-    ├── infrastructure/persistence/CatalogPersistenceIT.java  # dataset, orden, 1 sentencia, re-migración
+    ├── domain/model/ColorTest.java        # @ParameterizedTest distancia, hex, promedio
+    ├── domain/model/ProductTest.java      # price "desde", image, brand, description (R4)
+    ├── domain/model/CategoryFilterTest.java   # all / código exacto, sensible a mayúsculas
+    ├── domain/exception/CatalogExceptionsTest.java   # code, mensaje y ErrorKind de las 3 excepciones
+    ├── domain/service/ColorRecommendationPolicyTest.java   # regresiones .NET
+    ├── application/service/*ServiceTest.java   # Mockito sobre los puertos
+    ├── infrastructure/web/controller/CatalogControllerTest.java   # @WebMvcTest, un @Nested por endpoint
+    ├── infrastructure/persistence/adapter/CatalogPersistenceIT.java  # dataset, orden, 1 sentencia, re-migración
     └── CatalogApiIT.java                  # E2E de los 5 endpoints + X-Trace-Id
 ```
 

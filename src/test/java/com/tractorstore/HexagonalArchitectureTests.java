@@ -34,4 +34,11 @@ class HexagonalArchitectureTests {
   @ArchTest
   static final ArchRule tablesArePrefixedWithModule =
       ArchitectureRules.TABLES_ARE_PREFIXED_WITH_MODULE;
+
+  @ArchTest
+  static final ArchRule useCasesLiveInPortIn = ArchitectureRules.USE_CASES_LIVE_IN_PORT_IN;
+
+  @ArchTest
+  static final ArchRule domainRepositoriesLiveInPortOut =
+      ArchitectureRules.DOMAIN_REPOSITORIES_LIVE_IN_PORT_OUT;
 }
