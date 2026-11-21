@@ -18,6 +18,7 @@ class ArchitectureRulesSelfTests {
     return Stream.of(
         violation("domainspring", ArchitectureRules::domainIsFrameworkFree),
         violation("webrepo", ArchitectureRules::webDoesNotUsePersistence),
+        violation("webport", ArchitectureRules::webDoesNotUsePersistence),
         violation("repoplace", ArchitectureRules::repositoriesLiveInPersistence),
         violation("coreinfra", ArchitectureRules::coreDoesNotDependOnInfrastructure),
         violation("apileak", ArchitectureRules::apiDoesNotExposeInternals),

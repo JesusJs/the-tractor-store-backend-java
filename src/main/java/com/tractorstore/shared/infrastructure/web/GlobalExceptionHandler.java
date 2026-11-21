@@ -8,9 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -87,8 +89,18 @@ public class GlobalExceptionHandler {
     return body(HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED", "Method not allowed", null);
   }
 
+  /**
+   * Last resort. Spring MVC client errors without a handler of their own (406, 415…) keep their 4xx
+   * status with the generic {@code MALFORMED_REQUEST} code and a warning without stacktrace; only
+   * real failures become 500 (review 002 #1).
+   */
   @ExceptionHandler(Exception.class)
   ResponseEntity<ApiError> handleUnexpected(Exception error) {
+    if (error instanceof ErrorResponse response && response.getStatusCode().is4xxClientError()) {
+      HttpStatusCode status = response.getStatusCode();
+      log.warn("Client error {}: {}", status.value(), error.getClass().getSimpleName());
+      return body(status, "MALFORMED_REQUEST", "Malformed request", null);
+    }
     return unexpected(error);
   }
 
@@ -106,7 +118,7 @@ public class GlobalExceptionHandler {
   }
 
   private static ResponseEntity<ApiError> body(
-      HttpStatus status, String code, String message, Map<String, String> details) {
+      HttpStatusCode status, String code, String message, Map<String, String> details) {
     return ResponseEntity.status(status)
         .contentType(MediaType.APPLICATION_JSON)
         .body(new ApiError(code, message, details, MDC.get(TraceIdFilter.MDC_KEY)));

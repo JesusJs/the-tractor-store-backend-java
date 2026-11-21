@@ -12,7 +12,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProductRepositoryAdapter implements ProductRepository {
+class ProductRepositoryAdapter implements ProductRepository {
 
   private final JpaProductRepository products;
 

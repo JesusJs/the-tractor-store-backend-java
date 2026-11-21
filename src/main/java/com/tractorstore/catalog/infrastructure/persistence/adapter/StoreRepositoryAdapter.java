@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StoreRepositoryAdapter implements StoreRepository {
+class StoreRepositoryAdapter implements StoreRepository {
 
   private final JpaStoreRepository stores;
 

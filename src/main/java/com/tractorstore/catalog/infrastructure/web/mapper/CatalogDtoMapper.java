@@ -2,6 +2,7 @@ package com.tractorstore.catalog.infrastructure.web.mapper;
 
 import com.tractorstore.catalog.application.model.CategoryListing;
 import com.tractorstore.catalog.domain.model.Category;
+import com.tractorstore.catalog.domain.model.CategoryFilter;
 import com.tractorstore.catalog.domain.model.Product;
 import com.tractorstore.catalog.domain.model.Recommendation;
 import com.tractorstore.catalog.domain.model.Store;
@@ -15,8 +16,9 @@ import java.util.List;
 /** Domain → HTTP mapping (data-model §6). No DTO carries stock, engine power or colors. */
 public final class CatalogDtoMapper {
 
-  /** Filters the front offers, always the same three (FR-005). */
-  static final List<String> AVAILABLE_FILTERS = List.of("all", "classic", "autonomous");
+  /** Filters the front offers, always the same three (FR-002). */
+  static final List<String> AVAILABLE_FILTERS =
+      List.of(CategoryFilter.ALL, "classic", "autonomous");
 
   private CatalogDtoMapper() {}
 

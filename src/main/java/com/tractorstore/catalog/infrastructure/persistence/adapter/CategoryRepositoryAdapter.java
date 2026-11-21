@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CategoryRepositoryAdapter implements CategoryRepository {
+class CategoryRepositoryAdapter implements CategoryRepository {
 
   private final JpaCategoryRepository categories;
 

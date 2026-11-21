@@ -1,7 +1,7 @@
 package com.tractorstore;
 
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo;
-import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
@@ -65,7 +65,8 @@ public final class ArchitectureRules {
         .resideInAPackage(root + "..infrastructure.web..")
         .should()
         .dependOnClassesThat(
-            resideInAPackage(root + "..infrastructure.persistence..")
+            resideInAnyPackage(
+                    root + "..infrastructure.persistence..", root + "..domain.port.out..")
                 .or(assignableTo(Repository.class)))
         .because("controllers must only call use cases (FR-005)");
   }

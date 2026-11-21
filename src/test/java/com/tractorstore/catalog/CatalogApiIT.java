@@ -1,5 +1,8 @@
 package com.tractorstore.catalog;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.jayway.jsonpath.JsonPath;
 import com.tractorstore.TestcontainersConfiguration;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.json.JsonCompareMode;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 /** End to end: the five catalog endpoints over HTTP against the Flyway dataset. */
@@ -152,32 +156,57 @@ class CatalogApiIT {
     "/recommendations?skus=AU-01-SI-XXXXXXXXXXXX, 400, VALIDATION_ERROR"
   })
   void errorsUseTheSingleShape(String path, int status, String code) {
-    client
-        .get()
-        .uri(BASE + path)
-        .exchange()
-        .expectStatus()
-        .isEqualTo(status)
-        .expectHeader()
-        .exists(TRACE)
-        .expectBody()
-        .jsonPath("$.code")
-        .isEqualTo(code)
-        .jsonPath("$.traceId")
-        .isNotEmpty();
+    EntityExchangeResult<String> result =
+        client
+            .get()
+            .uri(BASE + path)
+            .exchange()
+            .expectStatus()
+            .isEqualTo(status)
+            .expectBody(String.class)
+            .returnResult();
+
+    assertErrorWithTraceIdOfHeader(result, code);
   }
 
   @Test
   void postToHomeIsMethodNotAllowed() {
-    client
-        .post()
-        .uri(BASE + "/home")
-        .exchange()
-        .expectStatus()
-        .isEqualTo(405)
-        .expectBody()
-        .jsonPath("$.code")
-        .isEqualTo("METHOD_NOT_ALLOWED");
+    EntityExchangeResult<String> result =
+        client
+            .post()
+            .uri(BASE + "/home")
+            .exchange()
+            .expectStatus()
+            .isEqualTo(405)
+            .expectBody(String.class)
+            .returnResult();
+
+    assertErrorWithTraceIdOfHeader(result, "METHOD_NOT_ALLOWED");
+  }
+
+  @Test
+  void unknownRouteIsNotFound() {
+    EntityExchangeResult<String> result =
+        client
+            .get()
+            .uri(BASE + "/products")
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(String.class)
+            .returnResult();
+
+    assertErrorWithTraceIdOfHeader(result, "NOT_FOUND");
+  }
+
+  /** SC-005 over real HTTP: the body {@code traceId} is the {@code X-Trace-Id} header. */
+  private static void assertErrorWithTraceIdOfHeader(
+      EntityExchangeResult<String> result, String code) {
+    String header = result.getResponseHeaders().getFirst(TRACE);
+    String body = result.getResponseBody();
+    assertThat(header).isNotBlank();
+    assertThat(JsonPath.<String>read(body, "$.code")).isEqualTo(code);
+    assertThat(JsonPath.<String>read(body, "$.traceId")).isEqualTo(header);
   }
 
   @Test

@@ -186,6 +186,38 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
+  void notAcceptableKeepsItsStatusAndIsOnlyAWarning(CapturedOutput output) throws Exception {
+    MvcResult result =
+        expectError(
+                mvc.perform(
+                    get("/test/list").param("skus", "AU-01-SI").accept(MediaType.APPLICATION_XML)),
+                406,
+                "MALFORMED_REQUEST")
+            .andExpect(jsonPath("$.message").value("Malformed request"))
+            .andReturn();
+
+    expectTraceIdMatchesHeader(result);
+    assertThat(output.getOut())
+        .contains("WARN")
+        .contains("Client error 406")
+        .doesNotContain("Unexpected error")
+        .doesNotContain("\tat ");
+  }
+
+  @Test
+  void unsupportedMediaTypeKeepsItsStatusAndIsOnlyAWarning(CapturedOutput output) throws Exception {
+    MvcResult result =
+        expectError(
+                mvc.perform(post("/test/body").contentType(MediaType.TEXT_PLAIN).content("x")),
+                415,
+                "MALFORMED_REQUEST")
+            .andReturn();
+
+    expectTraceIdMatchesHeader(result);
+    assertThat(output.getOut()).contains("Client error 415").doesNotContain("Unexpected error");
+  }
+
+  @Test
   void dataAccessErrorBecomes500WithoutInternals() throws Exception {
     MvcResult result =
         expectError(mvc.perform(get("/test/db")), 500, "INTERNAL_ERROR")
