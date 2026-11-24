@@ -12,7 +12,7 @@ Sync Impact Report
 - Secciones eliminadas: ninguna
 - Plantillas dependientes: no se modifican (leen la constitución en tiempo de ejecución).
   ✅ docs/backlog.md y docs/requisitos.md actualizados en el mismo cambio (spec 003, FR-001).
-  ⚠ Pendiente en la implementación de 003: skill `testing-strategy` (80 % código nuevo, FR-012).
+  ✅ Resuelto en la implementación de 003 (T028): skill `testing-strategy` (80 % código nuevo, FR-012).
 - TODOs diferidos: ninguno.
 - Aprobación: usuario, 2026-11-23 (spec 003-calidad-sonar, ADR 0010).
 -->
@@ -171,7 +171,7 @@ Referencia: ADR 0005.
   `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement` → `/review-spec` → `/pr` →
   `/log-practica`. Hay aprobación humana tras clarify y tras analyze.
 - Commits en inglés con Conventional Commits, sin líneas `Co-Authored-By` ni de atribución.
-- Un PR solo se fusiona con CI en verde (formato → tests → arquitectura → build → imagen) **y**
+- Un PR solo se fusiona con CI en verde (formato → tests → arquitectura → build → análisis de calidad → imagen) **y**
   con el Quality Gate de SonarCloud aprobado; ambos son checks obligatorios del ruleset de `main`.
 - Documentación y respuestas en español; código y nombres en inglés.
 

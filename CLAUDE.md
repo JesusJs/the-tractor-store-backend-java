@@ -8,6 +8,7 @@ Demo: **25 de noviembre de 2026**.
 - PostgreSQL + Flyway (sin `ddl-auto=update`; en todos los perfiles `validate`)
 - JUnit + AssertJ + Mockito · Testcontainers (PostgreSQL real, nunca H2) · ArchUnit
 - springdoc-openapi (Swagger UI) · Actuator
+- JaCoCo · SonarCloud con Quality Gate Sonar way (obligatorio para fusionar; ADR 0010, detalle en `TESTING.md`)
 - Docker multi-stage · Azure Container Apps + Azure Database for PostgreSQL · Terraform · GitHub Actions con OIDC
 
 > Spring Boot 4 tiene diferencias importantes con Boot 3. Antes de escribir configuración, tests o serialización, carga la skill `spring-boot-4-notes`.
