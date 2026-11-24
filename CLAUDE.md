@@ -23,7 +23,7 @@ Demo: **25 de noviembre de 2026**.
 | Specs por funcionalidad | `specs/NNN-nombre/` (generadas por Spec Kit) |
 
 ## Arquitectura (resumen; detalle en skills `modular-architecture` y `hexagonal-architecture`)
-- Monolito modular. Módulos: `catalog`, `inventory`, `cart`, `order`, `notifications`.
+- Monolito modular. Módulos de dominio: `catalog`, `inventory`, `cart`, `order`, `notifications`; más el módulo técnico abierto `shared` (jerarquía de errores, `traceId`, CORS; sin entidades ni tablas, ADR 0009).
 - Paquete raíz `com.tractorstore`. Dentro de cada módulo:
   - `api/` → única cara pública (interfaz `XxxApi`, records de intercambio, eventos). Marcado con `@NamedInterface("api")`.
   - `domain/` → modelo y puertos de salida. **Java puro, cero imports de Spring/JPA/Jackson.**

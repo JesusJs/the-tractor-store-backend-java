@@ -1,7 +1,13 @@
 package com.tractorstore;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
@@ -20,17 +26,77 @@ class ApplicationIT {
 
   @Autowired private RestTestClient client;
 
+  private static final String CATALOG = "/api/v1/catalog";
+
+  static String[] catalogPaths() {
+    return new String[] {
+      CATALOG + "/home",
+      CATALOG + "/categories/{filter}",
+      CATALOG + "/products/{id}",
+      CATALOG + "/recommendations",
+      CATALOG + "/stores"
+    };
+  }
+
   @Test
-  void openApiDocumentHasNoPaths() {
+  void openApiDocumentHasExactlyTheFiveCatalogPaths() {
+    Map<String, Object> paths = apiDocs().read("$.paths");
+
+    assertThat(paths).containsOnlyKeys(catalogPaths());
+  }
+
+  @ParameterizedTest
+  @MethodSource("catalogPaths")
+  void everyCatalogOperationIsDocumented(String path) {
+    DocumentContext docs = apiDocs();
+    String operation = "$.paths['" + path + "'].get";
+
+    assertThat(docs.read(operation + ".tags", String[].class)).containsExactly("Catalog");
+    assertThat(docs.read(operation + ".summary", String.class)).isNotBlank();
+    assertThat(docs.read(operation + ".description", String.class)).isNotBlank();
+    Map<String, Object> responses = docs.read(operation + ".responses");
+    assertThat(responses).containsKeys("200", "500");
+    responses.keySet().stream()
+        .filter(status -> !status.equals("200"))
+        .forEach(
+            status ->
+                assertThat(
+                        docs.read(
+                            operation + ".responses['" + status + "'].content.*.schema['$ref']",
+                            String[].class))
+                    .as("%s %s error schema", path, status)
+                    .containsOnly("#/components/schemas/ApiError"));
+  }
+
+  @Test
+  void unknownCatalogRouteReturnsNotFoundError() {
     client
         .get()
-        .uri("/v3/api-docs")
+        .uri(CATALOG + "/products")
         .exchange()
         .expectStatus()
-        .isOk()
+        .isNotFound()
+        .expectHeader()
+        .exists("X-Trace-Id")
         .expectBody()
-        .jsonPath("$.paths")
-        .isEmpty();
+        .jsonPath("$.code")
+        .isEqualTo("NOT_FOUND")
+        .jsonPath("$.traceId")
+        .isNotEmpty();
+  }
+
+  private DocumentContext apiDocs() {
+    String body =
+        client
+            .get()
+            .uri("/v3/api-docs")
+            .exchange()
+            .expectStatus()
+            .isOk()
+            .expectBody(String.class)
+            .returnResult()
+            .getResponseBody();
+    return JsonPath.parse(body);
   }
 
   @Test
@@ -55,11 +121,6 @@ class ApplicationIT {
         .isFound()
         .expectHeader()
         .value("Location", location -> location.endsWith("/swagger-ui/index.html"));
-  }
-
-  @Test
-  void businessRoutesDoNotExistYet() {
-    client.get().uri("/api/v1/catalog/products").exchange().expectStatus().isNotFound();
   }
 
   @Test

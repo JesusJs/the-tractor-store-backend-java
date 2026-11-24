@@ -1,22 +1,18 @@
 <!--
 Sync Impact Report
-- Cambio de versión: plantilla (sin versión) → 1.0.0 (adopción inicial)
-- Principios definidos (8; la plantilla traía 5 marcadores):
-  I. Contrato primero
-  II. Monolito modular + hexagonal
-  III. Pruebas primero, de adentro hacia afuera (NO NEGOCIABLE)
-  IV. Datos
-  V. Eventos internos
-  VI. Seguridad proporcionada
-  VII. Simplicidad y plazo
-  VIII. Entregable y operable
-- Secciones añadidas: Restricciones técnicas (SECTION_2), Flujo de desarrollo (SECTION_3), Gobernanza
+- Cambio de versión: 1.0.0 → 1.1.0 (MINOR: se amplía materialmente el principio II con un módulo
+  técnico; no se elimina ni redefine de forma incompatible ningún principio)
+- Principios modificados:
+  II. Monolito modular + hexagonal (mismo título): de "cinco módulos" a "cinco módulos de dominio +
+  un módulo técnico `shared`" (errores, traceId, CORS; `Type.OPEN`, sin dependencias, sin lógica de
+  negocio ni tablas). Referencia añadida: ADR 0009.
+- Secciones añadidas: ninguna
 - Secciones eliminadas: ninguna
 - Plantillas dependientes: no se modifican (leen la constitución en tiempo de ejecución).
-  ⚠ Revisar a mano que la "Constitution Check" de .specify/templates/plan-template.md
-    se rellena con estos 8 principios al ejecutar /speckit-plan.
+  ✅ Resuelto (2026-11-20, spec 002): CLAUDE.md (§Arquitectura) cita `shared` y ADR 0001 tiene la
+    sección "Actualización 2026-11-20".
 - TODOs diferidos: ninguno.
-Este bloque es material temporal de revisión: elimínalo antes de hacer commit.
+- Aprobación: usuario, 2026-11-20 (spec 002-catalogo, research R7).
 -->
 
 # Constitución de Tractor Store — Backend Java
@@ -43,8 +39,12 @@ devuelvan tipos anotados con `@Entity`; revisión del subagente `spec-reviewer` 
 
 ### II. Monolito modular + hexagonal
 
-- Un único despliegue con los módulos `catalog`, `inventory`, `cart`, `order` y `notifications`
-  bajo `com.tractorstore`.
+- Un único despliegue con cinco módulos de dominio (`catalog`, `inventory`, `cart`, `order` y
+  `notifications`) y un módulo técnico `shared`, todos bajo `com.tractorstore`.
+- `shared` MUST limitarse a lo técnico y transversal (jerarquía de errores, `traceId`, CORS):
+  se declara `@ApplicationModule(type = OPEN)`, no depende de ningún otro módulo y no contiene
+  lógica de negocio, entidades ni tablas. Añadirle otra cosa requiere ADR. Su paquete
+  `shared.error` MUST ser Java puro, porque lo usan los `domain`.
 - Cada módulo MUST organizarse en `api` (única cara pública, `@NamedInterface("api")`), `domain`,
   `application` e `infrastructure` (`web`, `persistence`, `config`).
 - `domain` MUST ser Java puro: cero imports de Spring, JPA (`jakarta.persistence`) o Jackson.
@@ -53,7 +53,7 @@ devuelvan tipos anotados con `@Entity`; revisión del subagente `spec-reviewer` 
 
 **Cómo se comprueba**: `ApplicationModules.of(...).verify()` (`ModularityTests`) y reglas ArchUnit
 (`HexagonalArchitectureTests`) se ejecutan en `./mvnw test` en cada build local y de CI; un fallo
-bloquea el merge. Referencia: ADR 0001.
+bloquea el merge. Referencias: ADR 0001 y ADR 0009 (módulo `shared`).
 
 **Razón**: fronteras explícitas y testeables; el backend anterior falló por no tenerlas.
 
@@ -177,4 +177,4 @@ Referencia: ADR 0005.
   justificación en "Complexity Tracking" bloquea el PR.
 - Guía operativa del día a día: `CLAUDE.md` y las skills de `.claude/skills/`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-12 | **Last Amended**: 2026-11-13
+**Version**: 1.1.0 | **Ratified**: 2026-11-12 | **Last Amended**: 2026-11-20

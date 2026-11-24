@@ -1,64 +1,44 @@
 package com.tractorstore;
 
-import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo;
-import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
-
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
-import org.springframework.data.repository.Repository;
 
+/** Applies {@link ArchitectureRules} to the production code; their self-tests prove they bite. */
 @AnalyzeClasses(packages = "com.tractorstore", importOptions = ImportOption.DoNotIncludeTests.class)
 class HexagonalArchitectureTests {
 
   @ArchTest
-  static final ArchRule domainIsFrameworkFree =
-      noClasses()
-          .that()
-          .resideInAPackage("..domain..")
-          .should()
-          .dependOnClassesThat()
-          .resideInAnyPackage(
-              "org.springframework..",
-              "jakarta.persistence..",
-              "com.fasterxml.jackson..",
-              "tools.jackson..",
-              "org.hibernate..")
-          .because("domain must be plain Java (FR-004)")
-          .allowEmptyShould(true);
+  static final ArchRule domainIsFrameworkFree = ArchitectureRules.DOMAIN_IS_FRAMEWORK_FREE;
 
   @ArchTest
-  static final ArchRule webDoesNotUsePersistence =
-      noClasses()
-          .that()
-          .resideInAPackage("..infrastructure.web..")
-          .should()
-          .dependOnClassesThat(
-              resideInAPackage("..infrastructure.persistence..").or(assignableTo(Repository.class)))
-          .because("controllers must only call use cases (FR-005)")
-          .allowEmptyShould(true);
+  static final ArchRule webDoesNotUsePersistence = ArchitectureRules.WEB_DOES_NOT_USE_PERSISTENCE;
 
   @ArchTest
   static final ArchRule repositoriesLiveInPersistence =
-      classes()
-          .that()
-          .areAssignableTo(Repository.class)
-          .should()
-          .resideInAPackage("..infrastructure.persistence..")
-          .because("Spring Data repositories are persistence adapters (FR-005)")
-          .allowEmptyShould(true);
+      ArchitectureRules.REPOSITORIES_LIVE_IN_PERSISTENCE;
 
   @ArchTest
   static final ArchRule coreDoesNotDependOnInfrastructure =
-      noClasses()
-          .that()
-          .resideInAnyPackage("..domain..", "..application..")
-          .should()
-          .dependOnClassesThat()
-          .resideInAPackage("..infrastructure..")
-          .because("dependencies point inwards: adapters depend on the core, never the reverse")
-          .allowEmptyShould(true);
+      ArchitectureRules.CORE_DOES_NOT_DEPEND_ON_INFRASTRUCTURE;
+
+  @ArchTest
+  static final ArchRule apiDoesNotExposeInternals = ArchitectureRules.API_DOES_NOT_EXPOSE_INTERNALS;
+
+  @ArchTest
+  static final ArchRule entitiesLiveInPersistence = ArchitectureRules.ENTITIES_LIVE_IN_PERSISTENCE;
+
+  @ArchTest static final ArchRule sharedHasNoEntities = ArchitectureRules.SHARED_HAS_NO_ENTITIES;
+
+  @ArchTest
+  static final ArchRule tablesArePrefixedWithModule =
+      ArchitectureRules.TABLES_ARE_PREFIXED_WITH_MODULE;
+
+  @ArchTest
+  static final ArchRule useCasesLiveInPortIn = ArchitectureRules.USE_CASES_LIVE_IN_PORT_IN;
+
+  @ArchTest
+  static final ArchRule domainRepositoriesLiveInPortOut =
+      ArchitectureRules.DOMAIN_REPOSITORIES_LIVE_IN_PORT_OUT;
 }
