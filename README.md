@@ -24,6 +24,8 @@ Backend del [Tractor Store](https://micro-frontends.org/tractor-store/) como mon
 | Levantar PostgreSQL local | `docker compose up -d postgres` |
 | Arrancar la app en perfil `dev` | `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev` |
 
+Tipos de test, cobertura y Quality Gate de SonarCloud: [`TESTING.md`](TESTING.md).
+
 ### Variables de entorno
 
 El perfil `dev` y `compose.yaml` usan valores locales por defecto (`tractor`, no secretos). Para cambiarlos, copia

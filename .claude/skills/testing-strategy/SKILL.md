@@ -18,5 +18,5 @@ Reglas:
 - Nombres en estilo `should_<resultado>_when_<condición>`; patrón given/when/then.
 - `@ParameterizedTest` para la distancia de color y los cálculos de totales.
 - Cada bug de `docs/backlog.md` → test de regresión con `@DisplayName("regresión: ...")`.
-- Cobertura objetivo 80% (JaCoCo), excluyendo records DTO, `config` y la clase `Application`.
+- Cobertura: la exige el Quality Gate **Sonar way** de SonarCloud, 80 % sobre código nuevo, y bloquea el merge (sin umbral local adicional). Exclusiones exactas: `**/infrastructure/web/dto/**`, `**/api/**`, `ApiError`, `**/infrastructure/config/**`, `**/infrastructure/**/*Configuration`, `TractorStoreApplication` y las migraciones `db/migration`. `CorsProperties` y las entidades JPA **no** se excluyen. Detalle y justificación en [`TESTING.md`](../../../TESTING.md).
 - Un test que falla primero es parte de la tarea; no se escribe código de producción sin él.
