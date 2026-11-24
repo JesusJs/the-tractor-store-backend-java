@@ -32,7 +32,7 @@
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<!-- Keep in sync with the JaCoCo report excludes (justified in TESTING.md) -->
-		<sonar.coverage.exclusions>**/infrastructure/web/dto/**,**/api/**,**/shared/infrastructure/web/ApiError.java,**/infrastructure/config/**,**/infrastructure/**/*Configuration.java,**/TractorStoreApplication.java,src/main/resources/db/migration/**</sonar.coverage.exclusions>
+		<sonar.coverage.exclusions>**/infrastructure/web/dto/**,src/main/java/com/tractorstore/*/api/**,**/shared/infrastructure/web/ApiError.java,**/infrastructure/config/**,**/TractorStoreApplication.java,src/main/resources/db/migration/**</sonar.coverage.exclusions>
 		<sonar.cpd.exclusions>src/main/resources/db/migration/**</sonar.cpd.exclusions>
 	</properties>
 
@@ -218,10 +218,9 @@
 							<!-- Keep in sync with sonar.coverage.exclusions (justified in TESTING.md) -->
 							<excludes>
 								<exclude>**/infrastructure/web/dto/**</exclude>
-								<exclude>**/api/**</exclude>
+								<exclude>com/tractorstore/*/api/**</exclude>
 								<exclude>**/shared/infrastructure/web/ApiError.class</exclude>
 								<exclude>**/infrastructure/config/**</exclude>
-								<exclude>**/infrastructure/**/*Configuration.class</exclude>
 								<exclude>**/TractorStoreApplication.class</exclude>
 							</excludes>
 						</configuration>
