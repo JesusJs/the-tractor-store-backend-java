@@ -29,3 +29,11 @@ Evidencia de cómo se construyó el backend con desarrollo dirigido por specs. U
 - **Persistencia parcial**: PostgreSQL en Docker, Flyway con `V1__baseline.sql`, OSIV desactivado e HikariCP.
 - **Arquitectura**: monolito modular con arquitectura hexagonal en cada módulo.
 - **Spec Kit**: constitución del proyecto, especificación, plan técnico, tareas, implementación y validación.
+
+### 2026-11-24 — Spec 002
+- El contrato lo manda el consumidor real, no la documentación: deduje el contrato de la spec oficial y el front esperaba la forma del backend .NET. Leer los modelos TypeScript del front antes de especificar me habría ahorrado reescribir la sección de catálogo. Para el carrito lo haré primero.
+- Entidad de dominio ≠ entidad JPA: el dominio es Java puro y la entidad JPA es un detalle del adaptador de persistencia. Separarlos en paquetes explícitos (domain/model vs infrastructure/persistence/entity) me hizo entender la hexagonal mejor que la teoría.
+- Una regla de arquitectura que no puede fallar no protege nada: los fixtures en archfixtures/ demuestran que cada regla de ArchUnit detecta su violación. Encontré un hueco real en "web no usa persistencia" gracias a eso.
+- Revisar con subagentes especializados (spec, arquitectura, seguridad) encontró 14 hallazgos que yo no habría visto, pero decidir cada uno (corregir / diferir / aceptar con justificación) sigue siendo mi trabajo; reproducirlos con curl antes de corregir evitó arreglar cosas que no estaban rotas.
+- El entorno también es parte del trabajo: /etc/hosts, Burp en 8080 y un JRE sin javac me costaron más tiempo que algunas features. Diagnosticar entorno en el chat y dejar a Claude Code solo para código ahorra tokens.
+- Fusionar specs (persistencia + errores + catálogo) fue correcto por plazo, pero la documentación se quedó atrás de la implementación: debo actualizar docs en el mismo bloque que el código.
