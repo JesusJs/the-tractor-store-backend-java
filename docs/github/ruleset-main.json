@@ -44,6 +44,10 @@
         "required_status_checks": [
           {
             "context": "build"
+          },
+          {
+            "context": "SonarCloud Code Analysis",
+            "integration_id": 12526
           }
         ]
       }
