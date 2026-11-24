@@ -19,6 +19,14 @@
   positivo»? → A: Solo el dueño del repositorio, y cada marca exige un comentario en el PR con
   enlace y justificación, que Oscar/Steven revisan antes de aprobar.
 
+### Session 2026-11-23 (plan)
+
+- Q: ¿El plan gratuito de SonarCloud permite asignar un Quality Gate propio con cobertura
+  ≥ 85 %? → A: No (verificado por el dueño del repositorio): el plan gratuito solo permite el
+  Quality Gate integrado **Sonar way**. Se usa Sonar way, cuyo umbral de cobertura de código
+  nuevo es **80 %**; la diferencia con el 85 % pedido se documenta como limitación del plan en
+  la ADR 0010. Las demás condiciones pedidas quedan cubiertas por Sonar way (ver FR-004).
+
 ## Contexto
 
 - La constitución (v1.1.0, principio VII) y `docs/backlog.md` / `docs/requisitos.md` listan
@@ -27,7 +35,8 @@
 - Hoy el control de merge a `main` (`docs/github/ruleset-main.json`) exige PR y un único check
   obligatorio, `build` (gitleaks → formato → unit + arquitectura → integración → empaquetado).
 - Hoy no se mide cobertura. La skill `testing-strategy` fija un objetivo orientativo del 80 %
-  global; esta spec introduce un umbral **sobre código nuevo** del 85 % que sí bloquea.
+  global; esta spec introduce un umbral **sobre código nuevo** del 80 % (el del Quality Gate Sonar way)
+  que sí bloquea.
 - El repositorio `JesusJs/the-tractor-store-backend-java` es **público**.
 - Revisores habituales (CODEOWNERS): Oscar y Steven.
 
@@ -37,7 +46,7 @@
 
 Como equipo, al abrir o actualizar un pull request contra `main`, el código se analiza
 automáticamente y el resultado del Quality Gate aparece como un check del PR. Si el Quality Gate
-falla (por ejemplo, un bug nuevo o cobertura de código nuevo por debajo del 85 %), GitHub no
+falla (por ejemplo, un bug nuevo o cobertura de código nuevo por debajo del 80 %), GitHub no
 permite fusionar el PR.
 
 **Why this priority**: es el objetivo central: que los defectos se paren antes de llegar a
@@ -52,7 +61,7 @@ comprobar que el check pasa a verde y el merge se habilita.
 1. **Given** un PR contra `main` cuyo código nuevo cumple todas las condiciones del Quality Gate,
    **When** termina el análisis, **Then** el check de calidad aparece en verde y, junto con
    `build`, el PR se puede fusionar.
-2. **Given** un PR que introduce código nuevo con cobertura < 85 %, **When** termina el
+2. **Given** un PR que introduce código nuevo con cobertura < 80 %, **When** termina el
    análisis, **Then** el check de calidad aparece en rojo y GitHub impide el merge.
 3. **Given** un PR que introduce un bug o una vulnerabilidad nuevos detectados por el análisis,
    **When** termina el análisis, **Then** el Quality Gate falla y el merge queda bloqueado.
@@ -73,7 +82,7 @@ Como equipo, queremos que la cobertura reportada sume lo que ejercitan los tests
 arquitectura y de integración (estos últimos contra la base de datos real en contenedor), y verla
 en cada PR, tanto la del código nuevo como la global.
 
-**Why this priority**: el umbral del 85 % de la US1 solo es fiable si la cobertura es la real;
+**Why this priority**: el umbral del 80 % de la US1 solo es fiable si la cobertura es la real;
 si se midiera solo con unitarios, los adaptadores probados por integración aparecerían sin
 cubrir y el Quality Gate fallaría injustamente (o se tentaría a bajar el umbral).
 
@@ -175,10 +184,12 @@ rama `main` con fecha del merge.
 
 - **FR-003**: Cada apertura o actualización de un PR contra `main` y cada push a `main` MUST
   disparar un análisis de calidad del código del backend en SonarCloud.
-- **FR-004**: El proyecto MUST tener asignado un Quality Gate con estas condiciones sobre
-  código nuevo: 0 bugs nuevos, 0 vulnerabilidades nuevas, cobertura ≥ 85 %, líneas duplicadas
-  ≤ 3 %, ratings de fiabilidad, seguridad y mantenibilidad iguales a A, y 100 % de security
-  hotspots revisados. Un hotspot nuevo sin revisar MUST hacer fallar el Quality Gate.
+- **FR-004**: El proyecto MUST usar el Quality Gate integrado **Sonar way** (el plan gratuito
+  de SonarCloud no permite uno propio; ADR 0010). Sus condiciones sobre código nuevo son:
+  cobertura ≥ 80 %, líneas duplicadas ≤ 3 %, ratings de fiabilidad, seguridad y mantenibilidad
+  iguales a A (un rating A en fiabilidad/seguridad equivale a 0 bugs y 0 vulnerabilidades
+  nuevos) y 100 % de security hotspots revisados. Un hotspot nuevo sin revisar MUST hacer fallar
+  el Quality Gate. Diferencia aceptada respecto a lo pedido: cobertura 80 % en lugar de 85 %.
 - **FR-004a**: Solo el dueño del repositorio MUST poder marcar en el servicio un hotspot como
   seguro o un issue como falso positivo / no se corregirá. Cada marca MUST ir acompañada de un
   comentario en el PR con el enlace al hotspot/issue y la justificación, que los revisores
@@ -205,7 +216,7 @@ rama `main` con fecha del merge.
   de cobertura agregado en local, cada patrón de exclusión con su justificación, las condiciones
   del Quality Gate y el procedimiento ante falsos positivos o caída del servicio.
 - **FR-012**: La skill `testing-strategy` MUST actualizarse para que su objetivo de cobertura
-  sea coherente con el Quality Gate (85 % en código nuevo) y con las exclusiones de FR-010.
+  sea coherente con el Quality Gate (80 % en código nuevo, Sonar way) y con las exclusiones de FR-010.
 
 **Visibilidad en el PR**
 
@@ -243,7 +254,7 @@ rama `main` con fecha del merge.
 
 - **SC-001**: El 100 % de los PRs contra `main` abiertos tras el merge de esta spec muestran el
   resultado del Quality Gate como check del PR.
-- **SC-002**: Un PR de prueba con código nuevo sin tests (cobertura de código nuevo < 85 %) no
+- **SC-002**: Un PR de prueba con código nuevo sin tests (cobertura de código nuevo < 80 %) no
   puede fusionarse; el mismo PR con tests suficientes sí. Verificable con dos ejecuciones.
 - **SC-003**: Una clase cubierta solo por tests de integración aparece con ≥ 1 línea cubierta en
   el informe del análisis (prueba de que la cobertura es agregada).
@@ -260,17 +271,18 @@ rama `main` con fecha del merge.
 - El dueño del repositorio crea manualmente la organización y el proyecto en SonarCloud, importa
   el repositorio y guarda el token como secreto de GitHub; la spec no automatiza la creación de
   cuentas ni maneja el valor del token.
-- Al ser un repositorio público, el plan gratuito de SonarCloud es suficiente y permite asignar
-  un Quality Gate propio al proyecto. Si el plan no lo permitiera, se volverá a preguntar antes
-  de implementar (no se baja el 85 % sin decisión explícita).
-- Se desactiva el "análisis automático" del servicio en favor del análisis desde el pipeline,
-  porque es el único modo de enviar la cobertura agregada.
+- Al ser un repositorio público, el plan gratuito de SonarCloud es suficiente para analizar PRs
+  y `main`, pero **no** permite un Quality Gate propio: se usa Sonar way (80 %), decisión
+  explícita del dueño del repositorio (2026-11-23). La organización (`jesusjs`), el proyecto
+  (`JesusJs_the-tractor-store-backend-java`) y el secreto `SONAR_TOKEN` ya existen.
+- El "análisis automático" del servicio ya está desactivado en favor del análisis desde el
+  pipeline, porque es el único modo de enviar la cobertura agregada.
 - El primer análisis de `main` fija la línea base: el código de las specs 001 y 002 no tiene que
-  alcanzar el 85 % para que los PRs posteriores se puedan fusionar.
+  alcanzar el 80 % para que los PRs posteriores se puedan fusionar.
 - Esta spec toma el número 003 por orden secuencial de `specs/`; la fila 003 del backlog
   (`despliegue-azure-esqueleto`) pasa a numerarse cuando se especifique.
 - La rama `003-calidad-sonar` parte de `002-catalogo`, que aún no está fusionada en `main`; el PR
   de esta spec se abrirá (o rebasará) cuando 002 esté en `main`.
 - Los revisores (Oscar, Steven) no necesitan cuenta en el servicio para ver el resultado.
 - El umbral orientativo del 80 % global de la skill `testing-strategy` se sustituye por el
-  85 % sobre código nuevo; no hay un segundo umbral de cobertura que falle el build en local.
+  80 % sobre código nuevo del Quality Gate Sonar way; no hay un segundo umbral de cobertura que falle el build en local.

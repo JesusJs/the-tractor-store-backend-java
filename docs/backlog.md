@@ -23,7 +23,8 @@ Cada fila es una ejecución del ciclo Spec Kit. El número final lo asigna `/spe
 Si el tiempo aprieta, recorta en este orden: 009 (dejar solo un test E2E), 006 (stock fijo "en stock"), 010 (CD manual).
 
 ## Fuera de alcance
-Keycloak/JWT, Grafana/Prometheus, OpenTelemetry completo, caché, k6, SonarCloud, Kafka.
+Keycloak/JWT, Grafana/Prometheus, OpenTelemetry completo, caché, k6, Kafka.
+SonarCloud pasa a alcance con la spec 003 (ADR 0010, Quality Gate Sonar way).
 
 ## Regresiones del backend .NET que cada spec debe cubrir con test
 | Bug anterior | Spec que lo cubre |

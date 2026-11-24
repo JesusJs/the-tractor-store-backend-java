@@ -1,18 +1,20 @@
 <!--
 Sync Impact Report
-- Cambio de versión: 1.0.0 → 1.1.0 (MINOR: se amplía materialmente el principio II con un módulo
-  técnico; no se elimina ni redefine de forma incompatible ningún principio)
+- Cambio de versión: 1.1.0 → 1.2.0 (MINOR: se amplía materialmente el alcance del principio VII y
+  la condición de merge del flujo; no se elimina ni redefine de forma incompatible ningún principio)
 - Principios modificados:
-  II. Monolito modular + hexagonal (mismo título): de "cinco módulos" a "cinco módulos de dominio +
-  un módulo técnico `shared`" (errores, traceId, CORS; `Type.OPEN`, sin dependencias, sin lógica de
-  negocio ni tablas). Referencia añadida: ADR 0009.
+  VII. Simplicidad y plazo (mismo título): SonarCloud sale de "Fuera de alcance" y entra en alcance
+  solo para el backend, con el Quality Gate integrado Sonar way (cobertura de código nuevo ≥ 80 %,
+  limitación del plan gratuito). Referencia añadida: ADR 0010.
+- Secciones modificadas: Restricciones técnicas (+ JaCoCo y SonarCloud); Flujo de desarrollo
+  (merge exige además el Quality Gate de SonarCloud aprobado).
 - Secciones añadidas: ninguna
 - Secciones eliminadas: ninguna
 - Plantillas dependientes: no se modifican (leen la constitución en tiempo de ejecución).
-  ✅ Resuelto (2026-11-20, spec 002): CLAUDE.md (§Arquitectura) cita `shared` y ADR 0001 tiene la
-    sección "Actualización 2026-11-20".
+  ✅ docs/backlog.md y docs/requisitos.md actualizados en el mismo cambio (spec 003, FR-001).
+  ⚠ Pendiente en la implementación de 003: skill `testing-strategy` (80 % código nuevo, FR-012).
 - TODOs diferidos: ninguno.
-- Aprobación: usuario, 2026-11-20 (spec 002-catalogo, research R7).
+- Aprobación: usuario, 2026-11-23 (spec 003-calidad-sonar, ADR 0010).
 -->
 
 # Constitución de Tractor Store — Backend Java
@@ -121,12 +123,17 @@ Referencia: ADR 0004.
 ### VII. Simplicidad y plazo
 
 - La demo es el 2026-11-25; YAGNI manda.
-- Fuera de alcance: Keycloak, Grafana, OpenTelemetry completo, caché, k6, SonarCloud, Kafka.
+- Fuera de alcance: Keycloak, Grafana, OpenTelemetry completo, caché, k6, Kafka.
+- En alcance desde la spec 003: SonarCloud, solo para este backend (ni front ni instalación
+  autoalojada), con el Quality Gate integrado **Sonar way** (código nuevo: cobertura ≥ 80 %,
+  duplicación ≤ 3 %, ratings A, 100 % de hotspots revisados). El 80 % es una limitación del plan
+  gratuito, que no admite Quality Gates propios; cambiar de Quality Gate o de plan requiere ADR.
 - Cualquier complejidad no exigida por la spec MUST justificarse en la sección
   "Complexity Tracking" del `plan.md`.
 
 **Cómo se comprueba**: `/speckit-analyze` y la "Constitution Check" del plan señalan
 dependencias o componentes fuera de alcance; el subagente `architecture-reviewer` lo revisa.
+Referencia: ADR 0010 (SonarCloud en alcance).
 
 **Razón**: una sola persona y nueve días; cada pieza extra compite con la demo.
 
@@ -148,6 +155,9 @@ Referencia: ADR 0005.
 
 - Java 21 · Spring Boot 4.1.x · Spring Modulith 2.x · Maven wrapper (`./mvnw`).
 - PostgreSQL + Flyway · springdoc-openapi (Swagger UI) · Actuator.
+- Calidad: JaCoCo (cobertura agregada de unitarios, arquitectura e integración en un único
+  informe) · SonarCloud (plan gratuito, Quality Gate Sonar way; token solo como secreto de
+  GitHub). Ambos plugins de build con versión exacta (ADR 0010).
 - JUnit + AssertJ + Mockito · Testcontainers · ArchUnit.
 - Formato con Spotless (google-java-format); `./mvnw spotless:check` falla el build si no se cumple.
 - Spring Boot 4 difiere de Boot 3 (ADR 0006): antes de escribir configuración, tests o
@@ -161,7 +171,8 @@ Referencia: ADR 0005.
   `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement` → `/review-spec` → `/pr` →
   `/log-practica`. Hay aprobación humana tras clarify y tras analyze.
 - Commits en inglés con Conventional Commits, sin líneas `Co-Authored-By` ni de atribución.
-- Un PR solo se fusiona con CI en verde (formato → tests → arquitectura → build → imagen).
+- Un PR solo se fusiona con CI en verde (formato → tests → arquitectura → build → imagen) **y**
+  con el Quality Gate de SonarCloud aprobado; ambos son checks obligatorios del ruleset de `main`.
 - Documentación y respuestas en español; código y nombres en inglés.
 
 ## Gobernanza
@@ -177,4 +188,4 @@ Referencia: ADR 0005.
   justificación en "Complexity Tracking" bloquea el PR.
 - Guía operativa del día a día: `CLAUDE.md` y las skills de `.claude/skills/`.
 
-**Version**: 1.1.0 | **Ratified**: 2026-11-12 | **Last Amended**: 2026-11-20
+**Version**: 1.2.0 | **Ratified**: 2026-11-12 | **Last Amended**: 2026-11-23
