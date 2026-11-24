@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-19
 
-**Status**: Implemented (pendiente de validación con el front, T061)
+**Status**: Implemented (validado con el front real, T061)
 
 **Input**: User description: "@docs/prompts/specify-002-catalogo.md — Funcionalidad catalogo (fusiona 002 persistencia-dataset, 004 errores-validacion y 005 catalogo del backlog): home, listados por categoría (all, classic, autonomous), detalle de producto con variantes, recomendaciones por cercanía de color, tiendas; respuestas con la forma exacta que consume el front; datos del catálogo en BD creados y poblados de forma reproducible; formato de error único {code, message, details?, traceId}. Fuente de verdad: modelos TS y servicios HTTP del front > handlers MSW > docs/api-contract.md. Regresiones .NET: recomendaciones por color y nunca por categoría; sin skus → 200 con lista por defecto; producto/categoría/SKU inexistente → 404; dataset oficial del reto con colores. Fuera de alcance: inventario, carrito, pedidos, caché."
 

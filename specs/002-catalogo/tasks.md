@@ -205,7 +205,7 @@ las interfaces de caso de uso pasan a llamarse `*UseCase`. Ver skill `hexagonal-
 - [X] T058 [P] Documentar el módulo técnico `shared` (pendientes del Sync Impact Report de la constitución v1.1.0): actualizar el resumen de arquitectura de `CLAUDE.md` ("Módulos: …") y `docs/adr/0001-monolito-modular-hexagonal.md` (nota "Actualización 2026-11-20" que remite a la ADR 0009: cinco módulos de dominio + `shared` técnico), sin reescribir la decisión original
 - [ ] T059 Ejecutar `./mvnw spotless:apply` y `./mvnw verify` en verde; revisar que ningún archivo de `domain/` ni `shared/error/` importa Spring/JPA/Jackson
 - [ ] T060 Ejecutar quickstart.md §2–§5 y §7 a mano contra `docker compose up -d postgres` + perfil `dev`, incluidos el tiempo de respuesta < 1 s por endpoint (SC-006, solo manual) y arrancar con `CORS_ALLOWED_ORIGINS='*'` para ver que falla
-- [ ] T061 Validar con el front real sin cambios (quickstart §6, SC-001): `pnpm nx serve shell`, recorrer home, 3 listados, detalle, recomendaciones y tiendas sin errores de red/CORS en consola; guardar capturas como evidencia para el PR
+- [X] T061 Validar con el front real sin cambios (quickstart §6, SC-001): `pnpm nx serve shell`, recorrer home, 3 listados, detalle, recomendaciones y tiendas sin errores de red/CORS en consola; guardar capturas como evidencia para el PR
 
 ---
 
