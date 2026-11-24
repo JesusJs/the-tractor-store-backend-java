@@ -21,8 +21,19 @@
 		<archunit.version>1.5.1</archunit.version>
 		<spotless.version>3.11.0</spotless.version>
 		<google-java-format.version>1.36.0</google-java-format.version>
+		<!-- Not managed by the Spring Boot parent -->
+		<jacoco.version>0.8.16</jacoco.version>
+		<sonar-maven-plugin.version>5.9.0.7382</sonar-maven-plugin.version>
 		<!-- CI runs integration tests alone with -DskipUnitTests -->
 		<skipUnitTests>false</skipUnitTests>
+		<!-- SonarCloud analysis; the token comes only from the SONAR_TOKEN env var -->
+		<sonar.organization>jesusjs</sonar.organization>
+		<sonar.projectKey>JesusJs_the-tractor-store-backend-java</sonar.projectKey>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<!-- Keep in sync with the JaCoCo report excludes (justified in TESTING.md) -->
+		<sonar.coverage.exclusions>**/infrastructure/web/dto/**,**/api/**,**/shared/infrastructure/web/ApiError.java,**/infrastructure/config/**,**/infrastructure/**/*Configuration.java,**/TractorStoreApplication.java,src/main/resources/db/migration/**</sonar.coverage.exclusions>
+		<sonar.cpd.exclusions>src/main/resources/db/migration/**</sonar.cpd.exclusions>
 	</properties>
 
 	<dependencyManagement>
@@ -136,6 +147,15 @@
 	</dependencies>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>${sonar-maven-plugin.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -166,6 +186,45 @@
 							<goal>integration-test</goal>
 							<goal>verify</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Declared after failsafe so the verify-phase report includes the *IT runs -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<configuration>
+							<!-- Single .exec shared by surefire and failsafe (sets argLine) -->
+							<destFile>${project.build.directory}/jacoco.exec</destFile>
+							<append>true</append>
+						</configuration>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+							<!-- Keep in sync with sonar.coverage.exclusions (justified in TESTING.md) -->
+							<excludes>
+								<exclude>**/infrastructure/web/dto/**</exclude>
+								<exclude>**/api/**</exclude>
+								<exclude>**/shared/infrastructure/web/ApiError.class</exclude>
+								<exclude>**/infrastructure/config/**</exclude>
+								<exclude>**/infrastructure/**/*Configuration.class</exclude>
+								<exclude>**/TractorStoreApplication.class</exclude>
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

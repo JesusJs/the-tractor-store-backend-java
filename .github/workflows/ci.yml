@@ -46,3 +46,9 @@ jobs:
 
       - name: Package
         run: ./mvnw -B package -DskipTests -Dspotless.check.skip=true
+
+      - name: Quality analysis
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./mvnw -B sonar:sonar -Dspotless.check.skip=true
