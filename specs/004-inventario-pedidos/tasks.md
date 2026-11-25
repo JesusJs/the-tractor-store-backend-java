@@ -39,8 +39,8 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 
 **Purpose**: dejar la rama lista. No hay dependencias nuevas en P1/P2 (`pom.xml` solo cambia en P3).
 
-- [ ] T001 Verificar la línea base: `docker compose up -d postgres` y `./mvnw verify` en verde en la rama `004-inventario-pedidos` antes de tocar código (anotar cualquier fallo previo; no se arregla aquí)
-- [ ] T002 [P] Añadir `tractorstore.session.secure-cookie: false` en `res/application.yml` y `tractorstore.session.secure-cookie: true` en `res/application-prod.yml` (R2; mismo estilo que el bloque de CORS existente)
+- [X] T001 Verificar la línea base: `docker compose up -d postgres` y `./mvnw verify` en verde en la rama `004-inventario-pedidos` antes de tocar código (anotar cualquier fallo previo; no se arregla aquí)
+- [X] T002 [P] Añadir `tractorstore.session.secure-cookie: false` en `res/application.yml` y `tractorstore.session.secure-cookie: true` en `res/application-prod.yml` (R2; mismo estilo que el bloque de CORS existente)
 
 ---
 
