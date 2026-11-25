@@ -23,9 +23,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
- * The only place where errors become HTTP responses (FR-014, research R8). {@link
- * ErrorKind#CONFLICT} is not translated yet: spec 007 adds the 409; until then it falls into the
- * generic 500.
+ * The only place where errors become HTTP responses (FR-014, research R8). Business errors keep
+ * their own {@code code}: {@link ErrorKind#NOT_FOUND} is 404 and {@link ErrorKind#CONFLICT} is 409.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,10 +33,12 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(BusinessException.class)
   ResponseEntity<ApiError> handleBusiness(BusinessException error) {
-    if (error.kind() == ErrorKind.NOT_FOUND) {
-      return body(HttpStatus.NOT_FOUND, error.code(), error.getMessage(), null);
-    }
-    return unexpected(error);
+    HttpStatus status =
+        switch (error.kind()) {
+          case NOT_FOUND -> HttpStatus.NOT_FOUND;
+          case CONFLICT -> HttpStatus.CONFLICT;
+        };
+    return body(status, error.code(), error.getMessage(), null);
   }
 
   /** {@code @Valid @RequestBody} with constraint violations. */

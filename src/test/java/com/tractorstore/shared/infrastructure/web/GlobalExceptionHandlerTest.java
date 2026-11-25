@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.tractorstore.shared.error.ConflictException;
 import com.tractorstore.shared.error.NotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -55,6 +56,17 @@ class GlobalExceptionHandlerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.code").value("TEST_NOT_FOUND"))
             .andExpect(jsonPath("$.message").value("Thing 42 not found"))
+            .andExpect(jsonPath("$.details").doesNotExist())
+            .andReturn();
+
+    expectTraceIdMatchesHeader(result);
+  }
+
+  @Test
+  void businessConflictBecomes409WithItsCode() throws Exception {
+    MvcResult result =
+        expectError(mvc.perform(get("/test/conflict")), 409, "OUT_OF_STOCK")
+            .andExpect(jsonPath("$.message").value("Variant AU-08-WH is out of stock"))
             .andExpect(jsonPath("$.details").doesNotExist())
             .andReturn();
 
@@ -266,6 +278,11 @@ class GlobalExceptionHandlerTest {
       throw new TestNotFoundException("Thing 42 not found");
     }
 
+    @GetMapping("/test/conflict")
+    String conflict() {
+      throw new TestConflictException("Variant AU-08-WH is out of stock");
+    }
+
     @GetMapping("/test/boom")
     String boom() {
       throw new RuntimeException("SELECT secret FROM x");
@@ -300,6 +317,12 @@ class GlobalExceptionHandlerTest {
   static class TestNotFoundException extends NotFoundException {
     TestNotFoundException(String message) {
       super("TEST_NOT_FOUND", message);
+    }
+  }
+
+  static class TestConflictException extends ConflictException {
+    TestConflictException(String message) {
+      super("OUT_OF_STOCK", message);
     }
   }
 }

@@ -52,16 +52,16 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 
 ### Tests (rojo primero)
 
-- [ ] T003 [P] Ampliar `test/shared/infrastructure/web/GlobalExceptionHandlerTest.java`: una subclase de prueba de `ConflictException` con `code = "OUT_OF_STOCK"` → 409, cuerpo `{ code, message, traceId }` con el `code` de la excepción (R5)
-- [ ] T004 [P] Crear `test/shared/infrastructure/web/SessionCookiesTest.java` (sin Spring, `MockHttpServletRequest`/`MockHttpServletResponse`): `read` sin cookie → vacío; UUID canónico → valor; `"1-1-1-1-1"` y `"abc"` → vacío; dos cookies `ts_session` → usa la primera; `resolveOrIssue` con UUID válido → lo devuelve y **no** añade `Set-Cookie`; sin cookie o inválida → UUID nuevo **distinto** del recibido y `Set-Cookie` con `ts_session=<uuid>; Path=/; HttpOnly; SameSite=Lax`, sin `Max-Age`; con `secureCookie=true` añade `Secure` y con `false` no (R2)
+- [X] T003 [P] Ampliar `test/shared/infrastructure/web/GlobalExceptionHandlerTest.java`: una subclase de prueba de `ConflictException` con `code = "OUT_OF_STOCK"` → 409, cuerpo `{ code, message, traceId }` con el `code` de la excepción (R5)
+- [X] T004 [P] Crear `test/shared/infrastructure/web/SessionCookiesTest.java` (sin Spring, `MockHttpServletRequest`/`MockHttpServletResponse`): `read` sin cookie → vacío; UUID canónico → valor; `"1-1-1-1-1"` y `"abc"` → vacío; dos cookies `ts_session` → usa la primera; `resolveOrIssue` con UUID válido → lo devuelve y **no** añade `Set-Cookie`; sin cookie o inválida → UUID nuevo **distinto** del recibido y `Set-Cookie` con `ts_session=<uuid>; Path=/; HttpOnly; SameSite=Lax`, sin `Max-Age`; con `secureCookie=true` añade `Secure` y con `false` no (R2)
 
 ### Implementación
 
-- [ ] T005 [P] Crear `main/shared/error/ConflictException.java`: clase abstracta, `extends BusinessException`, `kind() = ErrorKind.CONFLICT` (Java puro); actualizar el javadoc de `ErrorKind.CONFLICT` en `main/shared/error/ErrorKind.java` (quitar la mención a "spec 007")
-- [ ] T006 Añadir la rama `CONFLICT → 409` con el `code` de la excepción en `main/shared/infrastructure/web/GlobalExceptionHandler.java` y quitar el comentario "spec 007 adds the 409" (depende de T005; pasa T003)
-- [ ] T007 [P] Crear `main/shared/infrastructure/web/SessionCookieProperties.java`: `@ConfigurationProperties("tractorstore.session") record SessionCookieProperties(boolean secureCookie)` y registrarlo igual que `CorsProperties` (depende de T002)
-- [ ] T008 Crear `main/shared/infrastructure/web/SessionCookies.java` (`@Component` público): constante `COOKIE_NAME = "ts_session"`; `Optional<UUID> read(HttpServletRequest)` con la regex canónica `^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$` + `UUID.fromString`; `UUID resolveOrIssue(HttpServletRequest, HttpServletResponse)` que usa `ResponseCookie` (`Path=/`, `HttpOnly`, `SameSite=Lax`, `Secure` según propiedad, sin `Max-Age`) (depende de T007; pasa T004)
-- [ ] T009 Actualizar el comentario de `main/shared/package-info.java` para incluir la sesión por cookie `ts_session` (ADR 0011, pendiente del Sync Impact Report de la constitución 1.3.0)
+- [X] T005 [P] Crear `main/shared/error/ConflictException.java`: clase abstracta, `extends BusinessException`, `kind() = ErrorKind.CONFLICT` (Java puro); actualizar el javadoc de `ErrorKind.CONFLICT` en `main/shared/error/ErrorKind.java` (quitar la mención a "spec 007")
+- [X] T006 Añadir la rama `CONFLICT → 409` con el `code` de la excepción en `main/shared/infrastructure/web/GlobalExceptionHandler.java` y quitar el comentario "spec 007 adds the 409" (depende de T005; pasa T003)
+- [X] T007 [P] Crear `main/shared/infrastructure/web/SessionCookieProperties.java`: `@ConfigurationProperties("tractorstore.session") record SessionCookieProperties(boolean secureCookie)` y registrarlo igual que `CorsProperties` (depende de T002)
+- [X] T008 Crear `main/shared/infrastructure/web/SessionCookies.java` (`@Component` público): constante `COOKIE_NAME = "ts_session"`; `Optional<UUID> read(HttpServletRequest)` con la regex canónica `^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$` + `UUID.fromString`; `UUID resolveOrIssue(HttpServletRequest, HttpServletResponse)` que usa `ResponseCookie` (`Path=/`, `HttpOnly`, `SameSite=Lax`, `Secure` según propiedad, sin `Max-Age`) (depende de T007; pasa T004)
+- [X] T009 Actualizar el comentario de `main/shared/package-info.java` para incluir la sesión por cookie `ts_session` (ADR 0011, pendiente del Sync Impact Report de la constitución 1.3.0)
 
 **Checkpoint**: `./mvnw test -Dtest='GlobalExceptionHandlerTest,SessionCookiesTest'` en verde.
 

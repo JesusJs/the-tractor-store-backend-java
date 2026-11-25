@@ -7,6 +7,6 @@ package com.tractorstore.shared.error;
 public enum ErrorKind {
   /** Requested resource does not exist. */
   NOT_FOUND,
-  /** Request conflicts with the current state; cart and orders will use it (spec 007). */
+  /** Request conflicts with the current state (empty cart, out of stock). */
   CONFLICT
 }
