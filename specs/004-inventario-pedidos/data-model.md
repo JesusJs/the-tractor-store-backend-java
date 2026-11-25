@@ -98,7 +98,8 @@ Mapeo de `VariantView`: `sku` = `variant.sku()`, `productId` = `product.id()`,
 ### Dominio: agregado
 **`model.OrderLine`** (record): `String sku`, `String productId`, `String productName`,
 `String variantName`, `Money unitPrice`, `int quantity`, `String image`.
-- Invariantes: textos no vacíos; `1 ≤ quantity ≤ 99`.
+- Invariantes: textos no vacíos; `unitPrice > 0` (coherente con `CHECK (unit_price > 0)` de
+  `order_line`: un precio 0 falla en el dominio y no como 500 de la BD); `1 ≤ quantity ≤ 99`.
 - `Money lineTotal()` = `unitPrice × quantity`.
 - `variantName` guarda el **nombre** de la variante del catálogo (copia histórica, FR-021). El
   recibo expone `variantName = sku` (FR-009, regresión .NET), así que lo resuelve el mapper HTTP y
