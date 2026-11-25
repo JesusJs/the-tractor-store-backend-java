@@ -220,7 +220,11 @@ class GlobalExceptionHandlerTest {
   @Test
   void dataAccessErrorBecomes500WithoutInternals() throws Exception {
     MvcResult result =
-        expectError(mvc.perform(get("/test/db")), 500, "INTERNAL_ERROR")
+        // Fixed traceId: a random one can contain "5432" and fail the leak check (review 003)
+        expectError(
+                mvc.perform(get("/test/db").header(TraceIdFilter.HEADER, "db-trace-1")),
+                500,
+                "INTERNAL_ERROR")
             .andExpect(jsonPath("$.message").value("Unexpected error"))
             .andExpect(jsonPath("$.details").doesNotExist())
             .andExpect(content().string(not(containsString("5432"))))
