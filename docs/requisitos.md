@@ -30,6 +30,8 @@ Resumen de la *Guía de aprendizaje Tractor Store* (sesión 2, fases B1–B12; s
 | Spring Boot 3.x | Spring Boot 4.1.x (3.5 sin soporte OSS desde jun-2026) | 0006 |
 | `/api/catalog/...` | `/api/v1/catalog/...` (lo que llama el front) | 0004 |
 | Pedidos protegidos con JWT/Keycloak (B8) | Cookie de sesión, sin login | 0004 |
-| Grafana, k6, caché, SonarCloud | Fuera de alcance por plazo | — |
+| Grafana, k6, caché | Fuera de alcance por plazo | — |
+| SonarCloud (C2) con Quality Gate propio | SonarCloud con Sonar way (cobertura nueva ≥ 80 %; el plan gratuito no admite Quality Gate propio) | 0010 |
+| Proyecto SonarCloud `tractor-store-backend` en la organización de Quind (C2) | Organización personal `jesusjs` (plan gratuito, repositorio público; acuerdo de meet4) | 0010 |
 | Fly.io / Render (C5) | Azure Container Apps + Terraform + OIDC | 0005 |
 | Paquetes `api`/`internal` (B9) | `api` + capas hexagonales internas | 0001 |
