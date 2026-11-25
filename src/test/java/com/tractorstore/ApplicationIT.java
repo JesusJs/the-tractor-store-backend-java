@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -39,10 +40,15 @@ class ApplicationIT {
   }
 
   @Test
-  void openApiDocumentHasExactlyTheFiveCatalogPaths() {
+  void openApiDocumentHasExactlyTheDeliveredPaths() {
     Map<String, Object> paths = apiDocs().read("$.paths");
 
-    assertThat(paths).containsOnlyKeys(catalogPaths());
+    // Five catalog paths plus inventory and cart (004 P1); T061 adds the two order paths.
+    assertThat(paths)
+        .containsOnlyKeys(
+            Stream.concat(
+                    Stream.of(catalogPaths()), Stream.of("/api/v1/inventory/{sku}", "/api/v1/cart"))
+                .toArray(String[]::new));
   }
 
   @ParameterizedTest
