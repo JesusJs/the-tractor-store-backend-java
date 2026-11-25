@@ -18,3 +18,6 @@ Confirmar un pedido debe vaciar el carrito, descontar el stock y notificar. Si `
 - Positivas: añadir `notifications` no requiere tocar `order`; entrega fiable.
 - Negativas: consistencia eventual (el stock se descuenta y la notificación sale milisegundos después del commit); la tabla de eventos va en una migración Flyway propia.
 - Verificación: test con `Scenario` de Modulith y test de reintento (listener que falla una vez).
+
+## Actualización 2026-11-24 (ADR 0011)
+`inventory` ya no consume `OrderPlaced`: `order` descuenta el stock de forma síncrona vía `inventory.api` (UPDATE condicional, misma transacción) para evitar el ciclo `order ↔ inventory`. El único consumidor es `notifications`. Tampoco hay vaciado de carrito: el carrito vive en el front (ADR 0011 reemplaza a la 0007).

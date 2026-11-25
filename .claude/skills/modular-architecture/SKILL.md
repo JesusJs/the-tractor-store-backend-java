@@ -7,13 +7,14 @@ description: Reglas del monolito modular con Spring Modulith 2 (módulos, API p�
 ## Módulos y dependencias permitidas
 | Módulo | Puede usar | Publica |
 |---|---|---|
-| catalog | — | — |
-| inventory | eventos de order (`OrderPlaced`) | — |
-| cart | catalog.api (precio, nombre, imagen), inventory.api (stock) | — |
-| order | cart.api (leer y vaciar el carrito, síncrono y en la misma transacción; ADR 0007), catalog.api (tiendas) | `OrderPlaced` |
+| catalog | shared | — |
+| inventory | shared | — |
+| cart | shared (cookie de sesión; no hay carrito en servidor, ADR 0011) | — |
+| order | catalog.api (precio, nombre e imagen de la variante), inventory.api (validar y descontar stock, síncrono y en la misma transacción; ADR 0011), shared | `OrderPlaced` |
 | notifications | eventos de order | — |
 
-Escuchan `OrderPlaced`: inventory (descontar stock) y notifications (log "email enviado"). `cart` **no** lo escucha: lo vacía `order` vía `cart.api` (ADR 0007, evita el ciclo cart ↔ order).
+Solo `notifications` escucha `OrderPlaced` (log "email enviado"). `inventory` **no** lo escucha: `order` descuenta el stock vía `inventory.api` con un `UPDATE` condicional (ADR 0011, evita el ciclo order ↔ inventory). `order` ya no usa `cart.api` (la ADR 0007 está reemplazada).
+`shared` es `OPEN` y técnico (errores, `traceId`, CORS, sesión por cookie; ADR 0009 y 0011): cada módulo que lo use lo declara en `allowedDependencies`.
 No hay ciclos. Si necesitas una flecha nueva, crea una ADR antes.
 
 ## Mecánica

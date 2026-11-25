@@ -17,7 +17,7 @@ Demo: **25 de noviembre de 2026**.
 | Qué | Dónde |
 |---|---|
 | Principios no negociables | `.specify/memory/constitution.md` |
-| Contrato de API (12 endpoints, error único) | `docs/api-contract.md` (skill `api-contract`) |
+| Contrato de API (9 endpoints, error único) | `docs/api-contract.md` (skill `api-contract`) |
 | Requisitos derivados de la guía | `docs/requisitos.md` |
 | Backlog y orden de specs | `docs/backlog.md` |
 | Decisiones | `docs/adr/` |
