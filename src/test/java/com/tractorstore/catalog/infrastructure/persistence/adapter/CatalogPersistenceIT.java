@@ -194,6 +194,33 @@ class CatalogPersistenceIT {
   }
 
   @Test
+  void findByVariantSkusLoadsWholeProductsInOneSqlStatement() {
+    List<Product> found = products.findByVariantSkus(List.of("AU-07-YE", "CL-01-GY"));
+
+    assertThat(found)
+        .extracting(Product::id, Product::skus)
+        .containsExactlyInAnyOrder(
+            tuple("AU-07", List.of("AU-07-MT", "AU-07-YE")),
+            tuple("CL-01", List.of("CL-01-GR", "CL-01-GY")));
+    long statements =
+        statementsFor(() -> products.findByVariantSkus(List.of("AU-07-YE", "CL-01-GY")));
+    log.info("SQL statements for findByVariantSkus = {}", statements);
+    assertThat(statements).isEqualTo(1);
+  }
+
+  @Test
+  void findByVariantSkusIgnoresUnknownSkus() {
+    assertThat(products.findByVariantSkus(List.of("XX-99-ZZ"))).isEmpty();
+  }
+
+  @Test
+  void storeExistsComparesTheIdExactly() {
+    assertThat(stores.existsById("store-a")).isTrue();
+    assertThat(stores.existsById("store-x")).isFalse();
+    assertThat(stores.existsById("Store-A")).isFalse();
+  }
+
+  @Test
   void migratingAgainChangesNothing() {
     assertThat(flyway.migrate().migrationsExecuted).isZero();
     assertThat(counts()).containsExactly(23, 47, 69, 4, 2);

@@ -7,6 +7,7 @@ import com.tractorstore.catalog.domain.port.out.ProductRepository;
 import com.tractorstore.catalog.infrastructure.persistence.entity.ProductEntity;
 import com.tractorstore.catalog.infrastructure.persistence.entity.VariantEntity;
 import com.tractorstore.catalog.infrastructure.persistence.repository.JpaProductRepository;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,11 @@ class ProductRepositoryAdapter implements ProductRepository {
   @Override
   public Optional<Product> findById(String id) {
     return products.findWithDetailsById(id).map(ProductRepositoryAdapter::toDomain);
+  }
+
+  @Override
+  public List<Product> findByVariantSkus(Collection<String> skus) {
+    return toDomain(products.findAllContainingSkus(skus));
   }
 
   private static List<Product> toDomain(List<ProductEntity> entities) {

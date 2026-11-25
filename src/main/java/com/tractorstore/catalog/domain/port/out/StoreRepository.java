@@ -8,4 +8,7 @@ public interface StoreRepository {
 
   /** All stores in dataset order. */
   List<Store> findAll();
+
+  /** Exact (case sensitive) match on the store id. */
+  boolean existsById(String id);
 }
