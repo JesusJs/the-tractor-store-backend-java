@@ -26,6 +26,7 @@ import com.tractorstore.order.domain.model.Money;
 import com.tractorstore.order.domain.model.Order;
 import com.tractorstore.order.domain.model.OrderLine;
 import com.tractorstore.order.domain.model.OrderStatus;
+import com.tractorstore.order.domain.port.out.OrderEventsGateway;
 import com.tractorstore.order.domain.port.out.OrderRepository;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -70,12 +71,14 @@ class PlaceOrderServiceTest {
   @Mock private CatalogApi catalog;
   @Mock private InventoryApi inventory;
   @Mock private OrderRepository orders;
+  @Mock private OrderEventsGateway events;
 
   private PlaceOrderService service;
 
   @BeforeEach
   void setUp() {
-    service = new PlaceOrderService(catalog, inventory, orders, Clock.fixed(NOW, ZoneOffset.UTC));
+    service =
+        new PlaceOrderService(catalog, inventory, orders, events, Clock.fixed(NOW, ZoneOffset.UTC));
   }
 
   private static PlaceOrderCommand command(List<Line> lines) {
@@ -91,14 +94,14 @@ class PlaceOrderServiceTest {
   @Test
   void nullLinesIsCartEmpty() {
     assertThatThrownBy(() -> service.place(command(null))).isInstanceOf(CartEmptyException.class);
-    verifyNoInteractions(catalog, inventory, orders);
+    verifyNoInteractions(catalog, inventory, orders, events);
   }
 
   @Test
   void noLinesIsCartEmpty() {
     assertThatThrownBy(() -> service.place(command(List.of())))
         .isInstanceOf(CartEmptyException.class);
-    verifyNoInteractions(catalog, inventory, orders);
+    verifyNoInteractions(catalog, inventory, orders, events);
   }
 
   @Test
@@ -109,7 +112,7 @@ class PlaceOrderServiceTest {
         .isInstanceOf(StoreNotFoundException.class)
         .hasMessage("Store store-a not found");
     verify(catalog, never()).findVariants(anyCollection());
-    verifyNoInteractions(inventory, orders);
+    verifyNoInteractions(inventory, orders, events);
   }
 
   @Test
@@ -126,7 +129,7 @@ class PlaceOrderServiceTest {
                             new Line("AA-01-XX", 1)))))
         .isInstanceOf(VariantNotFoundException.class)
         .hasMessage("Variant ZZ-02-XX not found");
-    verifyNoInteractions(inventory, orders);
+    verifyNoInteractions(inventory, orders, events);
   }
 
   @Test
@@ -170,6 +173,7 @@ class PlaceOrderServiceTest {
         .isInstanceOf(OutOfStockException.class)
         .hasMessage("Variant CL-01-GR is out of stock");
     verify(orders, never()).save(any());
+    verifyNoInteractions(events);
   }
 
   @Test
@@ -231,5 +235,19 @@ class PlaceOrderServiceTest {
 
     assertThatThrownBy(() -> service.place(command(List.of(new Line("AU-07-YE", 1)))))
         .isSameAs(databaseDown);
+    verifyNoInteractions(events);
+  }
+
+  @Test
+  void placedOrderIsPublishedOnceAfterItIsSaved() {
+    catalogKnows(AU_07_YE);
+    when(inventory.decreaseStock(anyString(), anyInt())).thenReturn(true);
+
+    Order order = service.place(command(List.of(new Line("AU-07-YE", 1))));
+
+    InOrder saveThenPublish = inOrder(orders, events);
+    saveThenPublish.verify(orders).save(order);
+    saveThenPublish.verify(events, times(1)).orderPlaced(order);
+    saveThenPublish.verifyNoMoreInteractions();
   }
 }
