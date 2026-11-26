@@ -5,7 +5,8 @@ Sync Impact Report (1.3.0)
   principio). Incorpora la aclaración de redacción de VII (C16) introducida en 1.2.1.
 - Principios modificados (mismos títulos):
   II. Monolito modular + hexagonal: `shared` admite también el componente técnico de sesión por
-  cookie `ts_session` (ADR 0009 ampliada por la 0011).
+  cookie `ts_session` (ADR 0009 ampliada por la 0011) y la validación técnica de entrada
+  (`JsonCoercionConfiguration` e `InputPatterns`; review del PR #5, A08 y A06).
   IV. Datos: "el cliente nunca envía precios" → "el backend MUST ignorar cualquier precio que envíe
   el cliente" (el front envía `price` en las líneas de pedido); el test de regresión pasa a la
   spec 004 `inventario-pedidos`.
@@ -76,8 +77,10 @@ devuelvan tipos anotados con `@Entity`; revisión del subagente `spec-reviewer` 
 
 - Un único despliegue con cinco módulos de dominio (`catalog`, `inventory`, `cart`, `order` y
   `notifications`) y un módulo técnico `shared`, todos bajo `com.tractorstore`.
-- `shared` MUST limitarse a lo técnico y transversal (jerarquía de errores, `traceId`, CORS y
-  el componente que lee o crea la cookie de sesión `ts_session`):
+- `shared` MUST limitarse a lo técnico y transversal (jerarquía de errores, `traceId`, CORS,
+  el componente que lee o crea la cookie de sesión `ts_session` y la validación técnica de
+  entrada común a todos los adaptadores web: `JsonCoercionConfiguration`, que rechaza un número
+  JSON en un campo de texto, y los patrones compartidos de `InputPatterns`):
   se declara `@ApplicationModule(type = OPEN)`, no depende de ningún otro módulo y no contiene
   lógica de negocio, entidades ni tablas. Añadirle otra cosa requiere ADR. Su paquete
   `shared.error` MUST ser Java puro, porque lo usan los `domain`.

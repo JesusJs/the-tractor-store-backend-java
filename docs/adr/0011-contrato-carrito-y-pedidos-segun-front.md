@@ -44,6 +44,7 @@ Como en la ADR 0008, **el front manda**: las secciones Inventory, Cart y Order d
   - **Todo o nada**: la transacción la abre el caso de uso en `application` (`@Transactional`). Si una línea de un pedido de varias falla, se revierten los descuentos ya hechos y el pedido no se guarda.
 - **Tradeoff aceptado**: el inventario pasa a ser síncrono a cambio de atomicidad (sin sobreventa ni compensaciones) y de no tener ciclo entre módulos. El patrón de eventos con outbox (constitución V) queda demostrado con `notifications`.
 - **Sesión en `shared`**: el componente que lee o crea la cookie `ts_session` es técnico y transversal (lo usan `cart` y `order`) y vive en `shared.infrastructure.web`. Amplía la ADR 0009.
+- **Validación técnica de entrada en `shared`** (review del PR #5, A08 y A06): `JsonCoercionConfiguration` (un número, decimal o booleano JSON en un campo `String` → 400 `MALFORMED_REQUEST`; Jackson 3 no tiene propiedad para ello) e `InputPatterns` (patrón de id de catálogo compartido por `GET /inventory/{sku}` y `POST /orders`). Amplía la ADR 0009 igual que la sesión.
 - **Dependencias**:
   - `order → catalog :: api, inventory :: api, shared` (ya no `cart :: api`).
   - `cart → shared` (con el carrito vacío no necesita `catalog` ni `inventory`).

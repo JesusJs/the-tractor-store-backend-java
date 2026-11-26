@@ -20,7 +20,13 @@ Constantes: `COOKIE_NAME = "ts_session"`.
 
 ### `infrastructure.web.SessionCookieProperties` (nueva)
 `@ConfigurationProperties("tractorstore.session") record SessionCookieProperties(boolean secureCookie)`.
-Vale `false` en `application.yml` y `true` en `application-prod.yml`.
+Vale `false` en `application.yml` y `true` en `application-prod.yml` (lo comprueba `SessionCookieProfileTests`, review del PR #5, A03).
+
+### `infrastructure.web.JsonCoercionConfiguration` (nueva, `@Configuration` pública)
+Bean `JsonMapperBuilderCustomizer` que hace fallar la coerción de número entero, decimal o booleano JSON a un campo de texto (`"variantId": 12` → 400 `MALFORMED_REQUEST`, FR-017). La dirección contraria y decimal → entero se desactivan con `spring.jackson.*` en `application.yml`. Registrada en el principio II de la constitución 1.3.0 y en la ADR 0011 (review del PR #5, A08).
+
+### `infrastructure.web.InputPatterns` (nueva, clase de constantes pública)
+`CATALOG_ID = "[A-Za-z0-9-]*"` y su mensaje; lo usan `@Pattern` del `{sku}` de `InventoryController` y los ids de `PlaceOrderRequest`/`OrderItemRequest` (review del PR #5, A06).
 
 ---
 
