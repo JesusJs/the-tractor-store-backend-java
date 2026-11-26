@@ -27,6 +27,7 @@ class ArchitectureRulesSelfTests {
         violation("tableprefix", ArchitectureRules::tablesArePrefixedWithModule),
         violation("collectionprefix", ArchitectureRules::tablesArePrefixedWithModule),
         violation("manytomany", ArchitectureRules::tablesArePrefixedWithModule),
+        violation("onetomany", ArchitectureRules::tablesArePrefixedWithModule),
         violation("secondarytable", ArchitectureRules::tablesArePrefixedWithModule),
         violation("domainjakarta", ArchitectureRules::domainIsFrameworkFree),
         violation("portin", ArchitectureRules::useCasesLiveInPortIn),

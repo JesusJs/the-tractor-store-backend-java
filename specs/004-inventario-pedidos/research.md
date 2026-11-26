@@ -396,7 +396,7 @@ para poder probarla con fixtures en `archfixtures/`. Cada fixture lleva su caso 
 
 | FR | Regla | Fixture negativa |
 |---|---|---|
-| 028 | `TABLES_ARE_PREFIXED_WITH_MODULE` ampliada: un campo `@ElementCollection` sin `@CollectionTable` explícito, o un `@ManyToMany` del lado dueño (sin `mappedBy`) sin `@JoinTable`, **viola** la regla. También se comprueban `@SecondaryTable`/`@SecondaryTables`. | `manytomany` (sin `@JoinTable`), `secondarytable` (sin prefijo) y `collectionprefix` (ya existe) |
+| 028 | `TABLES_ARE_PREFIXED_WITH_MODULE` ampliada: un campo `@ElementCollection` sin `@CollectionTable` explícito, o un `@ManyToMany` del lado dueño (sin `mappedBy`) sin `@JoinTable`, **viola** la regla. Igual un `@OneToMany` unidireccional (sin `mappedBy`) sin `@JoinColumn`/`@JoinColumns` ni `@JoinTable`, porque Hibernate le crea una tabla de unión por defecto sin prefijo (añadido el 2026-11-26). También se comprueban `@SecondaryTable`/`@SecondaryTables`. | `manytomany` (sin `@JoinTable`), `onetomany` (`@OneToMany` sin `@JoinColumn` ni `@JoinTable`), `secondarytable` (sin prefijo) y `collectionprefix` (ya existe) |
 | 029 | `DOMAIN_IS_FRAMEWORK_FREE` + `jakarta..` (incluye `jakarta.validation`) y `io.swagger..` | `domainjakarta` (`@NotNull` en el dominio) |
 | 029 | `DOMAIN_PORTS_LIVE_IN_PORT_OUT`: toda **interfaz** de `..domain..` y toda clase `*Repository`/`*Gateway` de `..domain..` vive en `..domain.port.out..`. Sustituye a `DOMAIN_REPOSITORIES_LIVE_IN_PORT_OUT`. | `domaingateway` (`ShopGateway` en `domain.port`) |
 | 030 | `DOMAIN_DOES_NOT_DEPEND_ON_APPLICATION` | `domainapp` |

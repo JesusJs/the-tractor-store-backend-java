@@ -21,8 +21,11 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SecondaryTable;
 import jakarta.persistence.SecondaryTables;
 import jakarta.persistence.Table;
@@ -283,7 +286,10 @@ public final class ArchitectureRules {
             });
   }
 
-  /** Only the owning side ({@code mappedBy} empty) of a {@code @ManyToMany} names the table. */
+  /**
+   * Only the owning side ({@code mappedBy} empty) of a {@code @ManyToMany} names the table. A
+   * unidirectional {@code @OneToMany} without {@code @JoinColumn} also gets a default join table.
+   */
   private static void checkJoinTable(
       JavaClass entity, JavaField field, String prefix, ConditionEvents events) {
     field
@@ -298,6 +304,16 @@ public final class ArchitectureRules {
                       .orElse(false);
               if (owningManyToMany) {
                 missing(entity, field, "@ManyToMany", "@JoinTable", events);
+              }
+              boolean defaultOneToManyJoinTable =
+                  field
+                          .tryGetAnnotationOfType(OneToMany.class)
+                          .map(m -> m.mappedBy().isEmpty())
+                          .orElse(false)
+                      && !field.isAnnotatedWith(JoinColumn.class)
+                      && !field.isAnnotatedWith(JoinColumns.class);
+              if (defaultOneToManyJoinTable) {
+                missing(entity, field, "@OneToMany without @JoinColumn", "@JoinTable", events);
               }
             });
   }
