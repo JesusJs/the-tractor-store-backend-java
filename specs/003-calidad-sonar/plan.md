@@ -94,7 +94,7 @@ TESTING.md                                # nuevo (FR-011)
 .claude/skills/testing-strategy/SKILL.md  # 80 % código nuevo + exclusiones (FR-012)
 ```
 
-**Structure Decision**: un solo proyecto Maven; ningún fichero bajo `src/` cambia.
+**Structure Decision**: un solo proyecto Maven; ningún fichero bajo `src/main/` cambia.
 
 ## Orden de implementación
 

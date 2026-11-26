@@ -19,8 +19,9 @@ Esperado: `BUILD SUCCESS` y `target/site/jacoco/index.html`. Abrirlo y comprobar
 - `catalog.infrastructure.persistence.adapter.CategoryRepositoryAdapter` (solo lo prueba
   `CatalogPersistenceIT`) tiene líneas cubiertas → la cobertura incluye integración (SC-003).
 - `catalog.application.service.*` cubiertos (unitarios).
-- No aparecen `TractorStoreApplication`, `infrastructure/web/dto/**`, `ApiError` ni
-  `*Configuration`.
+- No aparecen `TractorStoreApplication`, `infrastructure/web/dto/**` ni `ApiError`.
+- `CorsConfiguration` y `CorsProperties` **sí** aparecen, cubiertas (`CorsIT`; review #1 y C18).
+- `./mvnw verify` muestra `All coverage checks have been met` (umbral global del 80 %, C03).
 
 ## 2. Ningún secreto en el repo (SC-005)
 
@@ -37,7 +38,9 @@ Abrir el PR de `003-calidad-sonar` contra `main`. Esperado:
 - Job `build` con el paso nuevo **Quality analysis** en verde y su log sin el valor del token.
 - Check de SonarCloud en verde y comentario/resumen del Quality Gate en el PR con enlace.
 - Anotar el **nombre exacto** del check para el ruleset (R6).
-- En SonarCloud → *Measures → Coverage*, `CategoryRepositoryAdapter` cubierto (SC-003).
+- SC-003 a nivel de proyecto: la cobertura del PR en SonarCloud coincide con la del JaCoCo agregado
+  (unitarios + `*IT`). La comprobación por archivo (`CategoryRepositoryAdapter`) se hace en `main` tras
+  el merge (T021, C20).
 - Duración del job frente a la última ejecución de 002: ≤ +5 min (SC-006).
 
 ## 4. Check obligatorio en `main` (FR-006)

@@ -1,5 +1,11 @@
 <!--
-Sync Impact Report
+Sync Impact Report (1.2.1)
+- Cambio de versión: 1.2.0 → 1.2.1 (PATCH: aclaración de redacción, sin cambio de alcance)
+- Principio VII: "ni front" se sustituye por "el front se analiza desde su propio repositorio"
+  (review del PR #3, C16). ADR 0010 y spec 003 (FR-002) aclarados en el mismo cambio.
+- Aprobación: usuario, 2026-11-25 (aplicar la review de Oscar en el PR #3).
+
+Sync Impact Report (1.2.0)
 - Cambio de versión: 1.1.0 → 1.2.0 (MINOR: se amplía materialmente el alcance del principio VII y
   la condición de merge del flujo; no se elimina ni redefine de forma incompatible ningún principio)
 - Principios modificados:
@@ -124,8 +130,8 @@ Referencia: ADR 0004.
 
 - La demo es el 2026-11-25; YAGNI manda.
 - Fuera de alcance: Keycloak, Grafana, OpenTelemetry completo, caché, k6, Kafka.
-- En alcance desde la spec 003: SonarCloud, solo para este backend (ni front ni instalación
-  autoalojada), con el Quality Gate integrado **Sonar way** (código nuevo: cobertura ≥ 80 %,
+- En alcance desde la spec 003: SonarCloud, solo para este repositorio de backend (el front se
+  analiza desde su propio repositorio; sin instalación autoalojada), con el Quality Gate integrado **Sonar way** (código nuevo: cobertura ≥ 80 %,
   duplicación ≤ 3 %, ratings A, 100 % de hotspots revisados). El 80 % es una limitación del plan
   gratuito, que no admite Quality Gates propios; cambiar de Quality Gate o de plan requiere ADR.
 - Cualquier complejidad no exigida por la spec MUST justificarse en la sección
@@ -188,4 +194,4 @@ Referencia: ADR 0005.
   justificación en "Complexity Tracking" bloquea el PR.
 - Guía operativa del día a día: `CLAUDE.md` y las skills de `.claude/skills/`.
 
-**Version**: 1.2.0 | **Ratified**: 2026-11-12 | **Last Amended**: 2026-11-23
+**Version**: 1.2.1 | **Ratified**: 2026-11-12 | **Last Amended**: 2026-11-25

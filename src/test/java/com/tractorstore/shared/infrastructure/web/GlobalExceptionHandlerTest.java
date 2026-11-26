@@ -220,7 +220,7 @@ class GlobalExceptionHandlerTest {
   @Test
   void dataAccessErrorBecomes500WithoutInternals() throws Exception {
     MvcResult result =
-        // Fixed traceId: a random one can contain "5432" and fail the leak check (review 003)
+        // Fixed traceId: a random one can contain "5432" and fail the leak check
         expectError(
                 mvc.perform(get("/test/db").header(TraceIdFilter.HEADER, "db-trace-1")),
                 500,

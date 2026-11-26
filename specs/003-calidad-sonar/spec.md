@@ -69,8 +69,8 @@ comprobar que el check pasa a verde y el merge se habilita.
    rating de código nuevo por debajo de A, **When** termina el análisis, **Then** el Quality Gate
    falla.
 5. **Given** un PR que introduce un security hotspot nuevo sin revisar, **When** termina el
-   análisis, **Then** el Quality Gate falla; **When** un miembro del equipo lo revisa en el
-   servicio y se reanaliza, **Then** el Quality Gate puede pasar.
+   análisis, **Then** el Quality Gate falla; **When** el dueño del repositorio (`JesusJs`,
+   FR-004a) lo revisa en el servicio y se reanaliza, **Then** el Quality Gate puede pasar.
 6. **Given** un PR en el que el análisis no se ha ejecutado o no ha terminado, **When** alguien
    intenta fusionarlo, **Then** GitHub lo impide porque falta el check obligatorio.
 
@@ -177,8 +177,8 @@ rama `main` con fecha del merge.
   mueva SonarCloud de "fuera de alcance" a alcance, y la constitución MUST enmendarse (principio
   VII, con subida de versión) junto con las listas de fuera de alcance de `docs/backlog.md` y
   `docs/requisitos.md`.
-- **FR-002**: El análisis MUST limitarse a este repositorio de backend; el front y cualquier
-  instalación autoalojada quedan fuera.
+- **FR-002**: El análisis MUST limitarse a este repositorio de backend (el front se analiza desde
+  su propio repositorio); cualquier instalación autoalojada queda fuera.
 
 **Análisis y Quality Gate**
 

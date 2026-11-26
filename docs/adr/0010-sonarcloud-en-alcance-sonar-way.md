@@ -13,11 +13,21 @@
   (`jesusjs`) y el proyecto (`JesusJs_the-tractor-store-backend-java`) ya existen en
   SonarCloud, con el "análisis automático" desactivado y el secreto `SONAR_TOKEN` guardado en
   GitHub.
-- **Limitación del plan gratuito** (verificada por el dueño del repositorio, 2026-11-23): solo
-  permite el Quality Gate integrado **Sonar way**; no se puede crear ni asignar uno propio.
+- **Limitación del plan gratuito** (verificada por el dueño del repositorio en la organización
+  `jesusjs`, 2026-11-23): no se puede crear ni asignar un Quality Gate propio, solo los
+  integrados (**Sonar way**; la documentación cita también *Sonar way for agentic AI*). Fuente
+  oficial: [Understanding quality gates](https://docs.sonarsource.com/sonarqube-cloud/standards/managing-quality-gates/introduction-to-quality-gates/)
+  (los quality gates propios se indican para los planes Team y Enterprise). La documentación no
+  nombra el plan gratuito de forma explícita: la restricción concreta es la comprobación del
+  dueño (review del PR #3, C15).
+- **Organización personal** (acuerdo de meet4): la guía C2 pide el proyecto
+  `tractor-store-backend` en la organización de Quind; se usa la organización personal
+  `jesusjs` (plan gratuito con el repositorio público), según lo acordado en meet4.
+  Desviación registrada en `docs/requisitos.md` (review del PR #3, C05).
 
 ## Decisión
-Se adelanta SonarCloud a alcance, solo para este backend: el pipeline de GitHub Actions analiza
+Se adelanta SonarCloud a alcance para este repositorio de backend (el front se analiza desde
+su propio repositorio): el pipeline de GitHub Actions analiza
 cada PR contra `main` y cada push a `main` con el escáner de Maven, enviando el informe JaCoCo
 agregado, y el check de SonarCloud pasa a ser obligatorio en el ruleset de `main`. El Quality
 Gate es **Sonar way**.
@@ -31,10 +41,11 @@ Gate es **Sonar way**.
 | Duplicación ≤ 3 % | Duplicación ≤ 3 % | Igual |
 | Ratings A | Ratings A (fiabilidad, seguridad, mantenibilidad) | Igual |
 | 100 % hotspots revisados | 100 % hotspots revisados | Igual |
+| Proyecto en la organización de Quind | Organización personal `jesusjs` | Desviación aceptada (C05) |
 
 Además, Sonar way **no aplica** las condiciones de cobertura y duplicación cuando el código
-nuevo tiene menos de 20 líneas (comportamiento del servicio, no configurable en el plan
-gratuito). Se acepta: los cambios tan pequeños los revisa Oscar (code owner),
+nuevo tiene menos de 20 líneas (*fudge factor*, activo por defecto en la organización; según la
+documentación oficial, un administrador del proyecto puede desactivarlo, y se mantiene activo). Se acepta: los cambios tan pequeños los revisa Oscar (code owner),
 cuya aprobación exige el ruleset de `main`.
 
 **Enmienda (review del PR #3, C03, 2026-11-25)**: se añade además un umbral **global** con

@@ -68,13 +68,16 @@ desactivan reglas globalmente sin documentarlo aquí.
 
 ## Operación de `SONAR_TOKEN`
 
-- Caducidad del token actual: **diciembre de 2026**. Rótalo antes de esa fecha.
-- Rotación: SonarCloud → *My Account → Security* → token de análisis del proyecto con caducidad (anota la
-  fecha aquí); después `gh secret set SONAR_TOKEN` (pide el valor por consola, nunca en la línea de comandos)
+- Token actual: **token personal** de `JesusJs` (*My Account → Security → Personal Tokens*), creado el
+  2026-11-23, con los permisos de ese usuario sobre la organización `jesusjs`. **Caduca el 2027-02-20**:
+  no hace falta rotarlo antes del cierre (1-3 dic); rótalo antes del **2027-02-13**. Pasar a un
+  *Scoped Organization Token* (no ligado a un usuario) queda diferido a la fila 010 del backlog (FR-015
+  parcial).
+- Rotación: SonarCloud → *My Account → Security* → token nuevo con caducidad (anota la fecha aquí); después `gh secret set SONAR_TOKEN` (pide el valor por consola, nunca en la línea de comandos)
   y revoca el anterior. Nunca se escribe el valor en el repo, en `-D` ni en logs.
 - Token caducado, inválido o ausente → **Quality analysis** rojo (403) y merge bloqueado: rótalo.
-- SonarCloud caído → el dueño quita temporalmente el check del ruleset, comenta la causa en el PR, fusiona
-  y lo restaura (`docs/github/ruleset-main.json` sigue reflejando el estado normal). Después comprueba que
+- SonarCloud caído → el dueño comenta la causa en el PR y **espera la aprobación explícita de Oscar en el
+  PR** antes de tocar nada; con ella quita temporalmente el check del ruleset, fusiona y lo restaura (`docs/github/ruleset-main.json` sigue reflejando el estado normal). Después comprueba que
   el ruleset activo vuelve a coincidir con el JSON:
   `gh api repos/JesusJs/the-tractor-store-backend-java/rulesets/<id> --jq '.rules'` frente a
   `jq '.rules' docs/github/ruleset-main.json` (el `<id>` sale de `gh api repos/JesusJs/the-tractor-store-backend-java/rulesets`).

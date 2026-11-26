@@ -84,6 +84,10 @@ Fecha: 2026-11-23. Entradas: [spec.md](spec.md), constitución v1.1.0, `.github/
 
 ## R5. Exclusiones (FR-010)
 
+> **Enmienda**: esta tabla es la decisión original. T034 (review 003 #1 y #2) quitó `*Configuration` y
+> acotó `api`, y la review del PR #3 (C01) quitó `api` e `infrastructure/config`. La lista vigente,
+> con su justificación, está en [`TESTING.md`](../../TESTING.md#exclusiones-de-cobertura).
+
 - **Decision** (definidas una vez en `pom.xml`, en formato Sonar para el análisis y formato
   JaCoCo para el informe local; tabla con justificación en `TESTING.md`):
 

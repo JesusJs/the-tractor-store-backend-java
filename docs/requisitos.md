@@ -32,5 +32,6 @@ Resumen de la *Guía de aprendizaje Tractor Store* (sesión 2, fases B1–B12; s
 | Pedidos protegidos con JWT/Keycloak (B8) | Cookie de sesión, sin login | 0004 |
 | Grafana, k6, caché | Fuera de alcance por plazo | — |
 | SonarCloud (C2) con Quality Gate propio | SonarCloud con Sonar way (cobertura nueva ≥ 80 %; el plan gratuito no admite Quality Gate propio) | 0010 |
+| Proyecto SonarCloud `tractor-store-backend` en la organización de Quind (C2) | Organización personal `jesusjs` (plan gratuito, repositorio público; acuerdo de meet4) | 0010 |
 | Fly.io / Render (C5) | Azure Container Apps + Terraform + OIDC | 0005 |
 | Paquetes `api`/`internal` (B9) | `api` + capas hexagonales internas | 0001 |
