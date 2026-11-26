@@ -231,6 +231,25 @@ class OrderApiIT {
   }
 
   @Test
+  void nullCharacterIsValidationErrorNotADatabaseError() {
+    int before = orderCount(jdbc);
+
+    EntityExchangeResult<String> result =
+        post(
+            """
+            { "firstName": "Ada\\u0000", "lastName": "Lovelace", "storeId": "store-a",
+              "items": [ { "variantId": "AU-07-YE\\u0000", "quantity": 1 } ] }
+            """,
+            null);
+
+    assertThat(result.getStatus().value()).isEqualTo(400);
+    assertThat(code(result)).isEqualTo("VALIDATION_ERROR");
+    assertThat(JsonPath.<Map<String, String>>read(result.getResponseBody(), "$.details"))
+        .containsKeys("firstName", "items[0].variantId");
+    assertNothingChanged(before);
+  }
+
+  @Test
   void unknownVariantIsVariantNotFound() {
     int before = orderCount(jdbc);
 

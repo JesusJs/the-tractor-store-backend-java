@@ -34,11 +34,11 @@ Límites (Bean Validation, 400 `VALIDATION_ERROR`, `details` = ruta del campo �
 
 | Campo | Regla |
 |---|---|
-| `firstName`, `lastName` | obligatorio, no en blanco, ≤ 100 |
-| `storeId` | obligatorio, no en blanco, ≤ 20 |
-| `extraPickups` | ≤ 500 |
+| `firstName`, `lastName` | obligatorio, no en blanco, ≤ 100, sin caracteres de control (review #4) |
+| `storeId` | obligatorio, no en blanco, ≤ 20, solo letras, dígitos y `-` (review #4) |
+| `extraPickups` | ≤ 500, sin caracteres de control (review #4) |
 | `items` | ≤ 50 elementos; ningún elemento `null` |
-| `items[i].variantId` | obligatorio, no en blanco, ≤ 20 |
+| `items[i].variantId` | obligatorio, no en blanco, ≤ 20, solo letras, dígitos y `-` (review #4) |
 | `items[i].quantity` | obligatorio, entero 1..99 |
 
 ### Respuesta 201

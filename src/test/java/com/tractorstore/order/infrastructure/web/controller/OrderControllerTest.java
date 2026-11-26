@@ -258,6 +258,16 @@ class OrderControllerTest {
         Arguments.of(
             FRONT_BODY.replace("\"quantity\": 1", "\"quantity\": 100"), "items[0].quantity"),
         Arguments.of(FRONT_BODY.replace("\"quantity\": 1,", ""), "items[0].quantity"),
+        Arguments.of(
+            FRONT_BODY.replace("\"variantId\": \"AU-07-YE\"", "\"variantId\": \"AU-07\\u0000\""),
+            "items[0].variantId"),
+        Arguments.of(
+            FRONT_BODY.replace("\"variantId\": \"AU-07-YE\"", "\"variantId\": \"AU 07\""),
+            "items[0].variantId"),
+        Arguments.of(FRONT_BODY.replace("\"Ada\"", "\"Ada\\u0000\""), "firstName"),
+        Arguments.of(FRONT_BODY.replace("\"Lovelace\"", "\"Love\\nlace\""), "lastName"),
+        Arguments.of(FRONT_BODY.replace("\"store-a\"", "\"store\\u0000\""), "storeId"),
+        Arguments.of(FRONT_BODY.replace("Central Mall\"", "Central Mall\\u0007\""), "extraPickups"),
         Arguments.of(FRONT_BODY.replace("\"Ada\"", "\"  \""), "firstName"),
         Arguments.of(FRONT_BODY.replace("\"Ada\"", "\"" + name101 + "\""), "firstName"),
         Arguments.of(FRONT_BODY.replace("\"Lovelace\"", "\"\""), "lastName"),
