@@ -49,3 +49,62 @@ No hay hallazgos BLOQUEANTES ni ALTOS. Cada hallazgo se contrastó con el códig
 | 15 | Corregido | `TESTING.md` explica cómo comparar el ruleset activo con el JSON (`gh api …/rulesets/<id>`) tras restaurar el check. |
 | 16 | Aceptado | El evento es `pull_request`: los forks no reciben secretos, el token es de paso y `permissions: contents: read`. Solo hay colaboradores de confianza con escritura. |
 | 17 | Corregido | `TESTING.md` refuerza que el informe local exige `clean` por el `append=true`. |
+
+## Review de Oscar en el PR #3 (2026-11-25)
+
+Review de `@oscarmoraquind` (CHANGES_REQUESTED) con IDs `C*`/`N*`. Oscar pasa a ser el **único
+revisor y code owner**: Steven sale del proyecto. Esto sustituye la decisión #3 de arriba
+("diferido a la fila 010"): la aprobación de code owner se exige ya (C12).
+
+| ID | Sev. | Decisión | Qué se hizo | Commit |
+|---|---|---|---|---|
+| C12 | ALTA | Corregido | `CODEOWNERS` solo con `@oscarmoraquind` (login verificado con `gh api …/collaborators`; `stevenMetiorQuind` no es colaborador). Skill `/pr` con `--reviewer oscarmoraquind`. Menciones a Steven como revisor quitadas de `TESTING.md`, ADR 0010, spec.md y tasks.md (`CLAUDE.md`, la constitución y `practicas-ia.md` no lo mencionaban; se conserva la cita literal del *Input* en spec.md:9). Ruleset JSON: `required_approving_review_count` 1, `require_code_owner_review` true, `dismiss_stale_reviews_on_push` true. | `8d7767a` |
+| C11 | MEDIA | Corregido (PUT pendiente del dueño) | El JSON ya tenía `integration_id: 15368` en `build`; falta aplicarlo al ruleset activo `27647920`. Nota de desfase en T015. Claude no ejecuta el PUT: comando abajo. | `8d7767a`, `ab88c4f` |
+| N06 | BAJA | Corregido (PUT pendiente del dueño) | `strict_required_status_checks_policy` true y `required_review_thread_resolution` true en el JSON; van en el mismo PUT. | `8d7767a` |
+| C01 | MEDIA | Corregido | Quitados `src/main/java/com/tractorstore/*/api/**` e `**/infrastructure/config/**` de `sonar.coverage.exclusions` y de los `<excludes>` de JaCoCo. Hoy solo contienen `package-info.java`: la cobertura no cambia (98 % de líneas). Se reintroducirán, justificadas, en el PR que cree clases sin lógica. | `77ec18f` |
+| N02 | MEDIA | Corregido | Eliminado el párrafo "Regla del paquete `api`" de `TESTING.md`; la tabla y el texto dicen ahora que `api` e `infrastructure/config` no se excluyen. | `77ec18f` |
+| C03 | MEDIA | Corregido | Ejecución `check` de JaCoCo en `verify` con `dataFile` `jacoco.exec`, los mismos `<excludes>` que `report` y regla `BUNDLE`/`LINE`/`COVEREDRATIO` ≥ 0,80. Probado: con 0,80 → *All coverage checks have been met*; con 0,99 → *lines covered ratio is 0.98, but expected minimum is 0.99* y BUILD FAILURE. Enmienda en ADR 0010, `TESTING.md` y skill `testing-strategy`. | `77ec18f` |
+| N03 | BAJA | Corregido | `sonar.junit.reportPaths` = `surefire-reports,failsafe-reports`; reflejado en el contrato del CI. | `77ec18f`, `b21cd82` |
+| C08 | MEDIA | Corregido | `on: push` y `pull_request` solo para `main`; `concurrency` `ci-${{ github.ref }}` que cancela solo en PR (nunca en `main`). Contrato `ci-quality-check.md` (disparadores) y T025 actualizados. Caché de `~/.sonar/cache` no añadida (opcional). | `b21cd82` |
+| N04 | BAJA | Corregido | `if:` de *Quality analysis*: PR con `base_ref == 'main'` o push a `refs/heads/main`. | `b21cd82` |
+| C22 | BAJA | Corregido | Badge de Quality Gate de SonarCloud en el README y "→ análisis de calidad (SonarCloud)" en la sección de CI. | `b21cd82` |
+| C05 | BAJA | Corregido | Fila "organización de Quind → organización personal `jesusjs`" en `docs/requisitos.md` y en ADR 0010 (contexto y tabla de diferencias). | `ab88c4f` |
+| C13 | BAJA | Corregido | `TESTING.md`: quitar temporalmente el check por caída de SonarCloud exige comentar la causa y la **aprobación explícita de Oscar en el PR**; además lo refuerza C12. | `ab88c4f` |
+| C14 | BAJA | Corregido | Fecha exacta: el token caduca el **2027-02-20** (creado el 2026-11-23); no hace falta rotarlo antes del cierre; recordatorio para rotarlo antes del 2027-02-13. | `ab88c4f` |
+| N01 | BAJA | Corregido (FR-015 parcial) | Verificado por el dueño: es un **token personal** de `JesusJs` con sus permisos sobre la organización `jesusjs`. `TESTING.md` lo documenta tal cual; T002 anota que FR-015 queda parcialmente diferido; migrar a un *Scoped Organization Token* va a la fila 010. | `ab88c4f` |
+| C15 | BAJA | Corregido, con matiz | Enlace oficial: [Understanding quality gates](https://docs.sonarsource.com/sonarqube-cloud/standards/managing-quality-gates/introduction-to-quality-gates/). Matiz verificado: la página dice que los quality gates propios son de los planes Team y Enterprise, pero no nombra el plan gratuito, y cita dos gates integrados (Sonar way y *Sonar way for agentic AI*). La ADR lo dice así. Además, la página indica que el *fudge factor* de 20 líneas lo puede desactivar un administrador del proyecto: se corrigió "no configurable" en la ADR (se mantiene activo). | `ab88c4f` |
+| C16 | BAJA | Corregido | "ni front" → "el front se analiza desde su propio repositorio" en la constitución (**v1.2.1**, PATCH), ADR 0010 y FR-002 de spec.md. | `ab88c4f` |
+| C18 | BAJA | Corregido | quickstart §1: sin `*Configuration`; `CorsConfiguration` y `CorsProperties` deben aparecer cubiertas; añadido el mensaje de `jacoco:check`. | `ab88c4f` |
+| C19 | BAJA | Corregido | T017–T019 anotadas como sustituidas por T034 y C01; quitado `CorsConfiguration` del *Independent Test* de US2. | `ab88c4f` |
+| C20 | BAJA | Corregido | Evidencia de SC-003 a nivel de proyecto (80,2 % solo unitarios frente a 98,6 % en SonarCloud, igual al JaCoCo agregado) registrada en T021; T021 y quickstart §3 quedan como verificación por archivo en `main` tras el merge. | `ab88c4f` |
+| N07 | BAJA | Corregido | Nota de enmienda en research R5 que apunta a `TESTING.md`; el contrato nombra `SonarCloud Code Analysis` (12526); escenario 5 de US1: revisa el hotspot el dueño (FR-004a). | `b21cd82`, `ab88c4f` |
+| N08 | BAJA | Corregido | Quitado "(review 003)" del comentario de `GlobalExceptionHandlerTest` (queda la razón técnica); plan.md: "ningún fichero bajo `src/main/` cambia". | `ab88c4f` |
+| C10 | INFO | Diferido a la fila 010 | Fijar `actions/*` por SHA + Dependabot `github-actions`, marcado como prioritario por exponer `SONAR_TOKEN`. | `ab88c4f` (backlog) |
+| C02 | BAJA | Diferido a la fila 010 | Test de paridad entre las listas de exclusión de Sonar y JaCoCo (tras C01 quedan 3 patrones Java + migraciones). | `ab88c4f` (backlog) |
+| N05 | NIT | Diferido a la fila 010 | gitleaks descargado y ejecutado en `$RUNNER_TEMP`. | `ab88c4f` (backlog) |
+| C17 | MEDIA | Diferido a un PR de seguimiento | Numerar y fechar `despliegue-azure-esqueleto`, replanificar 006–010 hacia el 1-3 dic y actualizar la fecha de demo en `CLAUDE.md` y la constitución: es replanificación del backlog, fuera del alcance de 003. | — |
+| C04 | NIT | Se deja como está | `append=true` sobre un único `.exec`, documentado en `TESTING.md`. | — |
+| C09 | — | Retirado por el revisor | Job `quality` con `sonar.qualitygate.wait=true`: no se publica. | — |
+| C06, C07, C21 | Elogio | — | Sin cambios. | — |
+| C23 | Plan | En curso | Tras el push: pasar el PR a *ready* con Oscar como revisor, fusionar, aplicar el PUT y cerrar T021/T025/T032 y el `Status` de spec.md en un PR corto de cierre. | — |
+
+### Aplicar el ruleset (C11, C12, N06): lo ejecuta el dueño
+
+Orden recomendado: fusionar el PR #3 y comprobar que `CODEOWNERS` de `main` es válido **antes** del PUT;
+con un code owner inválido y `bypass_actors: []`, exigir su aprobación podría bloquear los merges.
+
+```bash
+gh api repos/JesusJs/the-tractor-store-backend-java/codeowners/errors --jq '.errors'
+```
+
+Esperado: `[]`. Después:
+
+```bash
+jq 'del(.id, .source_type, .source, .current_user_can_bypass, .node_id, ._links, .created_at, .updated_at)' docs/github/ruleset-main.json > /tmp/rs.json && gh api -X PUT repos/JesusJs/the-tractor-store-backend-java/rulesets/27647920 --input /tmp/rs.json
+```
+
+Verificación (ambos lados iguales, salida vacía de `diff`):
+
+```bash
+diff <(gh api repos/JesusJs/the-tractor-store-backend-java/rulesets/27647920 | jq -S '.rules') <(jq -S '.rules' docs/github/ruleset-main.json) && echo "ruleset activo = JSON"
+```
