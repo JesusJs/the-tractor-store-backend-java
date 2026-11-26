@@ -148,6 +148,8 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 
 ## Phase 5: Guardas de arquitectura (transversal, FR-028..FR-030 y FR-031)
 
+> **Diferida (review 004, 2026-11-25)**: no se implementa en la rama `004-inventario-pedidos`; pasa a una spec posterior (ver `docs/backlog.md` y `review.md`).
+
 **Purpose**: deuda de las reviews 001 #15 y 002 #3/#12. Cada regla nueva lleva su fixture negativa (SC-008). No depende de US3 y no debe recortarse con ella.
 
 **Depende de**: US1 y US2 terminadas (las reglas se validan contra su código real).
@@ -158,13 +160,15 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 - [ ] T058 Añadir en `test/ArchitectureRulesSelfTests.java` un caso negativo por fixture (T055–T057) que espere que la regla correspondiente **falle**, y cambiar el caso existente `violation("portout", ArchitectureRules::domainRepositoriesLiveInPortOut)` (línea 30) para que use `ArchitectureRules::domainPortsLiveInPortOut`; la fixture `portout` debe seguir fallando con la regla nueva; ejecutar y ver rojo (depende de T055–T057)
 - [ ] T059 Implementar en `test/ArchitectureRules.java` (cada regla construida desde una raíz, como las existentes) según R16: ampliar `TABLES_ARE_PREFIXED_WITH_MODULE` (`@ElementCollection` sin `@CollectionTable` explícito, `@ManyToMany` dueño sin `@JoinTable`, y `@SecondaryTable`/`@SecondaryTables` con prefijo); ampliar `DOMAIN_IS_FRAMEWORK_FREE` con `jakarta..` e `io.swagger..`; sustituir `DOMAIN_REPOSITORIES_LIVE_IN_PORT_OUT` y su método `domainRepositoriesLiveInPortOut(String)` (líneas 42 y 149) por `DOMAIN_PORTS_LIVE_IN_PORT_OUT` / `domainPortsLiveInPortOut(String)`, sin dejar el nombre antiguo (toda interfaz de `..domain..` y toda clase `*Repository`/`*Gateway` de `..domain..` en `..domain.port.out..`); nuevas `DOMAIN_DOES_NOT_DEPEND_ON_APPLICATION`, `APPLICATION_USES_ONLY_SERVICE_AND_TRANSACTIONAL` (solo `stereotype.Service` y `transaction.annotation.{Transactional, Propagation, Isolation}`) y `TRANSACTIONAL_ONLY_IN_APPLICATION` (anotación **directa**, de Spring o `jakarta.transaction`; un `@ApplicationModuleListener` meta-anotado no viola) (depende de T058; pasa T058)
 - [ ] T060 Registrar las reglas nuevas en `test/HexagonalArchitectureTests.java`, sustituir el campo `domainRepositoriesLiveInPortOut = ArchitectureRules.DOMAIN_REPOSITORIES_LIVE_IN_PORT_OUT` (línea 42) por la regla renombrada, comprobar con `grep` que no queda ninguna referencia a `DOMAIN_REPOSITORIES_LIVE_IN_PORT_OUT` ni a `domainRepositoriesLiveInPortOut` en `src/test`, y comprobar que el código de producción (catálogo de 002 + inventory/cart/order de 004) las cumple; mantener `allowEmptyShould` en `API_DOES_NOT_EXPOSE_INTERNALS` (cart.api y notifications.api siguen vacíos) (depende de T059)
-- [ ] T061 [P] Ampliar `test/ApplicationIT.java` para que el documento OpenAPI tenga **9** paths (5 de Catalog + `/api/v1/inventory/{sku}`, `/api/v1/cart`, `/api/v1/orders`, `/api/v1/orders/{id}`) con los tags `Inventory`, `Cart` y `Orders` (FR-031)
+- [ ] T061 [P] (los 9 paths ya los comprueba `ApplicationIT` desde el commit `20974b6`; quedan los tags) Ampliar `test/ApplicationIT.java` para que el documento OpenAPI tenga **9** paths (5 de Catalog + `/api/v1/inventory/{sku}`, `/api/v1/cart`, `/api/v1/orders`, `/api/v1/orders/{id}`) con los tags `Inventory`, `Cart` y `Orders` (FR-031)
 
 **Checkpoint**: `./mvnw test` en verde con `ArchitectureRulesSelfTests` (un rojo esperado por fixture) y `ModularityTests`.
 
 ---
 
 ## Phase 6: User Story 3 - Aviso de pedido confirmado por evento con outbox (Priority: P3) ✂️ recortable
+
+> **Diferida (review 004, 2026-11-25)**: no se implementa en la rama `004-inventario-pedidos`; pasa a una spec posterior (ver `docs/backlog.md` y `review.md`).
 
 **Goal**: al confirmar un pedido se publica `OrderPlaced` en la misma transacción, se guarda en `event_publication` y `notifications` lo consume y escribe el log; un fallo del listener deja el evento pendiente para reintento.
 
@@ -195,6 +199,8 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 ---
 
 ## Phase 7: Polish & Cross-Cutting Concerns
+
+> **Diferida (review 004, 2026-11-25)**: no se implementa en la rama `004-inventario-pedidos`; pasa a una spec posterior (ver `docs/backlog.md` y `review.md`).
 
 - [ ] T074 [P] Revisar Swagger UI en `http://localhost:5271/swagger-ui.html`: tags `Inventory`, `Cart` y `Orders` con descripción, respuestas y errores de las 4 operaciones (quickstart §8, FR-031)
 - [ ] T075 [P] Anotar en `docs/backlog.md` (o en la spec de despliegue `despliegue-azure-esqueleto`) los riesgos de R4 (`SameSite=Lax` con dominios distintos en Azure) y R13 (`republish-outstanding-events-on-restart` con varias réplicas)

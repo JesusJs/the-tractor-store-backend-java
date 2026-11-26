@@ -28,3 +28,22 @@ marcha (perfil dev, `localhost:5271`).
   data-model §4; separar el modelo no compensa hoy (VII). Informativo.
 - **"Edge BD caída" sin IT propio** (spec): el revisor lo da por cubierto por el test unitario de
   propagación y el IT de rollback de `OUT_OF_STOCK`.
+
+## Decisiones (2026-11-25)
+
+| # | Decisión | Qué se hizo | Commit |
+|---|---|---|---|
+| 1 | Corregir | Sin coerción en Jackson 3: `spring.jackson.deserialization.accept-float-as-int: false` y `spring.jackson.mapper.allow-coercion-of-scalars: false` en `application.yml` (nombres verificados en los metadatos de `spring-boot-jackson` 4.1.2 y en `jackson-databind` 3.1.7). Número → texto no lo cubre ninguna propiedad: `JsonCoercionConfiguration` (`shared`) añade un `JsonMapperBuilderCustomizer` con `CoercionAction.Fail` para `LogicalType.Textual`. `"quantity": 1.5`, `"quantity": "2"` y `"variantId": 12` → 400 `MALFORMED_REQUEST` en `OrderControllerTest` y `OrderApiIT` (sin pedido ni descuento). Se comprobó que sin las dos propiedades los casos `1.5` y `"2"` vuelven a fallar. | `5507c89` |
+| 2 | Corregir en parte | `scripts/reset-demo-stock.sh` restaura `inventory_stock` con el `INSERT` de `V4__inventory_stock.sql` (fuente única del seed) en la BD dev; `DB_PORT` configurable, por defecto `55432`; solo host local; conserva los pedidos. Documentado en quickstart §4.1. **Diferido a la fila 010 del backlog**: límite de frecuencia (ingress) y límite de Σ cantidad por SKU (cambia la Clarification de líneas duplicadas). | `2870310` |
+| 3 | Corregir | `DecreaseStockService` con `@Transactional(propagation = MANDATORY)`; `InventoryApiIT` comprueba que sin transacción lanza `IllegalTransactionStateException` y el stock no cambia. Ajustados `InventoryApi` (javadoc), data-model §2 y `contracts/module-apis.md`. | `1ea691a` |
+| 4 | Corregir | `@Pattern`: `variantId` y `storeId` solo `[A-Za-z0-9-]`; `firstName`, `lastName` y `extraPickups` sin caracteres de control (`\P{Cc}`). `\u0000` → 400 `VALIDATION_ERROR` (unitario con cinco casos e IT contra PostgreSQL sin cambios en BD). Tabla de límites de `contracts/orders-api.md` actualizada. | `bb5ccaf` |
+| 5 | Corregir (documentar) | Javadoc de `OrderController` y descripción OpenAPI de `Set-Cookie`: un 400 no emite cookie; los 404/409/500 sí. Anotado en `contracts/orders-api.md`. | `d133000` |
+| 6 | Corregir | `OrderApiIT`: `regresión: id de pedido consultable` y `regresión: líneas con SKU` son ahora dos tests. | `a45fa72` |
+| 7 | Resuelto | 003 fusionada en `main` (PR #3) y 004 rebasada sobre `main`: `git merge-base --is-ancestor main HEAD` se cumple. | — |
+| 8 | Corregir el comentario | Javadoc de `SessionCookies`: cualquier UUID canónico se acepta aunque no lo haya emitido el backend. **Diferido a la fila 010**: prefijo `__Host-` en prod. | `ee25fe6` |
+| 9 | Diferido | Límite de tamaño del cuerpo (ingress o Tomcat, p. ej. 64 KB) → fila 010 del backlog. | — |
+| 10 | Aceptado | `Order.belongsTo` y `StockItem.canServe` se quedan (están en data-model §2 y §5). | — |
+
+**Fases 5, 6 y 7 de `tasks.md`** (guardas ArchUnit FR-028..FR-030, P3 `OrderPlaced` + outbox +
+`notifications`, y pulido): **diferidas a una spec posterior** (anotado en `tasks.md` y en
+`docs/backlog.md`). Esta rama cierra P1 y P2.

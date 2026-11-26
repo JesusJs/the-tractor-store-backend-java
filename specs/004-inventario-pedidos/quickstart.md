@@ -165,6 +165,9 @@ Esperado: `47 SKUs restored; CL-01-GR=10, CL-01-GY=0, AU-08-WH=1, AU-07-YE=5`, y
 
 ## 6. P3: evento y log
 
+> **Diferido** a una spec posterior (review 004): las fases 5–7 de `tasks.md` no se implementan en
+> esta rama. Esta sección queda como guía para esa spec.
+
 Tras confirmar un pedido (§4 o §5), el log de la app muestra (asíncrono, tras el commit):
 
 ```text
