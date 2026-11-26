@@ -4,12 +4,15 @@ import static com.tractorstore.catalog.CatalogFixtures.au07;
 import static com.tractorstore.catalog.CatalogFixtures.cl01;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.tractorstore.catalog.api.VariantView;
 import com.tractorstore.catalog.domain.port.out.ProductRepository;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +29,7 @@ class FindVariantsServiceTest {
   @Test
   @DisplayName("regresión: precio enviado por el cliente (usa el precio real de la variante)")
   void viewHasTheRealVariantPriceNotTheFromPrice() {
-    when(products.findByVariantSkus(List.of("AU-07-YE"))).thenReturn(List.of(au07()));
+    when(products.findByVariantSkus(Set.of("AU-07-YE"))).thenReturn(List.of(au07()));
 
     List<VariantView> views = service.find(List.of("AU-07-YE"));
 
@@ -64,5 +67,22 @@ class FindVariantsServiceTest {
     when(products.findByVariantSkus(anyCollection())).thenReturn(List.of());
 
     assertThat(service.find(List.of("XX-99-ZZ"))).isEmpty();
+  }
+
+  @Test
+  void noSkusIsEmptyWithoutQuerying() {
+    assertThat(service.find(List.of())).isEmpty();
+
+    verifyNoInteractions(products);
+  }
+
+  @Test
+  void duplicatedSkusAreQueriedOnce() {
+    when(products.findByVariantSkus(anyCollection())).thenReturn(List.of(au07()));
+
+    assertThat(service.find(List.of("AU-07-YE", "AU-07-YE")))
+        .extracting(VariantView::sku)
+        .containsExactly("AU-07-YE");
+    verify(products).findByVariantSkus(Set.of("AU-07-YE"));
   }
 }
