@@ -165,6 +165,26 @@ Esperado: `47 SKUs restored; CL-01-GR=10, CL-01-GY=0, AU-08-WH=1, AU-07-YE=5`, y
    6050, y sin errores en la consola ni peticiones fallidas en la pestaña Network.
 6. Recargar `/thanks`: el recibo se vuelve a pintar (la misma cookie).
 
+### 5.1 Mitigación para la demo: SKUs con el mismo precio en carrito y recibo (review PR #5, A01)
+
+Hasta la spec 005 `carrito-servidor` (2026-12-01) el carrito del front muestra el precio "desde" del
+producto. En la demo, añade solo variantes cuyo precio coincide con ese "desde" (derivado de
+`V3__catalog_dataset.sql`; stock de `V4`):
+
+| Producto | SKU seguro (precio = "desde") | Evitar (precio mayor) |
+|---|---|---|
+| AU-02 | `AU-02-BL`, `AU-02-GG` (4000) | `AU-02-OG` |
+| AU-03 | `AU-03-TQ` (1600) | `AU-03-PL`, `AU-03-RD`, `AU-03-YE` |
+| AU-04 | `AU-04-BK` (8500) | `AU-04-RD` |
+| AU-06 | `AU-06-MT` (2100) | `AU-06-CZ` |
+| AU-07 | `AU-07-MT` (4000) | `AU-07-YE` |
+| CL-01 | `CL-01-GR` (5700) | `CL-01-GY` (además, stock 0) |
+| CL-08 | `CL-08-GR` (7750) | `CL-08-PI` |
+
+Los otros 16 productos tienen todas sus variantes al mismo precio: cualquiera sirve (ojo con
+`AU-08-WH`, que solo tiene 1 unidad). Ensayo recomendado: `CL-04-BL` ×1 + `AU-07-MT` ×1 → carrito
+y recibo con subtotal 6200, IVA 1302 y total 7502. Antes de presentar, `scripts/reset-demo-stock.sh`.
+
 ## 6. P3: evento y log
 
 > **Diferido** a una spec posterior (review 004): las fases 5–7 de `tasks.md` no se implementan en

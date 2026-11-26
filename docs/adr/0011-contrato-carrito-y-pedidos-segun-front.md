@@ -1,6 +1,6 @@
 # 0011 — El contrato de carrito y pedidos lo manda el front
 
-- Estado: aceptada (aprobada 2026-11-24; enmendada el mismo día en la spec 004: `storeId` se valida contra el catálogo)
+- Estado: aceptada (aprobada 2026-11-24; enmendada el mismo día en la spec 004: `storeId` se valida contra el catálogo). **La parte "sin carrito en servidor" es una desviación temporal** por decisión del mentor (review del PR #5, A01, 2026-11-26): la cierra la spec 005 `carrito-servidor` (2026-12-01), con los 4 endpoints de la guía ligados a `ts_session`, precio real de la variante y stock, y el `CartService` del front consumiéndolos ([issue del front](https://github.com/JesusJs/the-tractore-store/issues/1)). Registrada en `docs/requisitos.md` y `docs/backlog.md`.
 - Fecha: 2026-11-24
 - Reemplaza: ADR 0007. Amplía: ADR 0009 (sesión en `shared`). Modifica: ADR 0002 (consumidores de `OrderPlaced`).
 
