@@ -35,7 +35,7 @@ Sin sesión: no lee ni crea `ts_session`.
 | SKU con fila de stock | 200 | `{ "sku": "CL-01-GR", "stock": 10 }` |
 | SKU con stock 0 | 200 | `{ "sku": "CL-01-GY", "stock": 0 }` |
 | SKU sin fila (desconocido) | 404 | `{ "code": "VARIANT_NOT_FOUND", "message": "Variant XX-99-ZZ not found", "traceId": "…" }` |
-| `sku` > 20 caracteres | 400 | `{ "code": "VALIDATION_ERROR", "message": "Request validation failed", "details": { "sku": "…" }, "traceId": "…" }` |
+| `sku` > 20 caracteres o con caracteres fuera de `[A-Za-z0-9-]` (p. ej. `%3Cb%3Ex`; review del PR #5, A06) | 400 | `{ "code": "VALIDATION_ERROR", "message": "Request validation failed", "details": { "sku": "…" }, "traceId": "…" }` |
 
 Tipos: `sku` string, `stock` entero ≥ 0.
 

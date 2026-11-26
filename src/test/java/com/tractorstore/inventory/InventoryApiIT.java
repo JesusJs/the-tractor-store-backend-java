@@ -109,6 +109,21 @@ class InventoryApiIT {
   }
 
   @Test
+  void skuWithCharactersOutsideTheCatalogFormatIsValidationError() {
+    client
+        .get()
+        .uri(BASE + "/%3Cb%3Ex")
+        .exchange()
+        .expectStatus()
+        .isBadRequest()
+        .expectBody()
+        .jsonPath("$.code")
+        .isEqualTo("VALIDATION_ERROR")
+        .jsonPath("$.details.sku")
+        .exists();
+  }
+
+  @Test
   void decreaseWithoutATransactionFailsAndKeepsTheStock() {
     assertThatThrownBy(() -> inventory.decreaseStock("CL-01-GR", 1))
         .isInstanceOf(IllegalTransactionStateException.class);

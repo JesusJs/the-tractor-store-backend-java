@@ -4,11 +4,13 @@ import com.tractorstore.inventory.application.port.in.GetStockUseCase;
 import com.tractorstore.inventory.domain.model.StockItem;
 import com.tractorstore.inventory.infrastructure.web.dto.StockResponse;
 import com.tractorstore.shared.infrastructure.web.ApiError;
+import com.tractorstore.shared.infrastructure.web.InputPatterns;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,7 +41,9 @@ class InventoryController {
   @ApiResponse(responseCode = "200", description = "Stock")
   @ApiResponse(
       responseCode = "400",
-      description = "SKU longer than 20 characters (VALIDATION_ERROR)",
+      description =
+          "SKU longer than 20 characters or with characters other than letters, digits and"
+              + " hyphens (VALIDATION_ERROR)",
       content = @Content(schema = @Schema(implementation = ApiError.class)))
   @ApiResponse(
       responseCode = "404",
@@ -49,7 +53,9 @@ class InventoryController {
       responseCode = "500",
       description = "Unexpected error",
       content = @Content(schema = @Schema(implementation = ApiError.class)))
-  StockResponse stock(@PathVariable @Size(max = 20) String sku) {
+  StockResponse stock(
+      @PathVariable
+          @Size(max = 20) @Pattern(regexp = InputPatterns.CATALOG_ID, message = InputPatterns.CATALOG_ID_MESSAGE) String sku) {
     StockItem item = getStock.get(sku);
     return new StockResponse(item.sku(), item.units());
   }

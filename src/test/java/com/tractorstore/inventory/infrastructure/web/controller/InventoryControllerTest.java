@@ -1,5 +1,7 @@
 package com.tractorstore.inventory.infrastructure.web.controller;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -75,6 +77,17 @@ class InventoryControllerTest {
         .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
         .andExpect(jsonPath("$.details.sku").exists())
         .andExpect(jsonPath("$.traceId").isNotEmpty());
+
+    verify(getStock, never()).get(anyString());
+  }
+
+  @Test
+  void skuWithMarkupIsValidationErrorThatDoesNotEchoIt() throws Exception {
+    mvc.perform(get(BASE + "/%3Cb%3Ex"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.details.sku").value("must only contain letters, digits and hyphens"))
+        .andExpect(content().string(not(containsString("<b>"))));
 
     verify(getStock, never()).get(anyString());
   }

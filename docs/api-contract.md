@@ -43,7 +43,7 @@ Forma exacta del front ([ADR 0008](adr/0008-contrato-catalogo-segun-front.md); d
 ### Inventory
 | Método | Ruta | Respuesta | Errores |
 |---|---|---|---|
-| GET | `/api/v1/inventory/{sku}` | `{ sku, stock }` | 404 `VARIANT_NOT_FOUND` (SKU desconocido); 400 `VALIDATION_ERROR` (SKU > 20 caracteres) |
+| GET | `/api/v1/inventory/{sku}` | `{ sku, stock }` | 404 `VARIANT_NOT_FOUND` (SKU desconocido); 400 `VALIDATION_ERROR` (SKU > 20 caracteres o con caracteres que no son letras, dígitos ni guiones; el SKU no se refleja en la respuesta) |
 
 Sin sesión. El front muestra "Out of stock" si `stock === 0`.
 

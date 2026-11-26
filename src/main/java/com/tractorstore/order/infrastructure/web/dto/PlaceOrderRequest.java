@@ -1,6 +1,7 @@
 package com.tractorstore.order.infrastructure.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.tractorstore.shared.infrastructure.web.InputPatterns;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -30,9 +31,9 @@ public record PlaceOrderRequest(
     @Size(max = 50) List<@NotNull @Valid OrderItemRequest> items) {
 
   /** Catalog ids (SKU, store); blank is left to {@code @NotBlank}. */
-  static final String ID = "[A-Za-z0-9-]*";
+  static final String ID = InputPatterns.CATALOG_ID;
 
-  static final String ID_MESSAGE = "must only contain letters, digits and hyphens";
+  static final String ID_MESSAGE = InputPatterns.CATALOG_ID_MESSAGE;
 
   /** Any text without control characters (Unicode category Cc). */
   static final String TEXT = "\\P{Cc}*";
