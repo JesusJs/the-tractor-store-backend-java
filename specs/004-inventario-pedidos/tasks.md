@@ -203,7 +203,7 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 > **Diferida (review 004, 2026-11-25)**: no se implementa en la rama `004-inventario-pedidos`; pasa a una spec posterior (ver `docs/backlog.md` y `review.md`).
 
 - [ ] T074 [P] Revisar Swagger UI en `http://localhost:5271/swagger-ui.html`: tags `Inventory`, `Cart` y `Orders` con descripción, respuestas y errores de las 4 operaciones (quickstart §8, FR-031)
-- [ ] T075 [P] Anotar en `docs/backlog.md` (o en la spec de despliegue `despliegue-azure-esqueleto`) los riesgos de R4 (`SameSite=Lax` con dominios distintos en Azure) y R13 (`republish-outstanding-events-on-restart` con varias réplicas)
+- [X] T075 [P] Anotar en `docs/backlog.md` (o en la spec de despliegue `despliegue-azure-esqueleto`) los riesgos de R4 (`SameSite=Lax` con dominios distintos en Azure) y R13 (`republish-outstanding-events-on-restart` con varias réplicas). Hecho en la fila 006 `despliegue-azure-esqueleto` del backlog, junto con mismo origen o `SameSite=None; Secure` + CORS, límites de frecuencia y de cuerpo (64 KB) en el ingress y `nosniff` (review del PR #5, A04)
 - [ ] T076 Ejecutar `./mvnw spotless:apply` y `./mvnw verify` completo; comprobar cobertura JaCoCo de las clases nuevas para el Quality Gate de SonarCloud (ADR 0010)
 - [ ] T077 Recorrer `specs/004-inventario-pedidos/quickstart.md` de §1 a §8 contra una BD vacía y marcar cualquier desviación
 - [ ] T078 Comprobar SC-007 en local: `POST /orders` y `GET /orders/{id}` < 1 s cada uno (`curl -w '%{time_total}'`)
