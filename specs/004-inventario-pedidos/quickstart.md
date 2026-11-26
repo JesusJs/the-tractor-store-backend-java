@@ -138,6 +138,19 @@ docker compose exec postgres psql -U tractor -d tractor -c "select count(*) from
 ```
 Esperado: solo los pedidos con 201.
 
+### 4.1 Restaurar el stock sembrado (demo, review #2)
+
+Los pedidos descuentan stock de verdad, y un solo `POST` de 50 líneas puede dejar la demo en 409.
+Para volver a los valores de `V4__inventory_stock.sql` (los pedidos se conservan):
+
+```bash
+scripts/reset-demo-stock.sh
+```
+Usa `DB_HOST`, `DB_PORT` (por defecto `55432`), `DB_NAME`, `DB_USER` y `DB_PASSWORD` con los mismos
+valores por defecto que `compose.yaml`; solo acepta un host local y necesita `psql` en el equipo.
+Esperado: `47 SKUs restored; CL-01-GR=10, CL-01-GY=0, AU-08-WH=1, AU-07-YE=5`, y
+`curl -s localhost:5271/api/v1/inventory/CL-01-GR` vuelve a dar `"stock":10`.
+
 ## 5. P2 con el front real sin cambios (SC-001)
 
 1. Backend en `dev` (puerto 5271) y front arrancado (MFEs en 4200–4203).
