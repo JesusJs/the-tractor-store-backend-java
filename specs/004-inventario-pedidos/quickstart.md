@@ -167,7 +167,7 @@ Esperado: `47 SKUs restored; CL-01-GR=10, CL-01-GY=0, AU-08-WH=1, AU-07-YE=5`, y
 
 ### 5.1 Mitigación para la demo: SKUs con el mismo precio en carrito y recibo (review PR #5, A01)
 
-Hasta la spec 005 `carrito-servidor` (2026-12-01) el carrito del front muestra el precio "desde" del
+Hasta la spec 005\* `carrito-servidor` (2026-12-01) el carrito del front muestra el precio "desde" del
 producto. En la demo, añade solo variantes cuyo precio coincide con ese "desde" (derivado de
 `V3__catalog_dataset.sql`; stock de `V4`):
 

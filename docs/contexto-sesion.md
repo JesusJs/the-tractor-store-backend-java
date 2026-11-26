@@ -26,7 +26,7 @@ La revisión de la 004 y sus decisiones (corregido / diferido / aceptado) están
 ## 3. Qué hay en `main`
 
 Specs 001, 002, 003 y 004 (merge del PR #5): inventario, `GET /cart` (solo sesión; carrito en `localStorage` del
-front hasta la spec 005) y pedidos. Migraciones aplicadas en `main`: V1–V5 (V4 `inventory_stock`, V5 `order_*`). Las migraciones aplicadas no se editan nunca: siempre una nueva.
+front hasta la spec 005\*) y pedidos. Migraciones aplicadas en `main`: V1–V5 (V4 `inventory_stock`, V5 `order_*`). Las migraciones aplicadas no se editan nunca: siempre una nueva.
 
 ## 4. Pendientes priorizados
 
@@ -38,11 +38,11 @@ Fechas del backlog acordadas el 2026-11-26, sujetas a confirmación con el mento
    con fixtures negativas, T055–T061, y el comentario de `ArchitectureRules`; A11) ya está hecha en la rama; falta
    **P3**: `OrderPlaced` con outbox (`spring-modulith-starter-jpa`, V6 del Event Publication Registry) y listener en
    `notifications` (T062–T073), y el pulido T074, T077–T078.
-3. **005 `carrito-servidor`** (2026-12-01; A01): los 4 endpoints de la guía con `ts_session`, precio real de la
+3. **005\* `carrito-servidor`** (2026-12-01; A01): los 4 endpoints de la guía con `ts_session`, precio real de la
    variante y stock, y `CartService` del front consumiéndolos
    ([issue del front](https://github.com/JesusJs/the-tractore-store/issues/1)). Hasta entonces, en la demo solo
    SKUs con el precio "desde" (`specs/004-inventario-pedidos/quickstart.md` §5.1).
-4. **006 `despliegue-azure-esqueleto`** (2026-12-02): Dockerfile multi-stage no-root, Terraform, GitHub Actions con
+4. **006\* `despliegue-azure-esqueleto`** (2026-12-02): Dockerfile multi-stage no-root, Terraform, GitHub Actions con
    OIDC, mismo origen para front y API (o `SameSite=None; Secure` + CORS), límites de frecuencia y de cuerpo
    (64 KB) en el ingress y `nosniff` (A04). **Plan B**: demo local con `docker compose`.
 5. **Issues del front** (repo del front):

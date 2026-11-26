@@ -52,7 +52,7 @@ Sin sesión. El front muestra "Out of stock" si `stock === 0`.
 |---|---|---|---|
 | GET | `/api/v1/cart` | — | 200 `Cart` **siempre vacío**; crea `ts_session` si falta o no es un UUID válido |
 
-El front solo lo llama para que el backend fije la cookie (`responseType: 'text'`, ignora cuerpo y errores). `GET /cart/mini`, `POST /cart/items` y `DELETE /cart/items/{sku}` se retiraron del contrato de forma temporal (ADR 0011): vuelven con la spec 005 `carrito-servidor` (2026-12-01).
+El front solo lo llama para que el backend fije la cookie (`responseType: 'text'`, ignora cuerpo y errores). `GET /cart/mini`, `POST /cart/items` y `DELETE /cart/items/{sku}` se retiraron del contrato de forma temporal (ADR 0011): vuelven con la spec 005\* `carrito-servidor` (2026-12-01).
 
 ### Order (cookie `ts_session`)
 | Método | Ruta | Cuerpo | Respuesta |
@@ -80,7 +80,7 @@ ProductDetail  { id: string; name: string; brand: 'Classic'|'Autonomous'; price:
 Store          { id: string; name: string; address: string; city: string; image: string }
 ```
 - `brand` = etiqueta de la categoría; `description` = highlights sin `.` final unidos con `". "`.
-- `price` = mínimo de los precios de las variantes. Limitación conocida: `AU-07-YE` cuesta 5000 y se muestra 4000; el carrito del front usa este precio "desde" y el recibo el real de la variante hasta la spec 005 `carrito-servidor` (ADR 0011, desviación temporal).
+- `price` = mínimo de los precios de las variantes. Limitación conocida: `AU-07-YE` cuesta 5000 y se muestra 4000; el carrito del front usa este precio "desde" y el recibo el real de la variante hasta la spec 005\* `carrito-servidor` (ADR 0011, desviación temporal).
 
 Inventario, carrito y pedidos (confirmado contra `catalog.models.ts` y `cart.service.ts` del front, ADR 0011):
 ```ts

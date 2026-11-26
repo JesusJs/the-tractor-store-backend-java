@@ -1,6 +1,6 @@
 # 0011 — El contrato de carrito y pedidos lo manda el front
 
-- Estado: aceptada (aprobada 2026-11-24; enmendada el mismo día en la spec 004: `storeId` se valida contra el catálogo). **La parte "sin carrito en servidor" es una desviación temporal** por decisión del mentor (review del PR #5, A01, 2026-11-26): la cierra la spec 005 `carrito-servidor` (2026-12-01), con los 4 endpoints de la guía ligados a `ts_session`, precio real de la variante y stock, y el `CartService` del front consumiéndolos ([issue del front](https://github.com/JesusJs/the-tractore-store/issues/1)). Registrada en `docs/requisitos.md` y `docs/backlog.md`.
+- Estado: aceptada (aprobada 2026-11-24; enmendada el mismo día en la spec 004: `storeId` se valida contra el catálogo). **La parte "sin carrito en servidor" es una desviación temporal** por decisión del mentor (review del PR #5, A01, 2026-11-26): la cierra la spec 005\* `carrito-servidor` (2026-12-01), con los 4 endpoints de la guía ligados a `ts_session`, precio real de la variante y stock, y el `CartService` del front consumiéndolos ([issue del front](https://github.com/JesusJs/the-tractore-store/issues/1)). Registrada en `docs/requisitos.md` y `docs/backlog.md`.
 - Fecha: 2026-11-24
 - Reemplaza: ADR 0007. Amplía: ADR 0009 (sesión en `shared`). Modifica: ADR 0002 (consumidores de `OrderPlaced`).
 
@@ -65,7 +65,7 @@ Como en la ADR 0008, **el front manda**: las secciones Inventory, Cart y Order d
   - Confirmar pedido es atómico: pedido guardado y stock descontado en la misma transacción, o ninguna de las dos cosas; no hay sobreventa.
   - Las dependencias quedan sin ciclos y `cart` se reduce a un endpoint.
 - Negativas / deuda aceptada:
-  - **Totales distintos entre carrito y recibo** cuando una variante cuesta más que el precio "desde": el carrito del front usa `product.price` (ADR 0008) y el recibo el precio real. Ejemplo: `AU-07-YE` aparece a 4000 en el carrito y a 5000 en el recibo (IVA y total cambian en proporción). Se acepta temporalmente; lo arregla la spec 005 `carrito-servidor` (2026-12-01), que cambia el front y añade el carrito en servidor (ver Estado).
+  - **Totales distintos entre carrito y recibo** cuando una variante cuesta más que el precio "desde": el carrito del front usa `product.price` (ADR 0008) y el recibo el precio real. Ejemplo: `AU-07-YE` aparece a 4000 en el carrito y a 5000 en el recibo (IVA y total cambian en proporción). Se acepta temporalmente; lo arregla la spec 005\* `carrito-servidor` (2026-12-01), que cambia el front y añade el carrito en servidor (ver Estado).
   - El carrito no sobrevive a otro navegador ni se valida en servidor hasta que se confirma el pedido.
   - `order` queda acoplado de forma síncrona a `inventory.api` (descontar, con `decreaseStock`: el `UPDATE` condicional consulta y descuenta en un solo paso); si el descuento falla, se deshace el pedido. Separar inventario en otro servicio obligaría a rehacer esto con eventos y compensaciones.
   - `inventory` deja de ser ejemplo de consumidor de eventos; solo queda `notifications`.
