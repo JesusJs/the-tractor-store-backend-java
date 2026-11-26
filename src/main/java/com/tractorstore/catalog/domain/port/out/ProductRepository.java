@@ -1,6 +1,7 @@
 package com.tractorstore.catalog.domain.port.out;
 
 import com.tractorstore.catalog.domain.model.Product;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +15,7 @@ public interface ProductRepository {
   List<Product> findByCategory(String code);
 
   Optional<Product> findById(String id);
+
+  /** Products having at least one of {@code skus}, each with all its variants. */
+  List<Product> findByVariantSkus(Collection<String> skus);
 }

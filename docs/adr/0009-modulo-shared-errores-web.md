@@ -32,3 +32,6 @@ Reglas: `shared` no depende de ningún módulo de dominio y no contiene lógica 
   - `ModularityTests`: `shared` sin dependencias; `catalog` solo con `shared` en `allowedDependencies`.
   - `HexagonalArchitectureTests`: `shared.error` no depende de Spring, JPA ni Jackson (lo usan los `domain`), y ninguna clase de `shared` lleva `@Entity`.
   - `GlobalExceptionHandlerTest`, `TraceIdFilterTest` y `CorsIT` (spec 002).
+
+## Actualización 2026-11-24 (ADR 0011)
+`shared.infrastructure.web` admite también el componente técnico de sesión que lee o crea la cookie `ts_session` (ADR 0004), usado por `cart` y `order`. Sigue sin lógica de negocio, entidades ni tablas.

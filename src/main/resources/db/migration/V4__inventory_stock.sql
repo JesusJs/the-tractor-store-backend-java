@@ -1,0 +1,58 @@
+-- Inventory stock (spec 004, data-model.md §7, research R1). Only inventory_* tables: the SKU is the
+-- catalog one, but there is no foreign key to catalog_variant (constitution IV).
+-- Seed: one row per V3 variant with 10 units, except CL-01-GY = 0 (out of stock in the product page),
+-- AU-08-WH = 1 (last unit, 409 demo) and AU-07-YE = 5 (price regression demo).
+
+CREATE TABLE inventory_stock (
+    sku   VARCHAR(20) PRIMARY KEY,
+    stock INTEGER     NOT NULL CHECK (stock >= 0)
+);
+
+INSERT INTO inventory_stock (sku, stock) VALUES
+    ('CL-01-GR', 10),
+    ('CL-01-GY', 0),
+    ('CL-02-BL', 10),
+    ('CL-03-GR', 10),
+    ('CL-03-PI', 10),
+    ('CL-03-YE', 10),
+    ('CL-04-BL', 10),
+    ('CL-04-RD', 10),
+    ('CL-04-TQ', 10),
+    ('CL-05-PT', 10),
+    ('CL-05-RD', 10),
+    ('CL-06-MT', 10),
+    ('CL-06-YE', 10),
+    ('CL-07-GR', 10),
+    ('CL-07-YE', 10),
+    ('CL-08-GR', 10),
+    ('CL-08-PI', 10),
+    ('CL-09-BL', 10),
+    ('CL-09-GR', 10),
+    ('CL-10-SD', 10),
+    ('CL-10-VI', 10),
+    ('CL-11-SK', 10),
+    ('CL-11-YE', 10),
+    ('CL-12-BL', 10),
+    ('CL-12-RD', 10),
+    ('CL-13-BL', 10),
+    ('CL-13-RD', 10),
+    ('CL-14-GR', 10),
+    ('CL-14-RD', 10),
+    ('CL-15-PI', 10),
+    ('CL-15-SD', 10),
+    ('AU-01-SI', 10),
+    ('AU-02-OG', 10),
+    ('AU-02-BL', 10),
+    ('AU-02-GG', 10),
+    ('AU-03-TQ', 10),
+    ('AU-03-PL', 10),
+    ('AU-03-RD', 10),
+    ('AU-03-YE', 10),
+    ('AU-04-RD', 10),
+    ('AU-04-BK', 10),
+    ('AU-05-ZH', 10),
+    ('AU-06-CZ', 10),
+    ('AU-06-MT', 10),
+    ('AU-07-MT', 10),
+    ('AU-07-YE', 5),
+    ('AU-08-WH', 1);

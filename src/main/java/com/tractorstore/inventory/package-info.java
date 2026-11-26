@@ -1,5 +1,5 @@
 /** Inventory module. Other modules may only use its {@code api} package or its events. */
-@ApplicationModule(displayName = "Inventory", allowedDependencies = "order :: api")
+@ApplicationModule(displayName = "Inventory", allowedDependencies = "shared")
 package com.tractorstore.inventory;
 
 import org.springframework.modulith.ApplicationModule;

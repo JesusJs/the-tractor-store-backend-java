@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-23
 
-**Status**: Approved (2026-11-23)
+**Status**: Implemented (2026-11-25; verificaciones post-merge T021, T025 y T032 cerradas)
 
 **Input**: User description: "Funcionalidad calidad-sonar (fase C2 de la guía; adelanta a SonarCloud desde 'fuera de alcance'). Cada pull request analizado por SonarCloud y sin merge a main si no supera el Quality Gate; cobertura real (unitarios + integración, agregada) visible en cada PR; revisores (Oscar, Steven) ven en el propio PR los issues y el resultado del Quality Gate. Quality Gate: 0 bugs nuevos, 0 vulnerabilidades nuevas, cobertura de código nuevo ≥ 85 %, duplicación de código nuevo ≤ 3 %, ratings A en código nuevo. Análisis en cada PR y en cada push a main; check de Sonar obligatorio en el ruleset de main. Exclusiones de cobertura justificadas (DTOs sin lógica, configuración, migraciones, clase Application) y documentadas en TESTING.md. El token nunca aparece en el repo ni en logs. Fuera de alcance: análisis del front, Sonar autoalojado. Requiere ADR que mueva SonarCloud de 'fuera de alcance' a alcance."
 

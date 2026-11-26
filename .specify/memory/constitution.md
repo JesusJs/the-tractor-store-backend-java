@@ -1,4 +1,32 @@
 <!--
+Sync Impact Report (1.3.0)
+- Cambio de versión: 1.2.1 → 1.3.0 (MINOR: se amplía materialmente el principio II y se
+  reformulan reglas de IV, V y VI para reflejar el contrato real del front; no se elimina ningún
+  principio). Incorpora la aclaración de redacción de VII (C16) introducida en 1.2.1.
+- Principios modificados (mismos títulos):
+  II. Monolito modular + hexagonal: `shared` admite también el componente técnico de sesión por
+  cookie `ts_session` (ADR 0009 ampliada por la 0011) y la validación técnica de entrada
+  (`JsonCoercionConfiguration` e `InputPatterns`; review del PR #5, A08 y A06).
+  IV. Datos: "el cliente nunca envía precios" → "el backend MUST ignorar cualquier precio que envíe
+  el cliente" (el front envía `price` en las líneas de pedido); el test de regresión pasa a la
+  spec 004 `inventario-pedidos`.
+  V. Eventos internos: el descuento de stock no es un consumidor de eventos (síncrono vía
+  `inventory.api` con `UPDATE` condicional); solo `notifications` consume `OrderPlaced`. Nueva
+  regla: sin ciclos entre módulos por eventos. Razón actualizada.
+  VI. Seguridad proporcionada: la cookie liga los pedidos; el carrito no está en servidor (vive en
+  `localStorage` del front).
+  VII. Simplicidad y plazo: la demo pasa del 2026-11-25 al 2026-12-03 (review del PR #5, A02; sin
+  1.3.1 porque la 1.3.0 aún no está en `main`).
+- Secciones añadidas: ninguna
+- Secciones eliminadas: ninguna
+- Plantillas dependientes: no se modifican (leen la constitución en tiempo de ejecución).
+  ✅ Ya actualizados en el mismo cambio (ADR 0011): docs/api-contract.md, docs/backlog.md,
+    CLAUDE.md, skills `api-contract` y `modular-architecture`, ADR 0002, 0007 y 0009.
+  ✅ Resuelto en la spec 004: el comentario de `shared/package-info.java` cita ya la sesión por
+    cookie `ts_session` (ADR 0011).
+- TODOs diferidos: ninguno.
+- Aprobación: usuario, 2026-11-24 (ADR 0011).
+
 Sync Impact Report (1.2.1)
 - Cambio de versión: 1.2.0 → 1.2.1 (PATCH: aclaración de redacción, sin cambio de alcance)
 - Principio VII: "ni front" se sustituye por "el front se analiza desde su propio repositorio"
@@ -49,7 +77,10 @@ devuelvan tipos anotados con `@Entity`; revisión del subagente `spec-reviewer` 
 
 - Un único despliegue con cinco módulos de dominio (`catalog`, `inventory`, `cart`, `order` y
   `notifications`) y un módulo técnico `shared`, todos bajo `com.tractorstore`.
-- `shared` MUST limitarse a lo técnico y transversal (jerarquía de errores, `traceId`, CORS):
+- `shared` MUST limitarse a lo técnico y transversal (jerarquía de errores, `traceId`, CORS,
+  el componente que lee o crea la cookie de sesión `ts_session` y la validación técnica de
+  entrada común a todos los adaptadores web: `JsonCoercionConfiguration`, que rechaza un número
+  JSON en un campo de texto, y los patrones compartidos de `InputPatterns`):
   se declara `@ApplicationModule(type = OPEN)`, no depende de ningún otro módulo y no contiene
   lógica de negocio, entidades ni tablas. Añadirle otra cosa requiere ADR. Su paquete
   `shared.error` MUST ser Java puro, porque lo usan los `domain`.
@@ -61,7 +92,7 @@ devuelvan tipos anotados con `@Entity`; revisión del subagente `spec-reviewer` 
 
 **Cómo se comprueba**: `ApplicationModules.of(...).verify()` (`ModularityTests`) y reglas ArchUnit
 (`HexagonalArchitectureTests`) se ejecutan en `./mvnw test` en cada build local y de CI; un fallo
-bloquea el merge. Referencias: ADR 0001 y ADR 0009 (módulo `shared`).
+bloquea el merge. Referencias: ADR 0001, ADR 0009 (módulo `shared`) y ADR 0011 (sesión en `shared`).
 
 **Razón**: fronteras explícitas y testeables; el backend anterior falló por no tenerlas.
 
@@ -88,12 +119,13 @@ debe dar cero resultados.
 - Esquema y dataset MUST gestionarse solo con migraciones Flyway versionadas; una migración
   aplicada no se edita. `spring.jpa.hibernate.ddl-auto=validate` en todos los perfiles.
 - El dinero MUST ser `NUMERIC(10,2)` en BD y `BigDecimal` en Java (nunca `double`/`float`).
-- El precio MUST salir siempre del catálogo; el cliente nunca envía precios.
+- El precio MUST salir siempre del catálogo: el backend MUST ignorar cualquier precio que envíe
+  el cliente (el front envía `price` en las líneas de pedido; ADR 0011).
 - Open Session In View MUST estar desactivado (`spring.jpa.open-in-view=false`).
 
 **Cómo se comprueba**: los tests de integración arrancan sobre un PostgreSQL vacío y migran;
-revisión de `application*.yml`; test de regresión "precio enviado por el cliente" (spec 007).
-Referencia: ADR 0003.
+revisión de `application*.yml`; test de regresión "precio enviado por el cliente" (spec 004 `inventario-pedidos`).
+Referencias: ADR 0003 y ADR 0011.
 
 **Razón**: BD reproducible en local, Testcontainers y Azure; sin acoplamiento por datos.
 
@@ -105,30 +137,38 @@ Referencia: ADR 0003.
 - La entrega MUST apoyarse en el Event Publication Registry de Spring Modulith (patrón outbox),
   con su tabla creada por migración Flyway.
 - Sin brokers externos (Kafka, RabbitMQ, etc.).
+- Un evento MUST NOT crear un ciclo entre módulos: si el consumidor es también dependencia
+  síncrona del publicador, la operación se hace por su `api` en la misma transacción. Por eso el
+  stock lo descuenta `order` vía `inventory.api` con un `UPDATE` condicional, y `OrderPlaced` solo
+  lo consume `notifications` (ADR 0011).
 
 **Cómo se comprueba**: tests con `Scenario` de Spring Modulith para cada evento y un test de
-reintento con un listener que falla una vez. Referencia: ADR 0002.
+reintento con un listener que falla una vez; `ModularityTests` rechaza los ciclos.
+Referencias: ADR 0002 y ADR 0011.
 
-**Razón**: desacopla `order` de `cart`, `inventory` y `notifications` sin coste operativo.
+**Razón**: desacopla `order` de `notifications` sin coste operativo y demuestra el patrón outbox;
+donde hace falta atomicidad (stock), manda la llamada síncrona.
 
 ### VI. Seguridad proporcionada
 
 - Sin login, JWT ni Keycloak.
-- Carrito y pedidos MUST ligarse a la cookie `ts_session` (UUID aleatorio, HttpOnly,
-  `SameSite=Lax`, `Secure` en prod). Consultar un pedido de otra sesión MUST devolver 404.
+- Los pedidos MUST ligarse a la cookie `ts_session` (UUID aleatorio, HttpOnly, `SameSite=Lax`,
+  `Secure` en prod), que el backend crea si falta o no es un UUID válido. Consultar un pedido de
+  otra sesión MUST devolver 404. El carrito no está en servidor: vive en `localStorage` del front
+  (ADR 0011).
 - Toda entrada (body, path, query) MUST validarse con Bean Validation.
 - CORS MUST declarar orígenes explícitos; nunca `*` con credenciales.
 - Cero secretos en el repositorio o en la imagen Docker: solo variables de entorno.
 
 **Cómo se comprueba**: test de integración "pedido de otra sesión → 404"; tests de validación
 (400 `VALIDATION_ERROR`); escaneo de secretos en CI; revisión del subagente `security-reviewer`.
-Referencia: ADR 0004.
+Referencias: ADR 0004 y ADR 0011.
 
 **Razón**: seguridad acorde a una demo sin usuarios, sin dejar huecos obvios.
 
 ### VII. Simplicidad y plazo
 
-- La demo es el 2026-11-25; YAGNI manda.
+- La demo y el cierre son el 2026-12-03 (replanificado en la review del PR #5, A02); YAGNI manda.
 - Fuera de alcance: Keycloak, Grafana, OpenTelemetry completo, caché, k6, Kafka.
 - En alcance desde la spec 003: SonarCloud, solo para este repositorio de backend (el front se
   analiza desde su propio repositorio; sin instalación autoalojada), con el Quality Gate integrado **Sonar way** (código nuevo: cobertura ≥ 80 %,
@@ -194,4 +234,4 @@ Referencia: ADR 0005.
   justificación en "Complexity Tracking" bloquea el PR.
 - Guía operativa del día a día: `CLAUDE.md` y las skills de `.claude/skills/`.
 
-**Version**: 1.2.1 | **Ratified**: 2026-11-12 | **Last Amended**: 2026-11-25
+**Version**: 1.3.0 | **Ratified**: 2026-11-12 | **Last Amended**: 2026-11-25

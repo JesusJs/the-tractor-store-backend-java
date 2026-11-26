@@ -8,3 +8,8 @@ spring:
 server:
   # Behind the Azure Container Apps ingress: honour X-Forwarded-* headers.
   forward-headers-strategy: framework
+
+tractorstore:
+  session:
+    # Served over HTTPS behind the ingress: the session cookie is never sent in clear text.
+    secure-cookie: true

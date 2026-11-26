@@ -28,4 +28,9 @@ class StoreRepositoryAdapter implements StoreRepository {
                     entity.getImage()))
         .toList();
   }
+
+  @Override
+  public boolean existsById(String id) {
+    return stores.existsById(id);
+  }
 }

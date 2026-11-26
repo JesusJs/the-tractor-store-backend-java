@@ -1,6 +1,6 @@
 # 0007 — `order` vacía el carrito llamando a `cart.api` de forma síncrona
 
-- Estado: propuesta
+- Estado: reemplazada por 0011 (2026-11-24): no hay carrito en servidor; `order` ya no depende de `cart.api`
 - Fecha: 2026-11-19
 
 ## Contexto
