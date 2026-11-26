@@ -47,3 +47,28 @@ marcha (perfil dev, `localhost:5271`).
 **Fases 5, 6 y 7 de `tasks.md`** (guardas ArchUnit FR-028..FR-030, P3 `OrderPlaced` + outbox +
 `notifications`, y pulido): **diferidas a una spec posterior** (anotado en `tasks.md` y en
 `docs/backlog.md`). Esta rama cierra P1 y P2.
+
+## Review del PR #5 (Oscar) — decisiones del 2026-11-26
+
+Hilos de `oscarmoraquind` en el PR #5, aplicados en un único push. Ajustan decisiones de arriba: #2
+(puerto por defecto del script → A05), #4 (`\P{Cc}` → A07) y #9 (límite de cuerpo → fila 006, A04).
+Fechas del backlog acordadas el 2026-11-26, sujetas a confirmación con el mentor.
+
+| ID | Severidad | Decisión | Qué se hizo | Commit |
+|---|---|---|---|---|
+| A01 | MEDIA | Corregir (decisión del mentor) | Carrito sin servidor registrado como **desviación temporal** en `docs/requisitos.md` (tabla de desviaciones y requisito 4) y en el Estado de la ADR 0011, cerrada por la spec 005 `carrito-servidor` (2026-12-01): 4 endpoints de la guía con `ts_session`, precio real de la variante y stock, y `CartService` del front consumiéndolos. Fila 005 en el backlog. Issue del front: [JesusJs/the-tractore-store#1](https://github.com/JesusJs/the-tractore-store/issues/1). Mitigación para la demo: tabla de SKUs con precio = "desde" en `quickstart.md` §5.1 (los 7 productos afectados coinciden con los de la review). | `1a00925` |
+| A02 | MEDIA | Corregir | Demo y cierre el 2026-12-03 en `CLAUDE.md:4` y `constitution.md` (VII, dentro de la 1.3.0, sin 1.3.1). Backlog: cierre 003 2026-11-27, continuación 004 2026-11-30 (rama `004-eventos-pedidos`), 005 `carrito-servidor` 2026-12-01, 006 `despliegue-azure-esqueleto` 2026-12-02 con plan B (demo local con `docker compose`), nota de fechas sujetas a confirmación. `ts_session` en la descripción de `shared` de `CLAUDE.md`. | `caac6be` |
+| A03 | MEDIA | Corregir | `SessionCookieProfileTests` (unitario, `YamlPropertySourceLoader`, patrón de `JpaSchemaValidationTests`): `application.yml` → `secure-cookie` `false`; `application-prod.yml` → `true`. G4 del analyze y la fila 010 actualizados. | `3159704` |
+| A04 | MEDIA | Corregir | Fila 006 del backlog: mismo origen (ADR 0004) o `SameSite=None; Secure` + CORS; límite de frecuencia de `POST /orders` y de cuerpo de 64 KB en el ingress; `X-Content-Type-Options: nosniff`; R13. Salen de la fila 010. T075 marcado. | `ef9bc09` |
+| A05 | BAJA | Corregir | `scripts/reset-demo-stock.sh` con `DB_PORT` por defecto `5432` (como `compose.yaml`) y comentarios corregidos; sin `psql` en el equipo usa `docker compose exec -T postgres psql`. `quickstart.md` §4.1 y `contexto-sesion.md` corregidos. Probado con las dos ramas contra la BD dev: 47 SKUs restaurados. | `93651f5` |
+| A06 | BAJA | Corregir | `shared.infrastructure.web.InputPatterns.CATALOG_ID` compartida por `PlaceOrderRequest`/`OrderItemRequest` y el `{sku}` de `InventoryController` (`@Pattern`) → 400 `VALIDATION_ERROR` sin reflejar la entrada. `@ApiResponse` 400, `contracts/inventory-cart-api.md` y `docs/api-contract.md` actualizados. Tests en `InventoryControllerTest` e `InventoryApiIT` (`%3Cb%3Ex`). | `35516b5` |
+| A07 | BAJA | Corregir | `TEXT = "[^\\p{Cc}\\p{Cf}\\p{Zl}\\p{Zp}]*"`. Casos en `OrderControllerTest`: `‮` en `firstName`, ` ` en `lastName` y `​` en `extraPickups` → 400; y un caso positivo con tildes, eñes, griego y chino → 201. El HTML se sigue guardando tal cual (lo escapa Angular). | `ecc0752` |
+| A08 | BAJA | Corregir | `JsonCoercionConfiguration` (y la nueva `InputPatterns`, A06) registradas en el principio II de la constitución 1.3.0, una línea en la ADR 0011, `shared/package-info.java` y `data-model.md` §1. | `c60d771` |
+| A09 | BAJA | Corregir | `spec.md` Status → Implemented; `api-contract.md:83`; ADR 0011 (`decreaseStock` en :69/:73, "Aplicado tras aceptarse" en lugar de "Pendiente"); `quickstart.md` §7 marcado como diferido en parte, sin `order.api.OrderPlaced` y con una prueba de FR-026 comprobada (falla `ModularityTests` con `inventory → catalog :: api`); `plan.md:142` → `findAllContainingSkus`; `tasks.md` T020 → `MANDATORY` y T076 marcado; `contexto-sesion.md` con el estado tras el merge. | `dcd2a92` |
+| A10 | BAJA | Diferido (no bloquea) | PR corto de cierre de la 003 el 2026-11-27 con los puntos 2 y 4–7 de la aprobación del PR #3 y el `diff` del ruleset; anotado en el backlog y en `contexto-sesion.md`. | — |
+| A11 | BAJA | Diferido (ya hecho en otra rama) | Fase 5 completa (fixtures negativas, T061 y comentario de `ArchitectureRules`) en la rama `004-eventos-pedidos` (`9d5d9f3`); se integra tras este merge, 2026-11-30. No se toca aquí. | — |
+| A12 | NIT | Corregir | `OrderConcurrencyIT`: latch `ready` de 2 (`ready.await(5, SECONDS)` antes de abrir) y `get(10, SECONDS)`. El IT opcional de líneas cruzadas no se añade (lo cubre `stockIsDecreasedPerLineSortedBySku`). | `43d2929` |
+| A13 | NIT | Corregir | `OrderTestData.restoreSeed` reaplica el `INSERT` de `V4__inventory_stock.sql`, como el script. | `1cb8c4d` |
+| A14 | NIT | Corregir | `FindVariantsService.find`: lista vacía → `List.of()` sin consulta; consulta con `requested` (deduplicado). Tests de vacío y de duplicados. | `a5af1a6` |
+| A15 | NIT | Corregir | Javadoc de `StockResponse` → `InventoryStatus`; `getOfAnotherSessionIsOrderNotFound` usa `ORDER_ID` (entró en el commit de A07); casos de `requireText` en blanco/nulo y de `OrderId` nulo. | `015d5bd` (y `ecc0752`) |
+| E1, E2 | ELOGIO | — | Sin cambios. | — |

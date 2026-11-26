@@ -187,8 +187,9 @@ y recibo con subtotal 6200, IVA 1302 y total 7502. Antes de presentar, `scripts/
 
 ## 6. P3: evento y log
 
-> **Diferido** a una spec posterior (review 004): las fases 5–7 de `tasks.md` no se implementan en
-> esta rama. Esta sección queda como guía para esa spec.
+> **Diferido** (review 004): la P3 no se implementa en esta rama; llega con la continuación de la 004
+> (rama `004-eventos-pedidos`, 2026-11-30). `OrderPlaced`, `OrderPlacedRetryIT` y la tabla
+> `event_publication` aún no existen: esta sección queda como guía para esa continuación.
 
 Tras confirmar un pedido (§4 o §5), el log de la app muestra (asíncrono, tras el commit):
 

@@ -379,8 +379,8 @@ build)**
 - **Deuda aceptada (ADR 0011, se documenta, no se arregla)**: el carrito del front usa el precio
   "desde" y el recibo el real (`AU-07-YE`: 4000 en carrito, 5000 en recibo); el backend acepta
   campos del cuerpo que ignora; `extraPickups` no se valida contra tiendas.
-- **Pendiente heredado**: actualizar el comentario de `shared/package-info.java` al implementar el
-  componente de sesión (Sync Impact Report de la constitución 1.3.0).
+- **Heredado de la constitución 1.3.0 (resuelto)**: el comentario de `shared/package-info.java`
+  cita la sesión por cookie y, desde la review del PR #5 (A08), la validación técnica de entrada.
 - **Dependencias**: catálogo de la spec 002 (dataset V3 con 47 SKUs y precios por variante),
   módulo compartido de errores/`traceId`/CORS, ADRs 0002, 0004, 0009 y 0011, constitución 1.3.0.
 - **Fuera de alcance**: carrito en servidor (`/cart/mini`, `POST`/`DELETE /cart/items`), reserva de

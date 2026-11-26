@@ -52,7 +52,7 @@ Sin sesión. El front muestra "Out of stock" si `stock === 0`.
 |---|---|---|---|
 | GET | `/api/v1/cart` | — | 200 `Cart` **siempre vacío**; crea `ts_session` si falta o no es un UUID válido |
 
-El front solo lo llama para que el backend fije la cookie (`responseType: 'text'`, ignora cuerpo y errores). `GET /cart/mini`, `POST /cart/items` y `DELETE /cart/items/{sku}` se retiraron del contrato (ADR 0011; carrito en servidor diferido).
+El front solo lo llama para que el backend fije la cookie (`responseType: 'text'`, ignora cuerpo y errores). `GET /cart/mini`, `POST /cart/items` y `DELETE /cart/items/{sku}` se retiraron del contrato de forma temporal (ADR 0011): vuelven con la spec 005 `carrito-servidor` (2026-12-01).
 
 ### Order (cookie `ts_session`)
 | Método | Ruta | Cuerpo | Respuesta |
