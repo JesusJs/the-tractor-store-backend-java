@@ -16,26 +16,27 @@ cobertura (JaCoCo avisa de *execution data mismatch*). En CI no pasa porque el r
 
 ## Exclusiones de cobertura
 
-Definidas en `pom.xml` (`sonar.coverage.exclusions` y `<excludes>` de JaCoCo); las dos listas se
-mantienen sincronizadas. Ninguna toca `domain/`, `application/` ni los adaptadores con lógica.
+Definidas en `pom.xml` (`sonar.coverage.exclusions` y los `<excludes>` de las ejecuciones `report` y
+`check` de JaCoCo); las tres listas se mantienen sincronizadas. Ninguna toca `domain/`, `application/` ni los adaptadores con lógica.
 
 | Qué | Patrón Sonar | Patrón JaCoCo | Por qué |
 |---|---|---|---|
 | DTOs HTTP | `**/infrastructure/web/dto/**` | `**/infrastructure/web/dto/**` | records sin lógica |
-| API entre módulos | `src/main/java/com/tractorstore/*/api/**` | `com/tractorstore/*/api/**` | contratos sin lógica: interfaces, records, eventos |
 | Cuerpo de error | `**/shared/infrastructure/web/ApiError.java` | `**/shared/infrastructure/web/ApiError.class` | record sin lógica |
-| Configuración | `**/infrastructure/config/**` | `**/infrastructure/config/**` | cableado de Spring; lo ejercitan los `*IT` |
 | Arranque | `**/TractorStoreApplication.java` | `**/TractorStoreApplication.class` | solo `main` |
 | Migraciones | `src/main/resources/db/migration/**` (también fuera de duplicación) | n/a (JaCoCo no mide SQL) | SQL repetitivo por naturaleza |
 
-`CorsConfiguration`, `CorsProperties` y las entidades JPA **no** se excluyen: la configuración de CORS
-tiene lógica de seguridad y la cubre `CorsIT`. Una exclusión nueva exige justificación en esta tabla y
-revisión en el PR.
+`CorsConfiguration`, `CorsProperties`, las entidades JPA, los paquetes `api` (contratos y eventos entre
+módulos) y `infrastructure/config` **no** se excluyen: la configuración de CORS tiene lógica de seguridad
+y la cubre `CorsIT`, y un record de `api` con constructor compacto también tiene lógica. Una exclusión
+nueva exige justificación en esta tabla y revisión en el PR que crea el código excluido.
 
-**Regla del paquete `api`**: la exclusión solo vale para el `api` de primer nivel de cada módulo
-(`com.tractorstore.<módulo>.api`) y mientras contenga contratos sin lógica. Si un record o evento de `api`
-gana lógica (validación en un constructor compacto, métodos de fábrica), esa clase se mueve fuera de
-`api` o se saca de la exclusión en el mismo PR.
+## Umbral global (JaCoCo, en el build)
+
+`./mvnw verify` falla si la cobertura **global** de líneas baja del **80 %** (guía C1): ejecución
+`check` de JaCoCo, regla `BUNDLE`/`LINE`/`COVEREDRATIO` ≥ 0,80, con las mismas exclusiones que el
+informe. Complementa al Quality Gate, que solo mira el código nuevo y no evalúa cambios de menos de 20
+líneas ([ADR 0010](docs/adr/0010-sonarcloud-en-alcance-sonar-way.md)).
 
 ## Quality Gate (Sonar way, sobre código nuevo)
 

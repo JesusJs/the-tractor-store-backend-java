@@ -32,8 +32,10 @@
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<!-- Keep in sync with the JaCoCo report excludes (justified in TESTING.md) -->
-		<sonar.coverage.exclusions>**/infrastructure/web/dto/**,src/main/java/com/tractorstore/*/api/**,**/shared/infrastructure/web/ApiError.java,**/infrastructure/config/**,**/TractorStoreApplication.java,src/main/resources/db/migration/**</sonar.coverage.exclusions>
+		<sonar.coverage.exclusions>**/infrastructure/web/dto/**,**/shared/infrastructure/web/ApiError.java,**/TractorStoreApplication.java,src/main/resources/db/migration/**</sonar.coverage.exclusions>
 		<sonar.cpd.exclusions>src/main/resources/db/migration/**</sonar.cpd.exclusions>
+		<!-- Unit and integration test results, so Sonar counts the *IT as well -->
+		<sonar.junit.reportPaths>${project.build.directory}/surefire-reports,${project.build.directory}/failsafe-reports</sonar.junit.reportPaths>
 	</properties>
 
 	<dependencyManagement>
@@ -218,11 +220,38 @@
 							<!-- Keep in sync with sonar.coverage.exclusions (justified in TESTING.md) -->
 							<excludes>
 								<exclude>**/infrastructure/web/dto/**</exclude>
-								<exclude>com/tractorstore/*/api/**</exclude>
 								<exclude>**/shared/infrastructure/web/ApiError.class</exclude>
-								<exclude>**/infrastructure/config/**</exclude>
 								<exclude>**/TractorStoreApplication.class</exclude>
 							</excludes>
+						</configuration>
+					</execution>
+					<execution>
+						<!-- Global line coverage >= 80 % (guide C1); Sonar way only gates new code -->
+						<id>check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+							<!-- Not inherited from the report execution: keep the same list -->
+							<excludes>
+								<exclude>**/infrastructure/web/dto/**</exclude>
+								<exclude>**/shared/infrastructure/web/ApiError.class</exclude>
+								<exclude>**/TractorStoreApplication.class</exclude>
+							</excludes>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
 						</configuration>
 					</execution>
 				</executions>

@@ -37,14 +37,19 @@ nuevo tiene menos de 20 líneas (comportamiento del servicio, no configurable en
 gratuito). Se acepta: los cambios tan pequeños los revisa Oscar (code owner),
 cuya aprobación exige el ruleset de `main`.
 
-No se añade un segundo umbral local del 85 % que falle el build: duplicaría la regla con un
-valor distinto al del check que bloquea el merge.
+**Enmienda (review del PR #3, C03, 2026-11-25)**: se añade además un umbral **global** con
+`jacoco:check` en la fase `verify` (cobertura de líneas del bundle ≥ 80 %, mismas exclusiones
+que el informe). No duplica el Quality Gate: Sonar way solo mide el código nuevo y no lo
+evalúa por debajo de 20 líneas, mientras que la guía C1 pide un 80 % global. No se sube a 85 %
+ni se añade un umbral de ramas, para no producir bloqueos que la guía no exige.
 
 ## Alternativas consideradas
 - Plan de pago de SonarCloud para un Quality Gate propio al 85 % — coste no justificado para
   una demo de un mes.
-- Umbral del 85 % con `jacoco:check` en el build — mide cobertura global o por clase, no de
-  "código nuevo" respecto a `main`; daría resultados distintos al check de Sonar.
+- Umbral del 85 % con `jacoco:check` en el build como sustituto del Quality Gate — mide
+  cobertura global o por clase, no de "código nuevo" respecto a `main`; daría resultados
+  distintos al check de Sonar. (Sí se adopta, como complemento, el 80 % global de la guía:
+  ver la enmienda en *Decisión*.)
 - SonarQube autoalojado (Community) — fuera de alcance por la spec y por plazo; además exige
   operar un servidor.
 - Seguir sin SonarCloud — no hay cobertura medida ni bloqueo automático de defectos.
