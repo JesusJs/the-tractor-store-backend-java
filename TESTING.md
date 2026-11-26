@@ -62,7 +62,7 @@ vulnerabilidades nuevos) y 100 % de hotspots revisados. El plan gratuito no perm
 La app de SonarCloud deja en la conversación del PR un resumen con el estado del gate y las métricas de
 código nuevo; su enlace abre el detalle (issues con fichero y línea) sin cuenta, porque el proyecto es
 público. Solo `JesusJs` marca un hotspot como *Safe* o un issue como *False Positive*/*Won't Fix*, y por
-cada marca comenta en el PR con enlace y justificación, que Oscar/Steven validan antes de aprobar. No se
+cada marca comenta en el PR con enlace y justificación, que Oscar (único revisor y code owner) valida antes de aprobar. No se
 desactivan reglas globalmente sin documentarlo aquí.
 
 ## Operación de `SONAR_TOKEN`

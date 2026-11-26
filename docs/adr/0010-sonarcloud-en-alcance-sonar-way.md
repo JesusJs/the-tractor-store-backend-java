@@ -34,7 +34,8 @@ Gate es **Sonar way**.
 
 Además, Sonar way **no aplica** las condiciones de cobertura y duplicación cuando el código
 nuevo tiene menos de 20 líneas (comportamiento del servicio, no configurable en el plan
-gratuito). Se acepta: los cambios tan pequeños los revisan Oscar/Steven.
+gratuito). Se acepta: los cambios tan pequeños los revisa Oscar (code owner),
+cuya aprobación exige el ruleset de `main`.
 
 No se añade un segundo umbral local del 85 % que falle el build: duplicaría la regla con un
 valor distinto al del check que bloquea el merge.

@@ -17,7 +17,7 @@
   se revisa (seguro / a corregir) en el servicio antes de fusionar.
 - Q: ¿Quién puede marcar en SonarCloud un hotspot como «seguro» o un issue como «falso
   positivo»? → A: Solo el dueño del repositorio, y cada marca exige un comentario en el PR con
-  enlace y justificación, que Oscar/Steven revisan antes de aprobar.
+  enlace y justificación, que Oscar revisa antes de aprobar.
 
 ### Session 2026-11-23 (plan)
 
@@ -38,7 +38,7 @@
   global; esta spec introduce un umbral **sobre código nuevo** del 80 % (el del Quality Gate Sonar way)
   que sí bloquea.
 - El repositorio `JesusJs/the-tractor-store-backend-java` es **público**.
-- Revisores habituales (CODEOWNERS): Oscar y Steven.
+- Revisor y code owner (CODEOWNERS): Oscar (Steven salió del proyecto, review del PR #3, C12).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -106,7 +106,7 @@ del análisis, y que las clases excluidas no cuentan en el porcentaje.
 
 ### User Story 3 - Los revisores ven issues y Quality Gate en el propio PR (Priority: P3)
 
-Como revisores (Oscar, Steven), queremos ver en la conversación del PR un resumen del Quality
+Como revisor (Oscar), queremos ver en la conversación del PR un resumen del Quality
 Gate (aprobado/fallido, bugs, vulnerabilidades, code smells, cobertura y duplicación del código
 nuevo) y los issues señalados, sin tener que entrar en otra herramienta ni tener cuenta en ella.
 
@@ -192,8 +192,8 @@ rama `main` con fecha del merge.
   el Quality Gate. Diferencia aceptada respecto a lo pedido: cobertura 80 % en lugar de 85 %.
 - **FR-004a**: Solo el dueño del repositorio MUST poder marcar en el servicio un hotspot como
   seguro o un issue como falso positivo / no se corregirá. Cada marca MUST ir acompañada de un
-  comentario en el PR con el enlace al hotspot/issue y la justificación, que los revisores
-  (Oscar, Steven) validan antes de aprobar. `TESTING.md` documenta este procedimiento (FR-011).
+  comentario en el PR con el enlace al hotspot/issue y la justificación, que el revisor
+  (Oscar) valida antes de aprobar. `TESTING.md` documenta este procedimiento (FR-011).
 - **FR-005**: "Código nuevo" en un PR MUST significar el código cambiado respecto a la rama
   destino (`main`); en `main`, la línea base MUST quedar definida y documentada.
 - **FR-006**: El resultado del Quality Gate MUST publicarse como check de estado del PR, y ese
@@ -283,6 +283,6 @@ rama `main` con fecha del merge.
   (`despliegue-azure-esqueleto`) pasa a numerarse cuando se especifique.
 - La rama `003-calidad-sonar` parte de `002-catalogo`, que aún no está fusionada en `main`; el PR
   de esta spec se abrirá (o rebasará) cuando 002 esté en `main`.
-- Los revisores (Oscar, Steven) no necesitan cuenta en el servicio para ver el resultado.
+- El revisor (Oscar) no necesita cuenta en el servicio para ver el resultado.
 - El umbral orientativo del 80 % global de la skill `testing-strategy` se sustituye por el
   80 % sobre código nuevo del Quality Gate Sonar way; no hay un segundo umbral de cobertura que falle el build en local.

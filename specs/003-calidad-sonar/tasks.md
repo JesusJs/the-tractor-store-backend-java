@@ -113,7 +113,7 @@ de `infrastructure/web/dto`, `ApiError` y `CorsConfiguration` no cuentan.
 
 ## Phase 5: User Story 3 - Los revisores ven issues y Quality Gate en el propio PR (Priority: P3)
 
-**Goal**: Oscar y Steven ven en el PR el resumen del Quality Gate y los issues sin cuenta en
+**Goal**: Oscar ve en el PR el resumen del Quality Gate y los issues sin cuenta en
 SonarCloud, y saben cómo se tratan hotspots y falsos positivos.
 
 **Independent Test**: abrir el enlace del resumen del PR en una ventana privada (sin sesión) y
@@ -121,7 +121,7 @@ llegar a la lista de issues nuevos en < 1 minuto (SC-007).
 
 ### Implementation for User Story 3
 
-- [X] T022 [US3] Añadir a `TESTING.md` la sección "Revisar un PR" (FR-013, FR-004a): dónde aparece el resumen de la app de SonarCloud en la conversación del PR, qué métricas de código nuevo muestra y cómo llegar al detalle sin cuenta (proyecto público); procedimiento de hotspots y falsos positivos: solo `JesusJs` marca un hotspot como *Safe* o un issue como *False Positive*/*Won't Fix*, y por cada marca deja un comentario en el PR con enlace y justificación que Oscar/Steven validan antes de aprobar; no se desactivan reglas globalmente sin documentarlo
+- [X] T022 [US3] Añadir a `TESTING.md` la sección "Revisar un PR" (FR-013, FR-004a): dónde aparece el resumen de la app de SonarCloud en la conversación del PR, qué métricas de código nuevo muestra y cómo llegar al detalle sin cuenta (proyecto público); procedimiento de hotspots y falsos positivos: solo `JesusJs` marca un hotspot como *Safe* o un issue como *False Positive*/*Won't Fix*, y por cada marca deja un comentario en el PR con enlace y justificación que Oscar valida antes de aprobar; no se desactivan reglas globalmente sin documentarlo
 - [X] T023 [US3] Verificar US3-1/US3-2 y SC-007 en el PR de 003: abrir el enlace del resumen en una ventana privada del navegador sin sesión de SonarCloud, comprobar que se ven estado del Quality Gate, métricas de código nuevo y lista de issues con fichero, y anotar el resultado en la descripción del PR → **Resultado**: resumen del PR #3 abierto sin sesión (página con "Log in"): se ven el Quality Gate *Passed*, New Issues 0, Accepted issues 0, cobertura "no hay suficientes líneas" (regla < 20) y duplicaciones. Sin issues abiertos, la lista por fichero queda vacía; la API pública `api/issues/search` responde sin autenticación.
 
 **Checkpoint**: la revisión del Quality Gate no depende de otra herramienta ni de credenciales.
