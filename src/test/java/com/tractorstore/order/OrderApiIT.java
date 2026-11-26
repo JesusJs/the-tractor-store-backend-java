@@ -210,6 +210,27 @@ class OrderApiIT {
   }
 
   @Test
+  void wrongJsonTypesAreMalformedRequestAndNotCoerced() {
+    int before = orderCount(jdbc);
+
+    Map<String, EntityExchangeResult<String>> results =
+        Map.of(
+            "float quantity",
+            post(body("[{ \"variantId\": \"AU-07-YE\", \"quantity\": 1.5 }]"), null),
+            "text quantity",
+            post(body("[{ \"variantId\": \"AU-07-YE\", \"quantity\": \"2\" }]"), null),
+            "number sku",
+            post(body("[{ \"variantId\": 12, \"quantity\": 1 }]"), null));
+
+    results.forEach(
+        (name, result) -> {
+          assertThat(result.getStatus().value()).as(name).isEqualTo(400);
+          assertThat(code(result)).as(name).isEqualTo("MALFORMED_REQUEST");
+        });
+    assertNothingChanged(before);
+  }
+
+  @Test
   void unknownVariantIsVariantNotFound() {
     int before = orderCount(jdbc);
 

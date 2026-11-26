@@ -26,6 +26,7 @@ import com.tractorstore.order.domain.model.OrderId;
 import com.tractorstore.order.domain.model.OrderLine;
 import com.tractorstore.shared.error.BusinessException;
 import com.tractorstore.shared.infrastructure.web.GlobalExceptionHandler;
+import com.tractorstore.shared.infrastructure.web.JsonCoercionConfiguration;
 import com.tractorstore.shared.infrastructure.web.SessionCookies;
 import com.tractorstore.shared.infrastructure.web.TraceIdFilter;
 import jakarta.servlet.http.Cookie;
@@ -52,7 +53,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 @WebMvcTest(OrderController.class)
-@Import({GlobalExceptionHandler.class, TraceIdFilter.class, SessionCookies.class})
+@Import({
+  GlobalExceptionHandler.class,
+  TraceIdFilter.class,
+  SessionCookies.class,
+  JsonCoercionConfiguration.class
+})
 class OrderControllerTest {
 
   private static final String ORDERS = "/api/v1/orders";
@@ -216,6 +222,9 @@ class OrderControllerTest {
     return Stream.of(
         Arguments.of(FRONT_BODY.replace("\"Big Micro Machines, Central Mall\"", "[\"a\"]")),
         Arguments.of(FRONT_BODY.replace("\"quantity\": 1", "\"quantity\": \"one\"")),
+        Arguments.of(FRONT_BODY.replace("\"quantity\": 1", "\"quantity\": 1.5")),
+        Arguments.of(FRONT_BODY.replace("\"quantity\": 1", "\"quantity\": \"2\"")),
+        Arguments.of(FRONT_BODY.replace("\"variantId\": \"AU-07-YE\"", "\"variantId\": 12")),
         Arguments.of("{ not json"));
   }
 
