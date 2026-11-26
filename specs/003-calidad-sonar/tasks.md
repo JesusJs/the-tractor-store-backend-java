@@ -139,7 +139,7 @@ la fecha del merge (quickstart §6).
 ### Implementation for User Story 4
 
 - [X] T024 [US4] Añadir a `TESTING.md` la sección "Código nuevo y línea base" (FR-005, R7): en PRs, código nuevo = diff contra `main`; en `main`, *New Code* = "Previous version" y, como la versión Maven no cambia (`0.0.1-SNAPSHOT`), la línea base es el primer análisis de `main` (código de 001/002 no tiene que llegar al 80 %); cómo comprobarlo en *Project Settings → New Code*; el estado de `main` es informativo y lo que bloquea es el PR
-- [ ] T025 [US4] Tras fusionar el PR de 003, comprobar en el run de `push` a `main` que el paso **Quality analysis** se ejecutó y en SonarCloud (rama `main`) que hay un análisis con la fecha del merge y su estado de Quality Gate (US4-1); comprobar también que en un `push` a una rama distinta de `main` sin PR el paso aparece como *skipped* (contrato §Disparadores)
+- [ ] T025 [US4] Tras fusionar el PR de 003, comprobar en el run de `push` a `main` que el paso **Quality analysis** se ejecutó y en SonarCloud (rama `main`) que hay un análisis con la fecha del merge y su estado de Quality Gate (US4-1); comprobar también que un `push` a una rama distinta de `main` no dispara el workflow (contrato §Disparadores, enmendado por C08/N04 de la review del PR #3)
 
 **Checkpoint**: `main` es la línea base visible del código nuevo.
 

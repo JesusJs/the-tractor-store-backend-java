@@ -1,6 +1,7 @@
 # The Tractor Store — backend Java
 
 [![CI](https://github.com/JesusJs/the-tractor-store-backend-java/actions/workflows/ci.yml/badge.svg)](https://github.com/JesusJs/the-tractor-store-backend-java/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=JesusJs_the-tractor-store-backend-java&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=JesusJs_the-tractor-store-backend-java)
 
 Backend del [Tractor Store](https://micro-frontends.org/tractor-store/) como monolito modular (Spring Boot 4.1, Java 21, PostgreSQL, Spring Modulith), construido con desarrollo dirigido por specs (GitHub Spec Kit + Claude Code).
 
@@ -53,6 +54,7 @@ En el perfil `prod` no hay valores por defecto: si falta `DB_URL`, `DB_USER` o `
 
 ## Integración continua
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) se ejecuta en cada push y PR, con un job `build` que se detiene
-en la primera etapa rota: escaneo de secretos (gitleaks, todo el historial) → formato → unitarios + arquitectura →
-integración → empaquetado.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) se ejecuta en cada PR contra `main` y en cada push a `main`,
+con un job `build` que se detiene en la primera etapa rota: escaneo de secretos (gitleaks, todo el historial) →
+formato → unitarios + arquitectura → integración (con cobertura global ≥ 80 %) → empaquetado → análisis de calidad
+(SonarCloud). Detalle en [`TESTING.md`](TESTING.md).
