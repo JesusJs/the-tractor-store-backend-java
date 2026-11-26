@@ -291,5 +291,5 @@ Task: "CatalogApi + VariantView en src/main/java/com/tractorstore/catalog/api/ (
 - Verificar que cada test falla antes de implementarlo.
 - Cerrar con `/review-spec`, `/pr` y `/log-practica` (flujo del `CLAUDE.md`).
 - `/speckit-analyze` (2026-11-25): aplicados C1, I1, I2, U1, G1, G2, G3, A1 y F1. G4 (test de que
-  el perfil `prod` activa `Secure` en `ts_session`) queda diferido a la fila 010 de
-  `docs/backlog.md`; F2 y D1 aceptados sin cambios.
+  el perfil `prod` activa `Secure` en `ts_session`) se difirió a la fila 010 y se resolvió después
+  en esta misma spec con `SessionCookieProfileTests` (review del PR #5, A03); F2 y D1 aceptados sin cambios.
