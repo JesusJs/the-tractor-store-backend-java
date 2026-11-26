@@ -19,8 +19,8 @@ Sync Impact Report (1.3.0)
 - Plantillas dependientes: no se modifican (leen la constitución en tiempo de ejecución).
   ✅ Ya actualizados en el mismo cambio (ADR 0011): docs/api-contract.md, docs/backlog.md,
     CLAUDE.md, skills `api-contract` y `modular-architecture`, ADR 0002, 0007 y 0009.
-  ⚠ Pendiente: comentario de `shared/package-info.java` (cita solo errores, trace id y CORS);
-    se actualiza al implementar el componente de sesión en la spec 004.
+  ✅ Resuelto en la spec 004: el comentario de `shared/package-info.java` cita ya la sesión por
+    cookie `ts_session` (ADR 0011).
 - TODOs diferidos: ninguno.
 - Aprobación: usuario, 2026-11-24 (ADR 0011).
 
