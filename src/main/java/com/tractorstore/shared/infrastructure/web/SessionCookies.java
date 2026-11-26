@@ -13,9 +13,10 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 /**
- * Anonymous browser session in the {@code ts_session} cookie (ADR 0011, research R2). The value is
- * a random UUID issued by the backend; anything else sent by the client is ignored and never
- * trusted.
+ * Anonymous browser session in the {@code ts_session} cookie (ADR 0011, research R2). The backend
+ * issues a random UUID; on read, any canonical UUID is accepted as a session even if the backend
+ * did not issue it (nothing is signed or stored), and anything else is ignored. The {@code __Host-}
+ * prefix for prod is deferred to the deployment spec (review #8).
  */
 @Component
 @EnableConfigurationProperties(SessionCookieProperties.class)
