@@ -24,6 +24,15 @@ spring:
       accept-float-as-int: false
     mapper:
       allow-coercion-of-scalars: false
+  modulith:
+    events:
+      jdbc:
+        schema-initialization:
+          # Flyway owns event_publication (V6); explicit in case events-jdbc is ever added.
+          enabled: false
+      # Incomplete publications are resubmitted on startup (FR-024, research R13). Only safe with a
+      # single replica: several replicas would each resubmit them and deliver duplicates.
+      republish-outstanding-events-on-restart: true
 
 logging:
   pattern:
