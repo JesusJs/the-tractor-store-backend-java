@@ -50,9 +50,11 @@ class OrderConcurrencyIT {
   @RepeatedTest(5)
   void onlyOneOfTwoConcurrentOrdersGetsTheLastUnit() throws Exception {
     int before = orderCount(jdbc);
+    CountDownLatch ready = new CountDownLatch(2);
     CountDownLatch start = new CountDownLatch(1);
     Callable<Integer> buyer =
         () -> {
+          ready.countDown();
           start.await();
           return client
               .post()
@@ -69,9 +71,13 @@ class OrderConcurrencyIT {
     ExecutorService pool = Executors.newFixedThreadPool(2);
     try {
       List<Future<Integer>> results = List.of(pool.submit(buyer), pool.submit(buyer));
+      // Both buyers are waiting before the gate opens, so they really compete (review PR #5 A12).
+      assertThat(ready.await(5, TimeUnit.SECONDS)).isTrue();
       start.countDown();
 
-      List<Integer> statuses = List.of(results.get(0).get(), results.get(1).get());
+      List<Integer> statuses =
+          List.of(
+              results.get(0).get(10, TimeUnit.SECONDS), results.get(1).get(10, TimeUnit.SECONDS));
       assertThat(statuses).containsExactlyInAnyOrder(201, 409);
     } finally {
       pool.shutdown();
