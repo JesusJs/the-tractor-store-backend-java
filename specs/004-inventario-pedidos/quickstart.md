@@ -206,13 +206,19 @@ El reintento (AS-3.3) lo cubre `OrderPlacedRetryIT`; no se prueba a mano.
 
 ## 7. Guardas de arquitectura (FR-025, FR-026, SC-008)
 
-Prueba manual del ciclo: añadir temporalmente en `inventory` un
-`@ApplicationModuleListener void on(com.tractorstore.order.api.OrderPlaced e) {}` y ejecutar:
+> **Diferido en parte** (review 004 y review del PR #5, A09): `OrderPlaced` todavía no existe; llega con la P3
+> en la continuación de la 004 (rama `004-eventos-pedidos`, 2026-11-30). Hasta entonces la prueba del listener
+> (FR-025) no se puede hacer; la de FR-026 sí.
+
+Prueba manual de FR-026: añadir temporalmente en `inventory` (p. ej. en `GetStockService`) un parámetro de
+constructor de tipo `com.tractorstore.catalog.api.CatalogApi` y ejecutar:
 
 ```bash
 ./mvnw test -Dtest=ModularityTests
 ```
-Esperado: **falla** por dependencia no permitida `inventory → order` (ciclo). Revertir el cambio.
+Esperado: **falla** por dependencia no permitida `inventory → catalog` (`allowedDependencies = "shared"`).
+Revertir el cambio. Con la P3, el mismo procedimiento con un listener de `OrderPlaced` en `inventory` debe
+fallar por `inventory → order` (ciclo).
 
 ## 8. Swagger (FR-031)
 

@@ -80,7 +80,7 @@ ProductDetail  { id: string; name: string; brand: 'Classic'|'Autonomous'; price:
 Store          { id: string; name: string; address: string; city: string; image: string }
 ```
 - `brand` = etiqueta de la categoría; `description` = highlights sin `.` final unidos con `". "`.
-- `price` = mínimo de los precios de las variantes. Limitación conocida: `AU-07-YE` cuesta 5000 y se muestra 4000; el carrito usará el precio real de la variante.
+- `price` = mínimo de los precios de las variantes. Limitación conocida: `AU-07-YE` cuesta 5000 y se muestra 4000; el carrito del front usa este precio "desde" y el recibo el real de la variante hasta la spec 005 `carrito-servidor` (ADR 0011, desviación temporal).
 
 Inventario, carrito y pedidos (confirmado contra `catalog.models.ts` y `cart.service.ts` del front, ADR 0011):
 ```ts

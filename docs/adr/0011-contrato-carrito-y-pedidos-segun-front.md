@@ -65,13 +65,13 @@ Como en la ADR 0008, **el front manda**: las secciones Inventory, Cart y Order d
   - Confirmar pedido es atómico: pedido guardado y stock descontado en la misma transacción, o ninguna de las dos cosas; no hay sobreventa.
   - Las dependencias quedan sin ciclos y `cart` se reduce a un endpoint.
 - Negativas / deuda aceptada:
-  - **Totales distintos entre carrito y recibo** cuando una variante cuesta más que el precio "desde": el carrito del front usa `product.price` (ADR 0008) y el recibo el precio real. Ejemplo: `AU-07-YE` aparece a 4000 en el carrito y a 5000 en el recibo (IVA y total cambian en proporción). Se acepta para la demo; arreglarlo exige cambiar el front o un carrito en servidor.
+  - **Totales distintos entre carrito y recibo** cuando una variante cuesta más que el precio "desde": el carrito del front usa `product.price` (ADR 0008) y el recibo el precio real. Ejemplo: `AU-07-YE` aparece a 4000 en el carrito y a 5000 en el recibo (IVA y total cambian en proporción). Se acepta temporalmente; lo arregla la spec 005 `carrito-servidor` (2026-12-01), que cambia el front y añade el carrito en servidor (ver Estado).
   - El carrito no sobrevive a otro navegador ni se valida en servidor hasta que se confirma el pedido.
-  - `order` queda acoplado de forma síncrona a `inventory.api` (consultar y descontar); si el descuento falla, se deshace el pedido. Separar inventario en otro servicio obligaría a rehacer esto con eventos y compensaciones.
+  - `order` queda acoplado de forma síncrona a `inventory.api` (descontar, con `decreaseStock`: el `UPDATE` condicional consulta y descuenta en un solo paso); si el descuento falla, se deshace el pedido. Separar inventario en otro servicio obligaría a rehacer esto con eventos y compensaciones.
   - `inventory` deja de ser ejemplo de consumidor de eventos; solo queda `notifications`.
   - El backend acepta en el body campos que ignora (`price`, `productName`, …).
   - `extraPickups` es texto sin validar contra tiendas; un nombre con `", "` dentro se partirá en dos en el recibo.
-  - `catalog.api` e `inventory.api` necesitan operaciones públicas nuevas (variante por SKU con precio, nombre e imagen; existencia de tienda por id; consultar y descontar stock).
+  - `catalog.api` e `inventory.api` necesitan operaciones públicas nuevas (variante por SKU con precio, nombre e imagen; existencia de tienda por id; descontar stock con `decreaseStock`).
 - Cómo se verifica:
   - `ModularityTests`: `allowedDependencies` según la lista de arriba; un listener de `OrderPlaced` en `inventory` rompe el build.
   - Test unitario de dominio del IVA con casos de redondeo (p. ej. subtotal 0,05 → tax 0,01).
@@ -83,8 +83,8 @@ Como en la ADR 0008, **el front manda**: las secciones Inventory, Cart y Order d
   - Test de concurrencia (Testcontainers): dos pedidos simultáneos por el último ejemplar del mismo SKU → uno 201 y otro 409; el stock queda en 0, nunca negativo.
   - Validación manual con el front real: ficha → carrito → checkout → página de gracias.
 
-## Pendiente tras aceptarse
-- Enmienda MINOR de la constitución con `/speckit-constitution`:
+## Aplicado tras aceptarse
+- Enmienda MINOR **1.3.0** de la constitución (aprobada 2026-11-24; ampliada en la review del PR #5 con la fecha de la demo, A02, y la validación técnica de entrada en `shared`, A08):
   - **II**: `shared` admite también la sesión por cookie.
   - **IV**: "el cliente nunca envía precios" → "el backend ignora cualquier precio que envíe el cliente".
   - **V**: la razón ya no incluye desacoplar `inventory` (solo `notifications`).

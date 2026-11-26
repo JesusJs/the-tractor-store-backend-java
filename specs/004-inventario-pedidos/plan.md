@@ -139,7 +139,7 @@ src/main/java/com/tractorstore/
 │   │   ├── port/in/FindVariantsUseCase.java, StoreExistsUseCase.java
 │   │   └── service/FindVariantsService.java, StoreExistsService.java, CatalogApiAdapter.java
 │   └── infrastructure/persistence/
-│       ├── repository/JpaProductRepository.java   # + findDistinctByVariantsSkuIn (EntityGraph)
+│       ├── repository/JpaProductRepository.java   # + findAllContainingSkus (@Query con subconsulta + EntityGraph)
 │       └── adapter/ProductRepositoryAdapter.java, StoreRepositoryAdapter.java
 ├── inventory/
 │   ├── api/InventoryApi.java                      # boolean decreaseStock(String sku, int quantity)
