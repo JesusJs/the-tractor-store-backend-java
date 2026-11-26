@@ -1,6 +1,7 @@
 package com.tractorstore.order.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,11 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class OrderIdTest {
+
+  @Test
+  void valueMustNotBeNull() {
+    assertThatThrownBy(() -> new OrderId(null)).isInstanceOf(IllegalArgumentException.class);
+  }
 
   @Test
   void newIdIsDifferentEachTime() {

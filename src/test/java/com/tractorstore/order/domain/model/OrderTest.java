@@ -144,6 +144,32 @@ class OrderTest {
     assertThat(order.belongsTo(UUID.randomUUID())).isFalse();
   }
 
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {" ", "\t"})
+  void customerTextsMustNotBeBlank(String text) {
+    List<OrderLine> lines = List.of(line("AU-07-YE", "5000", 1));
+
+    assertThatThrownBy(
+            () ->
+                Order.place(
+                    OrderId.newId(), SESSION, text, "Lovelace", "store-a", null, lines, PLACED_AT))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("firstName must not be blank");
+    assertThatThrownBy(
+            () ->
+                Order.place(
+                    OrderId.newId(), SESSION, "Ada", text, "store-a", null, lines, PLACED_AT))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("lastName must not be blank");
+    assertThatThrownBy(
+            () ->
+                Order.place(
+                    OrderId.newId(), SESSION, "Ada", "Lovelace", text, null, lines, PLACED_AT))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("storeId must not be blank");
+  }
+
   @Test
   void restoreKeepsTheStoredAmounts() {
     Money stored = new Money(new BigDecimal("1.00"));
