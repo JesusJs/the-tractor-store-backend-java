@@ -1,7 +1,7 @@
 # Tractor Store — Backend (Java)
 
 Backend del Tractor Store (reto de micro-frontends). El front Angular ya existe y **no cambia**: este backend debe cumplir su contrato.
-Demo: **25 de noviembre de 2026**.
+Demo y cierre: **3 de diciembre de 2026** (fechas de cada spec en `docs/backlog.md`).
 
 ## Stack
 - Java 21 · Spring Boot 4.1.x · Maven (wrapper `./mvnw`) · Spring Modulith 2.x
@@ -24,7 +24,7 @@ Demo: **25 de noviembre de 2026**.
 | Specs por funcionalidad | `specs/NNN-nombre/` (generadas por Spec Kit) |
 
 ## Arquitectura (resumen; detalle en skills `modular-architecture` y `hexagonal-architecture`)
-- Monolito modular. Módulos de dominio: `catalog`, `inventory`, `cart`, `order`, `notifications`; más el módulo técnico abierto `shared` (jerarquía de errores, `traceId`, CORS; sin entidades ni tablas, ADR 0009).
+- Monolito modular. Módulos de dominio: `catalog`, `inventory`, `cart`, `order`, `notifications`; más el módulo técnico abierto `shared` (jerarquía de errores, `traceId`, CORS y la sesión por cookie `ts_session`; sin entidades ni tablas, ADR 0009 y 0011).
 - Paquete raíz `com.tractorstore`. Dentro de cada módulo:
   - `api/` → única cara pública (interfaz `XxxApi`, records de intercambio, eventos). Marcado con `@NamedInterface("api")`.
   - `domain/` → modelo y puertos de salida. **Java puro, cero imports de Spring/JPA/Jackson.**

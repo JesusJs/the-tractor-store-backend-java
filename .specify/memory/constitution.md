@@ -14,6 +14,8 @@ Sync Impact Report (1.3.0)
   regla: sin ciclos entre módulos por eventos. Razón actualizada.
   VI. Seguridad proporcionada: la cookie liga los pedidos; el carrito no está en servidor (vive en
   `localStorage` del front).
+  VII. Simplicidad y plazo: la demo pasa del 2026-11-25 al 2026-12-03 (review del PR #5, A02; sin
+  1.3.1 porque la 1.3.0 aún no está en `main`).
 - Secciones añadidas: ninguna
 - Secciones eliminadas: ninguna
 - Plantillas dependientes: no se modifican (leen la constitución en tiempo de ejecución).
@@ -163,7 +165,7 @@ Referencias: ADR 0004 y ADR 0011.
 
 ### VII. Simplicidad y plazo
 
-- La demo es el 2026-11-25; YAGNI manda.
+- La demo y el cierre son el 2026-12-03 (replanificado en la review del PR #5, A02); YAGNI manda.
 - Fuera de alcance: Keycloak, Grafana, OpenTelemetry completo, caché, k6, Kafka.
 - En alcance desde la spec 003: SonarCloud, solo para este repositorio de backend (el front se
   analiza desde su propio repositorio; sin instalación autoalojada), con el Quality Gate integrado **Sonar way** (código nuevo: cobertura ≥ 80 %,
