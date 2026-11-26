@@ -28,8 +28,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Checkout and receipt. {@code POST} issues {@code ts_session} when missing (before the use case,
- * so the cookie also reaches a failed response); {@code GET} only reads it.
+ * Checkout and receipt. {@code POST} issues {@code ts_session} when missing, before the use case,
+ * so a 404, 409 or 500 also carries it; a 400 does not, because Spring rejects the body before this
+ * controller runs (contracts/orders-api.md). {@code GET} only reads it.
  */
 @RestController
 @RequestMapping(OrderPaths.BASE)
@@ -61,7 +62,7 @@ class OrderController {
         @Header(name = "Location", description = "/api/v1/orders/{id}"),
         @Header(
             name = "Set-Cookie",
-            description = "ts_session, only when the request had no valid one")
+            description = "ts_session, only when the request had no valid one; never on a 400")
       })
   @ApiResponse(
       responseCode = "400",

@@ -81,7 +81,7 @@ petición no traía una cookie válida.
 
 | # | Condición | Status | `code` | Efecto |
 |---|---|---|---|---|
-| 1 | Cuerpo ilegible, JSON inválido, tipo incorrecto (p. ej. `extraPickups` array, `quantity` texto) | 400 | `MALFORMED_REQUEST` | nada guardado |
+| 1 | Cuerpo ilegible, JSON inválido, tipo incorrecto (p. ej. `extraPickups` array, `quantity` texto, `1.5` o `"2"`, `variantId` numérico: sin coerción, review #1) | 400 | `MALFORMED_REQUEST` | nada guardado |
 | 2 | Falla un límite de la tabla anterior | 400 | `VALIDATION_ERROR` (+ `details`) | nada guardado |
 | 3 | `items` ausente o `[]` | 409 | `CART_EMPTY` | nada guardado |
 | 4 | `storeId` no es el `id` de una tienda del catálogo (exacto) | 404 | `STORE_NOT_FOUND` | ni pedido ni descuentos |
@@ -90,6 +90,10 @@ petición no traía una cookie válida.
 | — | Fallo inesperado (BD caída…) | 500 | `INTERNAL_ERROR` | rollback total |
 
 Las líneas del mismo SKU se procesan una a una, y cada una descuenta su cantidad.
+
+`Set-Cookie`: un 400 (errores 1 y 2) **no** emite cookie, porque Spring rechaza el cuerpo antes de
+entrar en el controller; los 404, 409 y 500 sí la emiten si faltaba, porque se resuelve antes del
+caso de uso. Sin efecto con el front real, que llama antes a `GET /cart` (review #5).
 
 ## GET /api/v1/orders/{id}
 
