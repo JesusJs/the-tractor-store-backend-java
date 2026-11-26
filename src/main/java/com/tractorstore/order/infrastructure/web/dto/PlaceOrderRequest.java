@@ -13,8 +13,8 @@ import java.util.List;
 /**
  * Checkout body of the front. {@code items} has no {@code @NotEmpty}: an empty cart is a 409
  * CART_EMPTY decided by the use case, not a 400 (research R6). Ids only take letters, digits and
- * hyphens and free texts no control characters: PostgreSQL rejects {@code \u0000} with a 500
- * (review #4).
+ * hyphens and free texts no control or invisible format characters (review PR #5 A07): PostgreSQL
+ * rejects {@code \u0000} with a 500 (review #4).
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PlaceOrderRequest(
@@ -35,8 +35,12 @@ public record PlaceOrderRequest(
 
   static final String ID_MESSAGE = InputPatterns.CATALOG_ID_MESSAGE;
 
-  /** Any text without control characters (Unicode category Cc). */
-  static final String TEXT = "\\P{Cc}*";
+  /**
+   * Any text (accents and other scripts included) without control (Cc) or invisible format (Cf)
+   * characters nor line or paragraph separators (Zl, Zp): U+202E (right-to-left override) would
+   * spoof how the receipt and the logs read (review PR #5 A07).
+   */
+  static final String TEXT = "[^\\p{Cc}\\p{Cf}\\p{Zl}\\p{Zp}]*";
 
-  static final String TEXT_MESSAGE = "must not contain control characters";
+  static final String TEXT_MESSAGE = "must not contain control or invisible format characters";
 }

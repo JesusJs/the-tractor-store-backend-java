@@ -162,6 +162,14 @@ class OrderControllerTest {
   }
 
   @Test
+  void accentsAndOtherScriptsAreStillAccepted() throws Exception {
+    when(placeOrder.place(any())).thenReturn(order());
+
+    postOrder(FRONT_BODY.replace("\"Ada\"", "\"Zoë Ñúñez\"").replace("\"Lovelace\"", "\"Ελένη 李\""))
+        .andExpect(status().isCreated());
+  }
+
+  @Test
   void onlySkuAndQuantityReachTheUseCaseWithTheCookieSession() throws Exception {
     when(placeOrder.place(any())).thenReturn(order());
 
@@ -268,6 +276,9 @@ class OrderControllerTest {
         Arguments.of(FRONT_BODY.replace("\"Lovelace\"", "\"Love\\nlace\""), "lastName"),
         Arguments.of(FRONT_BODY.replace("\"store-a\"", "\"store\\u0000\""), "storeId"),
         Arguments.of(FRONT_BODY.replace("Central Mall\"", "Central Mall\\u0007\""), "extraPickups"),
+        Arguments.of(FRONT_BODY.replace("\"Ada\"", "\"A\\u202Eda\""), "firstName"),
+        Arguments.of(FRONT_BODY.replace("\"Lovelace\"", "\"Love\\u2028lace\""), "lastName"),
+        Arguments.of(FRONT_BODY.replace("Central Mall\"", "Central\\u200BMall\""), "extraPickups"),
         Arguments.of(FRONT_BODY.replace("\"Ada\"", "\"  \""), "firstName"),
         Arguments.of(FRONT_BODY.replace("\"Ada\"", "\"" + name101 + "\""), "firstName"),
         Arguments.of(FRONT_BODY.replace("\"Lovelace\"", "\"\""), "lastName"),
@@ -363,7 +374,7 @@ class OrderControllerTest {
   void getOfAnotherSessionIsOrderNotFound() throws Exception {
     when(getOrder.get(any(), any())).thenThrow(new OrderNotFoundException());
 
-    mvc.perform(get(ORDERS + "/abc").cookie(new Cookie("ts_session", SESSION)))
+    mvc.perform(get(ORDERS + "/" + ORDER_ID).cookie(new Cookie("ts_session", SESSION)))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("ORDER_NOT_FOUND"))
         .andExpect(jsonPath("$.message").value("Order not found"));
