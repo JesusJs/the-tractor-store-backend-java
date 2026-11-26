@@ -45,8 +45,9 @@ marcha (perfil dev, `localhost:5271`).
 | 10 | Aceptado | `Order.belongsTo` y `StockItem.canServe` se quedan (están en data-model §2 y §5). | — |
 
 **Fases 5, 6 y 7 de `tasks.md`** (guardas ArchUnit FR-028..FR-030, P3 `OrderPlaced` + outbox +
-`notifications`, y pulido): **diferidas a una spec posterior** (anotado en `tasks.md` y en
-`docs/backlog.md`). Esta rama cierra P1 y P2.
+`notifications`, y pulido): se difirieron en esta review; **ya no están diferidas**: se retomaron
+el 2026-11-26 en la rama `004-eventos-pedidos`, apilada sobre esta (anotado en `tasks.md` y en
+`docs/backlog.md`). La rama `004-inventario-pedidos` cierra P1 y P2.
 
 ## Review del PR #5 (Oscar) — decisiones del 2026-11-26
 

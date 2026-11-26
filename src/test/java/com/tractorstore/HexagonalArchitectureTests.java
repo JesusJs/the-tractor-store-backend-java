@@ -39,6 +39,17 @@ class HexagonalArchitectureTests {
   static final ArchRule useCasesLiveInPortIn = ArchitectureRules.USE_CASES_LIVE_IN_PORT_IN;
 
   @ArchTest
-  static final ArchRule domainRepositoriesLiveInPortOut =
-      ArchitectureRules.DOMAIN_REPOSITORIES_LIVE_IN_PORT_OUT;
+  static final ArchRule domainPortsLiveInPortOut = ArchitectureRules.DOMAIN_PORTS_LIVE_IN_PORT_OUT;
+
+  @ArchTest
+  static final ArchRule domainDoesNotDependOnApplication =
+      ArchitectureRules.DOMAIN_DOES_NOT_DEPEND_ON_APPLICATION;
+
+  @ArchTest
+  static final ArchRule applicationUsesOnlyServiceAndTransactional =
+      ArchitectureRules.APPLICATION_USES_ONLY_SERVICE_AND_TRANSACTIONAL;
+
+  @ArchTest
+  static final ArchRule transactionalOnlyInApplication =
+      ArchitectureRules.TRANSACTIONAL_ONLY_IN_APPLICATION;
 }
