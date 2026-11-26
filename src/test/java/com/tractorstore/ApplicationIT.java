@@ -43,11 +43,16 @@ class ApplicationIT {
   void openApiDocumentHasExactlyTheDeliveredPaths() {
     Map<String, Object> paths = apiDocs().read("$.paths");
 
-    // Five catalog paths plus inventory and cart (004 P1); T061 adds the two order paths.
+    // Five catalog paths plus inventory, cart (004 P1) and orders (004 P2); T061 checks the tags.
     assertThat(paths)
         .containsOnlyKeys(
             Stream.concat(
-                    Stream.of(catalogPaths()), Stream.of("/api/v1/inventory/{sku}", "/api/v1/cart"))
+                    Stream.of(catalogPaths()),
+                    Stream.of(
+                        "/api/v1/inventory/{sku}",
+                        "/api/v1/cart",
+                        "/api/v1/orders",
+                        "/api/v1/orders/{id}"))
                 .toArray(String[]::new));
   }
 
