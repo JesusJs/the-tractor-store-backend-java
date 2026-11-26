@@ -37,7 +37,7 @@ Vale `false` en `application.yml` y `true` en `application-prod.yml`.
 | Puerto de entrada | Servicio | Transacción |
 |---|---|---|
 | `GetStockUseCase.get(String sku) → StockItem` | `GetStockService` (lanza `StockNotFoundException`) | `readOnly = true` |
-| `DecreaseStockUseCase.decrease(String sku, int quantity) → boolean` | `DecreaseStockService` (rechaza `quantity < 1` con `IllegalArgumentException`) | `REQUIRED` (se une a la de `order`) |
+| `DecreaseStockUseCase.decrease(String sku, int quantity) → boolean` | `DecreaseStockService` (rechaza `quantity < 1` con `IllegalArgumentException`) | `MANDATORY` (se une a la de `order`; sin transacción activa lanza `IllegalTransactionStateException`, review #3) |
 | — | `InventoryApiAdapter implements api.InventoryApi` → delega en `DecreaseStockUseCase` | — |
 
 ### API pública

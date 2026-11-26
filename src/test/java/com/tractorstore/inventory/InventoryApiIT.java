@@ -1,9 +1,11 @@
 package com.tractorstore.inventory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.jayway.jsonpath.JsonPath;
 import com.tractorstore.TestcontainersConfiguration;
+import com.tractorstore.inventory.api.InventoryApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.client.EntityExchangeResult;
 import org.springframework.test.web.servlet.client.RestTestClient;
+import org.springframework.transaction.IllegalTransactionStateException;
 
 /** End to end: stock of a variant over HTTP against the V4 seed (AS-1.1..1.4). */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -28,6 +31,7 @@ class InventoryApiIT {
 
   @Autowired private RestTestClient client;
   @Autowired private JdbcTemplate jdbc;
+  @Autowired private InventoryApi inventory;
 
   @BeforeEach
   void setStock() {
@@ -102,5 +106,16 @@ class InventoryApiIT {
         .exists()
         .jsonPath("$.traceId")
         .exists();
+  }
+
+  @Test
+  void decreaseWithoutATransactionFailsAndKeepsTheStock() {
+    assertThatThrownBy(() -> inventory.decreaseStock("CL-01-GR", 1))
+        .isInstanceOf(IllegalTransactionStateException.class);
+
+    assertThat(
+            jdbc.queryForObject(
+                "select stock from inventory_stock where sku = 'CL-01-GR'", Integer.class))
+        .isEqualTo(10);
   }
 }

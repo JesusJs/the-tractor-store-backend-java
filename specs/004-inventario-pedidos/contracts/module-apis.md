@@ -49,7 +49,7 @@ public interface InventoryApi {
   boolean decreaseStock(String sku, int quantity);
 }
 ```
-- Necesita una transacción activa (la de `PlaceOrderService`).
+- Necesita una transacción activa (la de `PlaceOrderService`): propagación `MANDATORY`; sin ella lanza `IllegalTransactionStateException` y no descuenta nada (review #3).
 - No lanza excepciones de negocio. Quien llama decide el error (`order` → `OUT_OF_STOCK`).
 
 ## `order.api.OrderPlaced` (evento, P3)
