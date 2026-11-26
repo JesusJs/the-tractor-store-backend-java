@@ -137,7 +137,7 @@ class OrderApiIT {
   }
 
   @Test
-  @DisplayName("regresión: id de pedido consultable y líneas con SKU")
+  @DisplayName("regresión: id de pedido consultable")
   void receiptOfTheSameSessionIsIdenticalToThePost() {
     String session = UUID.randomUUID().toString();
     EntityExchangeResult<String> placed = post(FRONT_BODY, session);
@@ -148,10 +148,19 @@ class OrderApiIT {
     assertThat(read.getStatus().value()).isEqualTo(200);
     assertThat(read.getResponseHeaders().get(HttpHeaders.SET_COOKIE)).isNull();
     assertThat(read.getResponseBody()).isEqualTo(placed.getResponseBody());
-    assertThat(JsonPath.<String>read(read.getResponseBody(), "$.items[0].variantName"))
-        .isEqualTo("AU-07-YE");
-    assertThat(JsonPath.<String>read(read.getResponseBody(), "$.items[0].productName"))
-        .isEqualTo("Verde Voyager");
+  }
+
+  @Test
+  @DisplayName("regresión: líneas con SKU")
+  void receiptLinesCarryTheSkuAndTheCatalogName() {
+    String session = UUID.randomUUID().toString();
+    String id = JsonPath.read(post(FRONT_BODY, session).getResponseBody(), "$.id");
+
+    String receipt = get(id, session).getResponseBody();
+
+    assertThat(JsonPath.<String>read(receipt, "$.items[0].variantId")).isEqualTo("AU-07-YE");
+    assertThat(JsonPath.<String>read(receipt, "$.items[0].variantName")).isEqualTo("AU-07-YE");
+    assertThat(JsonPath.<String>read(receipt, "$.items[0].productName")).isEqualTo("Verde Voyager");
   }
 
   @Test
