@@ -76,8 +76,9 @@ docker compose up -d --wait postgres
   Desktop (`systemctl --user start docker-desktop`), hay que apuntar `DOCKER_HOST` a su socket o usar el Engine
   nativo; comprueba con `docker info` qué daemon responde antes de culpar a los tests.
 - **Restaurar el stock de la demo** (tras pedidos de prueba o antes de presentar): `scripts/reset-demo-stock.sh`
-  (por defecto `127.0.0.1:55432`; `DB_PORT=5432 scripts/reset-demo-stock.sh` si la BD está en el puerto estándar).
-  Reaplica el `INSERT` de V4, conserva los pedidos y se niega a tocar hosts no locales.
+  (por defecto `127.0.0.1:5432`, como `compose.yaml`; `DB_PORT=55432 scripts/reset-demo-stock.sh` si publicaste
+  Postgres en otro puerto). Reaplica el `INSERT` de V4, conserva los pedidos y se niega a tocar hosts no locales;
+  sin `psql` en el equipo usa el del contenedor (`docker compose exec -T postgres psql`).
 - **Comprobar**: `curl -s localhost:5271/api/v1/inventory/CL-01-GR | jq` (stock 10; `CL-01-GY` → 0), Swagger UI en
   `http://localhost:5271/swagger-ui.html`, recorrido completo en `specs/004-inventario-pedidos/quickstart.md`.
 - **Front** (en su repo): `NX_DAEMON=false pnpm nx run-many -t serve --projects="mfe_explore,mfe_decide,mfe_checkout"`

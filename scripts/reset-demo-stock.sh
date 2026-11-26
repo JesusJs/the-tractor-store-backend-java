@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Restores inventory_stock to the V4 seed in the local dev database (review 004 #2): run it before
-# the demo or after someone empties the stock. Orders are kept. Needs psql on the host.
+# the demo or after someone empties the stock. Orders are kept. Uses psql on the host if there is
+# one; otherwise the psql of the compose postgres container (review 004 A05).
 #
-#   scripts/reset-demo-stock.sh                 # 127.0.0.1:55432, database/user tractor
-#   DB_PORT=5432 scripts/reset-demo-stock.sh    # same variables as compose.yaml and the dev profile
+#   scripts/reset-demo-stock.sh                  # 127.0.0.1:5432, database/user tractor (compose.yaml)
+#   DB_PORT=55432 scripts/reset-demo-stock.sh    # same variables as compose.yaml and the dev profile
 set -euo pipefail
 
 DB_HOST="${DB_HOST:-127.0.0.1}"
-DB_PORT="${DB_PORT:-55432}"
+DB_PORT="${DB_PORT:-5432}"
 DB_NAME="${DB_NAME:-tractor}"
 DB_USER="${DB_USER:-tractor}"
 # Public dev default of compose.yaml; never a real secret.
@@ -29,14 +30,24 @@ if [[ -z "$insert" ]]; then
   exit 1
 fi
 
-psql -v ON_ERROR_STOP=1 -q -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<SQL
+# Without psql on the host, the container one connects locally, so DB_HOST/DB_PORT do not apply.
+run_psql() {
+  if command -v psql >/dev/null 2>&1; then
+    psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" "$@"
+  else
+    docker compose -f "$(dirname "$0")/../compose.yaml" exec -T postgres \
+      psql -U "$DB_USER" -d "$DB_NAME" "$@"
+  fi
+}
+
+run_psql -v ON_ERROR_STOP=1 -q <<SQL
 BEGIN;
 DELETE FROM inventory_stock;
 $insert
 COMMIT;
 SQL
 
-psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -At -c \
+run_psql -At -c \
   "select count(*) || ' SKUs restored; CL-01-GR=' || max(stock) filter (where sku = 'CL-01-GR')
      || ', CL-01-GY=' || max(stock) filter (where sku = 'CL-01-GY')
      || ', AU-08-WH=' || max(stock) filter (where sku = 'AU-08-WH')

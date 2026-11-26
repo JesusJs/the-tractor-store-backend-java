@@ -146,8 +146,10 @@ Para volver a los valores de `V4__inventory_stock.sql` (los pedidos se conservan
 ```bash
 scripts/reset-demo-stock.sh
 ```
-Usa `DB_HOST`, `DB_PORT` (por defecto `55432`), `DB_NAME`, `DB_USER` y `DB_PASSWORD` con los mismos
-valores por defecto que `compose.yaml`; solo acepta un host local y necesita `psql` en el equipo.
+Usa `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD` con los mismos valores por defecto que
+`compose.yaml` (puerto `5432`; si publicaste Postgres en otro, p. ej. `DB_PORT=55432
+scripts/reset-demo-stock.sh`). Solo acepta un host local. Si el equipo no tiene `psql`, usa el del
+contenedor (`docker compose exec -T postgres psql`), que ignora `DB_HOST` y `DB_PORT`.
 Esperado: `47 SKUs restored; CL-01-GR=10, CL-01-GY=0, AU-08-WH=1, AU-07-YE=5`, y
 `curl -s localhost:5271/api/v1/inventory/CL-01-GR` vuelve a dar `"stock":10`.
 
