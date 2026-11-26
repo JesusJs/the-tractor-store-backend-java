@@ -187,10 +187,6 @@ y recibo con subtotal 6200, IVA 1302 y total 7502. Antes de presentar, `scripts/
 
 ## 6. P3: evento y log
 
-> **Diferido** (review 004): la P3 no se implementa en esta rama; llega con la continuación de la 004
-> (rama `004-eventos-pedidos`, 2026-11-30). `OrderPlaced`, `OrderPlacedRetryIT` y la tabla
-> `event_publication` aún no existen: esta sección queda como guía para esa continuación.
-
 Tras confirmar un pedido (§4 o §5), el log de la app muestra (asíncrono, tras el commit):
 
 ```text
@@ -207,10 +203,6 @@ El reintento (AS-3.3) lo cubre `OrderPlacedRetryIT`; no se prueba a mano.
 
 ## 7. Guardas de arquitectura (FR-025, FR-026, SC-008)
 
-> **Diferido en parte** (review 004 y review del PR #5, A09): `OrderPlaced` todavía no existe; llega con la P3
-> en la continuación de la 004 (rama `004-eventos-pedidos`, 2026-11-30). Hasta entonces la prueba del listener
-> (FR-025) no se puede hacer; la de FR-026 sí.
-
 Prueba manual de FR-026: añadir temporalmente en `inventory` (p. ej. en `GetStockService`) un parámetro de
 constructor de tipo `com.tractorstore.catalog.api.CatalogApi` y ejecutar:
 
@@ -218,8 +210,9 @@ constructor de tipo `com.tractorstore.catalog.api.CatalogApi` y ejecutar:
 ./mvnw test -Dtest=ModularityTests
 ```
 Esperado: **falla** por dependencia no permitida `inventory → catalog` (`allowedDependencies = "shared"`).
-Revertir el cambio. Con la P3, el mismo procedimiento con un listener de `OrderPlaced` en `inventory` debe
-fallar por `inventory → order` (ciclo).
+Revertir el cambio. El mismo procedimiento con un listener de `OrderPlaced` en `inventory` (p. ej. una clase
+`@Component` con un método `@ApplicationModuleListener void on(OrderPlaced event)`) debe fallar con
+`Cycle detected` y `Module 'inventory' depends on named interface(s) 'order :: api'`. Revertir el cambio.
 
 ## 8. Swagger (FR-031)
 
