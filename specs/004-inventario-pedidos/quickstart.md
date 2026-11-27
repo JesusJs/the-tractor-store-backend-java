@@ -21,7 +21,10 @@ secciones siguen las prioridades: §2–§3 = P1, §4–§5 = P2, §6–§7 = P3
 Esperado: verde. Incluye los tests de dominio (`StockItemTest`, `MoneyTest`, `VatTest`,
 `OrderTest`, `OrderIdTest`), los `*ServiceTest`, `SessionCookiesTest`, `GlobalExceptionHandlerTest`
 (con el 409), los `*ControllerTest`, `ModularityTests`, `HexagonalArchitectureTests` y
-`ArchitectureRulesSelfTests` (una fixture negativa por regla nueva, SC-008).
+`ArchitectureRulesSelfTests` (una fixture negativa por cada rama de las reglas nuevas: tablas por
+`@ElementCollection`, `@CollectionTable`, `@JoinTable` y `@SecondaryTable`; puertos interfaz y clase;
+`@Transactional` de Spring en método y clase y de `jakarta.transaction`; `application` sin Spring extra,
+JPA, Hibernate ni Jackson; SC-008).
 
 ```bash
 ./mvnw verify

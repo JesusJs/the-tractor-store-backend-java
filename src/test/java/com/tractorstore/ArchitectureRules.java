@@ -115,7 +115,9 @@ public final class ArchitectureRules {
         .because("dependencies point inwards: adapters depend on the core, never the reverse");
   }
 
-  /** Empty allowed only here: {@code catalog.api} stays empty until spec 007 (research R11). */
+  /**
+   * Empty allowed only here: {@code cart.api} and {@code notifications.api} are still empty (T060).
+   */
   static ArchRule apiDoesNotExposeInternals(String root) {
     return noClasses()
         .that()
@@ -194,6 +196,10 @@ public final class ArchitectureRules {
         .because("the domain is the innermost layer (FR-030)");
   }
 
+  /**
+   * Of the frameworks, use cases only see their bean and transaction annotations: no other Spring,
+   * and no JPA, Hibernate or Jackson, which belong to the adapters (FR-030, review C4).
+   */
   static ArchRule applicationUsesOnlyServiceAndTransactional(String root) {
     return noClasses()
         .that()
@@ -207,8 +213,16 @@ public final class ArchitectureRules {
                             Service.class,
                             Transactional.class,
                             Propagation.class,
-                            Isolation.class))))
-        .because("use cases only declare their bean and transaction boundary (FR-030)");
+                            Isolation.class)))
+                .or(
+                    resideInAnyPackage(
+                        "jakarta.persistence..",
+                        "org.hibernate..",
+                        "com.fasterxml.jackson..",
+                        "tools.jackson..")))
+        .because(
+            "use cases only declare their bean and transaction boundary; persistence and JSON are"
+                + " adapter concerns (FR-030)");
   }
 
   /**
@@ -246,6 +260,12 @@ public final class ArchitectureRules {
     return CompositeArchRule.of(onClasses).and(onMethods);
   }
 
+  /**
+   * Accepted limitation (review C7): only the fields declared in the entity itself are checked, so
+   * a collection or join table mapped in a {@code @MappedSuperclass}, an {@code @Embeddable} or on
+   * a getter escapes the rule. Today every entity uses field access without inheritance; revisit
+   * the rule if that changes.
+   */
   private static ArchCondition<JavaClass> haveTablesPrefixedWithTheirModule(String root) {
     return new ArchCondition<>("map only tables prefixed with their module") {
       @Override
