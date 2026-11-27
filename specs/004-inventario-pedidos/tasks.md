@@ -148,7 +148,7 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 
 ## Phase 5: Guardas de arquitectura (transversal, FR-028..FR-030 y FR-031)
 
-> **Ya no está diferida**: se difirió en la review 004 (2026-11-25) y se retomó el 2026-11-26 en la rama `004-eventos-pedidos` (apilada sobre `004-inventario-pedidos`). Implementada.
+> **Ya no está diferida**: se difirió en la review 004 (2026-11-25) y se retomó el 2026-11-26 en la rama `004-eventos-pedidos` (apilada sobre `004-inventario-pedidos`; rebasada sobre `main` tras fusionarse el PR #5). Implementada.
 
 **Purpose**: deuda de las reviews 001 #15 y 002 #3/#12. Cada regla nueva lleva su fixture negativa (SC-008). No depende de US3 y no debe recortarse con ella.
 
@@ -169,7 +169,7 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 
 ## Phase 6: User Story 3 - Aviso de pedido confirmado por evento con outbox (Priority: P3) ✂️ recortable
 
-> **Ya no está diferida**: se difirió en la review 004 (2026-11-25) y se retomó el 2026-11-26 en la rama `004-eventos-pedidos` (apilada sobre `004-inventario-pedidos`). Implementada.
+> **Ya no está diferida**: se difirió en la review 004 (2026-11-25) y se retomó el 2026-11-26 en la rama `004-eventos-pedidos` (apilada sobre `004-inventario-pedidos`; rebasada sobre `main` tras fusionarse el PR #5). Implementada.
 
 **Goal**: al confirmar un pedido se publica `OrderPlaced` en la misma transacción, se guarda en `event_publication` y `notifications` lo consume y escribe el log; un fallo del listener deja el evento pendiente para reintento.
 
@@ -201,7 +201,7 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-> **Ya no está diferida**: se difirió en la review 004 (2026-11-25) y se retomó el 2026-11-26 en la rama `004-eventos-pedidos` (apilada sobre `004-inventario-pedidos`). Completada.
+> **Ya no está diferida**: se difirió en la review 004 (2026-11-25) y se retomó el 2026-11-26 en la rama `004-eventos-pedidos` (apilada sobre `004-inventario-pedidos`; rebasada sobre `main` tras fusionarse el PR #5). Completada.
 
 - [X] T074 [P] Revisar Swagger UI en `http://localhost:5271/swagger-ui.html`: tags `Inventory`, `Cart` y `Orders` con descripción, respuestas y errores de las 4 operaciones (quickstart §8, FR-031). Comprobado el 2026-11-26: los 3 tags con descripción, `POST /orders` (201/400/404/409/500), `GET /orders/{id}` (200/404/500), `GET /inventory/{sku}` (200/400/404/500), `GET /cart` (200/500) y las 5 de `Catalog`
 - [X] T075 [P] Anotar en `docs/backlog.md` (o en la spec de despliegue `despliegue-azure-esqueleto`) los riesgos de R4 (`SameSite=Lax` con dominios distintos en Azure) y R13 (`republish-outstanding-events-on-restart` con varias réplicas). Hecho en la fila 006\* `despliegue-azure-esqueleto` del backlog, junto con mismo origen o `SameSite=None; Secure` + CORS, límites de frecuencia y de cuerpo (64 KB) en el ingress y `nosniff` (review del PR #5, A04)

@@ -7,8 +7,8 @@ secciones siguen las prioridades: §2–§3 = P1, §4–§5 = P2, §6–§7 = P3
 ## Prerrequisitos
 
 - Java 21, Docker en marcha, `jq` y `curl`.
-- Rama `004-eventos-pedidos` (P1 y P2 vienen de `004-inventario-pedidos`, PR #5; P3 y las guardas de la fase 5
-  solo están en esta rama).
+- Rama `004-eventos-pedidos` (P1 y P2 ya están en `main` desde el PR #5, fusionado el 2026-11-26; P3 y las guardas
+  de la fase 5 solo están en esta rama hasta que se fusione su PR).
 - Para §5, el repo del front con dependencias instaladas: primero se arrancan los remotes y
   después el shell con `--skipRemotes` (Nx).
 
@@ -32,7 +32,8 @@ JPA, Hibernate ni Jackson; SC-008).
 
 Esperado: verde. Añade `StockPersistenceIT`, `OrderPersistenceIT`, `CatalogPersistenceIT`
 ampliado, `InventoryApiIT`, `CartApiIT`, `OrderApiIT`, `OrderConcurrencyIT`, `ApplicationIT`
-(9 paths), `OrderPlacedEventIT` y `OrderPlacedRetryIT`.
+(9 paths), `OrderPlacedEventIT`, `OrderPlacedRollbackIT` (rollback tras publicar: sin fila ni log) y
+`OrderPlacedRetryIT` (exactamente un aviso tras el reintento).
 
 ## 2. Arrancar contra una BD vacía
 

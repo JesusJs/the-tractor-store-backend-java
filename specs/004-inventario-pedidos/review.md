@@ -67,9 +67,70 @@ Fechas del backlog acordadas el 2026-11-26, sujetas a confirmación con el mento
 | A08 | BAJA | Corregir | `JsonCoercionConfiguration` (y la nueva `InputPatterns`, A06) registradas en el principio II de la constitución 1.3.0, una línea en la ADR 0011, `shared/package-info.java` y `data-model.md` §1. | `c60d771` |
 | A09 | BAJA | Corregir | `spec.md` Status → Implemented; `api-contract.md:83`; ADR 0011 (`decreaseStock` en :69/:73, "Aplicado tras aceptarse" en lugar de "Pendiente"); `quickstart.md` §7 marcado como diferido en parte, sin `order.api.OrderPlaced` y con una prueba de FR-026 comprobada (falla `ModularityTests` con `inventory → catalog :: api`); `plan.md:142` → `findAllContainingSkus`; `tasks.md` T020 → `MANDATORY` y T076 marcado; `contexto-sesion.md` con el estado tras el merge. | `dcd2a92` |
 | A10 | BAJA | Diferido (no bloquea) | PR corto de cierre de la 003 el 2026-11-27 con los puntos 2 y 4–7 de la aprobación del PR #3 y el `diff` del ruleset; anotado en el backlog y en `contexto-sesion.md`. | — |
-| A11 | BAJA | Diferido (ya hecho en otra rama) | Fase 5 completa (fixtures negativas, T061 y comentario de `ArchitectureRules`) en la rama `004-eventos-pedidos` (`9d5d9f3`); se integra tras este merge, 2026-11-30. No se toca aquí. | — |
+| A11 | BAJA | Diferido (ya hecho en otra rama) | Fase 5 completa (fixtures negativas, T061 y comentario de `ArchitectureRules`) en la rama `004-eventos-pedidos` (`80f8909` y `6b4fa48`, 2026-11-26, tras el rebase sobre el merge del PR #5); se integra con el PR de esa rama. No se toca aquí. | — |
 | A12 | NIT | Corregir | `OrderConcurrencyIT`: latch `ready` de 2 (`ready.await(5, SECONDS)` antes de abrir) y `get(10, SECONDS)`. El IT opcional de líneas cruzadas no se añade (lo cubre `stockIsDecreasedPerLineSortedBySku`). | `43d2929` |
 | A13 | NIT | Corregir | `OrderTestData.restoreSeed` reaplica el `INSERT` de `V4__inventory_stock.sql`, como el script. | `1cb8c4d` |
 | A14 | NIT | Corregir | `FindVariantsService.find`: lista vacía → `List.of()` sin consulta; consulta con `requested` (deduplicado). Tests de vacío y de duplicados. | `a5af1a6` |
 | A15 | NIT | Corregir | Javadoc de `StockResponse` → `InventoryStatus`; `getOfAnotherSessionIsOrderNotFound` usa `ORDER_ID` (entró en el commit de A07); casos de `requireText` en blanco/nulo y de `OrderId` nulo. | `015d5bd` (y `ecc0752`) |
 | E1, E2 | ELOGIO | — | Sin cambios. | — |
+
+---
+
+# Revisión 004 (continuación, rama `004-eventos-pedidos`) — 2026-11-26
+
+Alcance: `git diff origin/004-inventario-pedidos...HEAD` (8 commits, 36 archivos): fase 5 (guardas
+FR-028..FR-030), fase 6 (P3, `OrderPlaced` con outbox) y fase 7 (pulido y docs). No se repite lo ya
+revisado en las secciones anteriores. El diff contra `main` (161 archivos) arrastra toda la 004 porque el
+PR #5 seguía abierto y `main` estaba en el merge del PR #3 (a la fecha de la revisión; el PR #5 se fusionó el
+2026-11-26 en `adf1e00` y la rama se rebasó sobre `main` antes de corregir).
+
+`./mvnw -q verify` en verde (exit 0; 430 tests, 0 fallos): no hay hallazgo BLOQUEANTE por build. Revisores:
+`spec-reviewer`, `architecture-reviewer` y `security-reviewer`. Cada hallazgo se comprobó contra el código;
+se corrigieron referencias de línea que no correspondían al archivo y se fusionaron los duplicados.
+
+| # | Severidad | Revisor | Archivo:línea | Hallazgo | Propuesta |
+|---|---|---|---|---|---|
+| C1 | MEDIA | spec | `src/test/java/com/tractorstore/notifications/OrderPlacedRetryIT.java:129-136` | SC-006 pide **exactamente un** aviso aunque el primer intento falle, pero tras el reintento solo se comprueba que el log `contains(...)` la línea. Una doble entrega (doble resubmit o republicación al arrancar) seguiría en verde. | Tras el reintento, comprobar `notifier.calls() == 2` y que la línea aparece exactamente una vez en la salida capturada. |
+| C2 | MEDIA | spec, arquitectura | `src/main/java/com/tractorstore/order/application/service/PlaceOrderService.java:82-83`; `src/test/java/com/tractorstore/order/OrderPlacedEventIT.java:83-89` | AS-3.2 y FR-022 ("misma transacción") solo se prueban con fallos **anteriores** a `events.orderPlaced(order)`. Ningún test comprueba que un rollback **posterior** a publicar deje `event_publication` sin fila ni log; si el gateway publicara fuera de la transacción, nada lo detectaría. El IT de módulo no carga `notifications`, así que allí nunca se escribe fila. | IT con `@SpringBootTest` que llame a `place()` dentro de un `TransactionTemplate` con `setRollbackOnly()` y compruebe 0 filas en `event_publication` para ese pedido y ninguna línea "Confirmation email…". |
+| C3 | MEDIA | spec, arquitectura | `src/test/java/com/tractorstore/ArchitectureRules.java:175-185, 218-246, 283-285`; `src/test/java/com/tractorstore/ArchitectureRulesSelfTests.java:25-38`; `specs/004-inventario-pedidos/quickstart.md:24` | Hay ramas de las reglas nuevas sin fixture negativa: `@ElementCollection` sin `@CollectionTable` (la fixture `collectionprefix` sí declara uno), `@Transactional` a nivel de clase y `jakarta.transaction.Transactional` (`txoutsideapp` solo prueba método + Spring), y una **clase** `*Gateway`/`*Repository` fuera de `port.out` (ambas fixtures son interfaces). Si esas ramas se rompen, el self-test sigue en verde. Por eso es falso el quickstart §1 ("una fixture negativa por regla nueva"). | Añadir las fixtures `elementcollection`, `txclass`, `txjakarta` y una clase `ShopGateway` con sus casos en `ArchitectureRulesSelfTests`. Si no se añaden, corregir el texto del quickstart. |
+| C4 | MEDIA | arquitectura | `src/test/java/com/tractorstore/ArchitectureRules.java:196-211` | La guarda de FR-030 solo vigila `org.springframework..`: nada impide que `application` importe `jakarta.persistence` (`EntityManager`), Hibernate o Jackson. Hoy no hay ninguna violación; se cumple la letra de FR-030, pero no su intención (opinión del revisor). | Ampliar la regla a `jakarta.persistence..`, `org.hibernate..`, `com.fasterxml.jackson..` y `tools.jackson..`, con fixture `appjpa`. Si algún caso de uso valida con `jakarta.validation`, habrá que permitirlo de forma explícita. |
+| C5 | BAJA | seguridad | `src/main/java/com/tractorstore/order/api/OrderPlaced.java:11`; `src/main/java/com/tractorstore/order/infrastructure/event/SpringOrderEventsGateway.java:27` | `sessionId` (el valor de la cookie `ts_session`, que actúa como credencial junto con el `orderId`) se guarda en `serialized_event`, pero ningún consumidor lo usa (`OrderPlacedListener` solo lee `orderId`). Es una segunda copia sin finalidad (minimización, Ley 1581). No es una exposición nueva: `order_order.session_id` ya guarda ese dato. | Quitar `sessionId` del evento. Es un cambio de contrato (spec FR-022, data-model, `contracts/module-apis.md`, `OrderPlacedEventIT`). Alternativa: aceptarlo y dejar escrito el motivo (un consumidor futuro). |
+| C6 | BAJA | seguridad, arquitectura | `src/main/resources/application.yml:27-35`; `src/main/resources/db/migration/V6__event_publication_registry.sql` | Con `completion-mode` por defecto (`UPDATE`, comprobado en el jar 2.1.1: `UPDATE`, `DELETE`, `ARCHIVE`), las publicaciones completadas no se borran nunca y guardan `orderId` + `sessionId`. A la escala de la demo no importa. | Recomendado: anotar en el backlog (fila 006\* o 010) un borrado periódico con `CompletedEventPublications.deletePublicationsOlderThan(...)`. `completion-mode: delete` también vale, pero obliga a cambiar quickstart §6 y `OrderPlacedRetryIT`, que leen las completadas. |
+| C7 | BAJA | arquitectura | `src/test/java/com/tractorstore/ArchitectureRules.java:267` | La regla de prefijos recorre `entity.getFields()`, que solo da los campos declarados en la propia clase. Quedan fuera las colecciones heredadas de un `@MappedSuperclass`, las de un `@Embeddable` y las anotadas en getters. Hoy todas las entidades usan acceso por campo, sin herencia. | Usar `getAllFields()` o documentar la limitación en el javadoc de la regla (principio VII). |
+| C8 | BAJA | arquitectura | `src/test/java/com/tractorstore/notifications/OrderPlacedRetryIT.java:128, 134, 140-150` | El test depende del formato interno del registro (`status = 'FAILED'`, `serialized_event LIKE '%orderId%'`) y supone un único listener de `OrderPlaced`: con un segundo listener, `findFirst()` podría leer la fila de otro y dar un falso verde o rojo. | Filtrar también por `listener_id LIKE '%OrderPlacedListener%'`. |
+| C9 | BAJA | arquitectura | `src/main/java/com/tractorstore/notifications/infrastructure/event/OrderPlacedListener.java:22-24`; `src/main/java/com/tractorstore/notifications/application/port/in/NotifyOrderPlacedUseCase.java` | La entrega es *at-least-once* y el listener no es idempotente: si el proceso cae entre el log y el marcado como completado, o al republicar al arrancar, el aviso se repite. Hoy el efecto es solo una línea de log duplicada. | Documentar en `NotifyOrderPlacedUseCase` que debe ser idempotente por `orderId`. Deduplicar con una tabla solo cuando haya email real (VII). |
+| C10 | BAJA | arquitectura | `src/test/java/com/tractorstore/order/OrderTestData.java` (`restoreSeed`); `src/test/java/com/tractorstore/TestcontainersConfiguration.java` | `restoreSeed` no limpia `event_publication`. Hoy no afecta porque cada contexto de test crea su propio contenedor, pero si el contenedor pasa a ser estático o reutilizable, la republicación al arrancar gastaría el "fallo único" de `OrderPlacedRetryIT` con un pedido antiguo y el test sería intermitente. | Añadir `delete from event_publication` a `restoreSeed` y una nota en `TestcontainersConfiguration`. |
+| C11 | BAJA | spec | `src/test/java/com/tractorstore/ArchitectureRules.java:118` | Javadoc desactualizado: dice que `catalog.api` sigue vacío "until spec 007 (research R11)", pero `catalog.api` ya tiene `CatalogApi` y `VariantView`, y R11 trata del registro de eventos. Los que siguen vacíos son `cart.api` y `notifications.api`. | Cambiar el comentario a "`cart.api` y `notifications.api` siguen vacíos (T060)". |
+| C12 | BAJA | spec | `specs/004-inventario-pedidos/review.md:70` | A11 cita el commit `9d5d9f3` y la fecha 2026-11-30. Ese commit no está en la historia de la rama (`git merge-base --is-ancestor` → no; se reescribió con rebase) y la fase 5 se hizo el 2026-11-26 en `4e75843` y `ea19c20`. | Actualizar el hash y la fecha en A11. |
+
+## Decisiones (continuación) — 2026-11-26
+
+| # | Decisión | Qué se hace | Commit |
+|---|---|---|---|
+| C1 | Corregir | `OrderPlacedRetryIT`: tras el reintento, `notifier.calls() == 2` y la línea "Confirmation email sent…" aparece **exactamente una vez**. | `b6f62de` |
+| C2 | Corregir | IT de rollback **después** de publicar: `place()` dentro de una transacción marcada `setRollbackOnly()` → sin fila en `event_publication`, sin pedido y sin log. | `6c8cce8` |
+| C3 | Corregir | Fixtures negativas para `@ElementCollection` sin `@CollectionTable`, `@Transactional` de clase, `jakarta.transaction.Transactional` y una **clase** `*Gateway`; `quickstart.md:24` corregido. | `35434f6` |
+| C4 | Corregir | `application` tampoco puede depender de `jakarta.persistence`, `org.hibernate` ni Jackson (comprobado antes que hoy no lo hace), con fixture negativa. | `35434f6` |
+| C5 | Corregir | `sessionId` sale de `OrderPlaced` (minimización); spec, data-model, `contracts/module-apis.md` y tests actualizados. | `caac039` |
+| C6 | Diferido | Purga de publicaciones completadas (`spring.modulith.events.completion-mode` o `deletePublicationsOlderThan`) anotada en la fila 010 del backlog el 2026-11-26. | commit `docs(004): record the continuation review decisions…` |
+| C7 | Aceptado | Limitación de `getFields()` (sin heredados ni `@Embeddable`) documentada en el javadoc de `ArchitectureRules`. | `35434f6` |
+| C8 | Corregir | `OrderPlacedRetryIT` filtra también por `listener_id`. | `b6f62de` |
+| C9 | Aceptado | Entrega *at-least-once* sin idempotencia documentada en `OrderPlacedListener`. | commit `docs(004): record the continuation review decisions…` |
+| C10 | Corregir | `OrderTestData.restoreSeed` limpia `event_publication`. | `b6f62de` |
+| C11 | Corregir | Javadoc de `ArchitectureRules`: `cart.api` y `notifications.api` son los que siguen vacíos. | `35434f6` |
+| C12 | Corregir | A11 con los commits y la fecha reales. | commit `docs(004): record the continuation review decisions…` |
+
+## Descartados o solo informativos (continuación)
+
+- **Deserialización de `serialized_event`**: sin riesgo real. Jackson deserializa al tipo concreto de
+  `event_type`, sin *default typing* ni `@JsonTypeInfo`; el contenido siempre lo genera el servidor.
+- **Republicación con varias réplicas**: sin efecto de seguridad (el listener solo escribe un log). Ya está
+  anotado como riesgo operativo en la fila 006\* del backlog (R13).
+- **Rigidez de `domainPortsLiveInPortOut`**: prohíbe cualquier interfaz en `domain` fuera de `port.out`,
+  más de lo que pide FR-029. Es opinión del revisor; hoy no molesta. Se puede aclarar en el `because`.
+- **`spring.modulith.events.jdbc.schema-initialization.enabled`** pertenece a `events-jdbc`, que no está en el
+  classpath: es inocuo y el comentario del yml lo explica.
+- **`event_type` guarda el nombre completo de la clase**: mover o renombrar `OrderPlaced` con publicaciones
+  pendientes impediría deserializarlas. Conviene añadirlo al javadoc del record.
+- **Reintento solo al reiniciar**: cumple FR-024; R13 descarta a propósito un `@Scheduled` (VII).
+- Logs, SQL de los tests (parámetros enlazados) y comandos de los docs: sin hallazgos.
