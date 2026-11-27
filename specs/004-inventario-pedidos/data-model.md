@@ -181,7 +181,7 @@ private List<OrderLineEmbeddable> lines;
 
 ### Infraestructura: evento [P3]
 `SpringOrderEventsGateway` (`infrastructure.event`, `@Component`) convierte `Order` en
-`OrderPlaced(orderId, sessionId, lines[sku, quantity])` y llama a
+`OrderPlaced(orderId, lines[sku, quantity])` y llama a
 `ApplicationEventPublisher.publishEvent`.
 
 ### Infraestructura: config

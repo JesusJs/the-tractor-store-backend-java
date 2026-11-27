@@ -55,7 +55,7 @@ public interface InventoryApi {
 ## `order.api.OrderPlaced` (evento, P3)
 
 ```java
-public record OrderPlaced(UUID orderId, UUID sessionId, List<Line> lines) {
+public record OrderPlaced(UUID orderId, List<Line> lines) {
   public record Line(String sku, int quantity) {}
 }
 ```

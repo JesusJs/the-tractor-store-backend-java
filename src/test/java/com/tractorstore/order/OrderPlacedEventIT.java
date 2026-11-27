@@ -10,6 +10,8 @@ import com.tractorstore.order.application.model.PlaceOrderCommand.Line;
 import com.tractorstore.order.application.port.in.PlaceOrderUseCase;
 import com.tractorstore.order.domain.exception.OutOfStockException;
 import com.tractorstore.order.domain.model.Order;
+import java.lang.reflect.RecordComponent;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -55,7 +57,7 @@ class OrderPlacedEventIT {
   }
 
   @Test
-  void placedOrderPublishesOneOrderPlacedWithItsIdSessionAndLines(Scenario scenario) {
+  void placedOrderPublishesOneOrderPlacedWithItsIdAndLines(Scenario scenario) {
     scenario
         .stimulate(
             () -> placeOrder.place(command(new Line("CL-01-GR", 2), new Line("AU-07-YE", 1))))
@@ -63,11 +65,17 @@ class OrderPlacedEventIT {
         .toArriveAndVerify(
             (OrderPlaced event, Order order) -> {
               assertThat(event.orderId()).isEqualTo(order.id().value());
-              assertThat(event.sessionId()).isEqualTo(SESSION);
               assertThat(event.lines())
                   .containsExactly(
                       new OrderPlaced.Line("CL-01-GR", 2), new OrderPlaced.Line("AU-07-YE", 1));
             });
+  }
+
+  @Test
+  void eventCarriesNoSessionId() {
+    // Stored in event_publication and no listener needs it: data minimization (review C5).
+    assertThat(Arrays.stream(OrderPlaced.class.getRecordComponents()).map(RecordComponent::getName))
+        .containsExactly("orderId", "lines");
   }
 
   @Test

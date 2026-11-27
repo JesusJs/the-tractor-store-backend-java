@@ -24,7 +24,6 @@ class SpringOrderEventsGateway implements OrderEventsGateway {
     publisher.publishEvent(
         new OrderPlaced(
             order.id().value(),
-            order.sessionId(),
             order.lines().stream()
                 .map(line -> new OrderPlaced.Line(line.sku(), line.quantity()))
                 .toList()));

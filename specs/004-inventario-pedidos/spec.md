@@ -149,7 +149,7 @@ en el reintento.
 **Acceptance Scenarios**:
 
 1. **Given** un pedido que se confirma con éxito, **When** termina la confirmación, **Then** se
-   publica un único `OrderPlaced { orderId, sessionId, lines[sku, quantity] }` y notificaciones
+   publica un único `OrderPlaced { orderId, lines[sku, quantity] }` y notificaciones
    registra en el log "email enviado" con ese `orderId`.
 2. **Given** una confirmación que falla (sin stock, SKU inexistente, validación), **When**
    termina, **Then** no se publica ningún `OrderPlaced`.
@@ -275,7 +275,7 @@ en el reintento.
 **Evento `OrderPlaced` (P3)**
 
 - **FR-022**: Al confirmar un pedido con éxito MUST publicarse, dentro de la misma transacción,
-  el evento `OrderPlaced { orderId, sessionId, lines: [{ sku, quantity }] }`, definido en la cara
+  el evento `OrderPlaced { orderId, lines: [{ sku, quantity }] }`, definido en la cara
   pública del módulo de pedidos. Si la confirmación falla, no se publica.
 - **FR-023**: La entrega MUST apoyarse en el registro de publicaciones de eventos (outbox) de
   Spring Modulith con su tabla creada por migración Flyway, copiando el DDL PostgreSQL de la
@@ -327,7 +327,8 @@ build)**
   mitades hacia arriba.
 - **VariantView** (cara pública del catálogo): sku, productId, productName, variantName, price,
   image.
-- **OrderPlaced** (evento): orderId, sessionId, líneas (sku, quantity).
+- **OrderPlaced** (evento): orderId, líneas (sku, quantity). Sin `sessionId`: ningún consumidor lo usa
+  y el evento se guarda en `event_publication` (minimización, review C5 del 2026-11-26).
 - **Cart**: vista siempre vacía con la forma del front; sin persistencia.
 
 ## Success Criteria *(mandatory)*
