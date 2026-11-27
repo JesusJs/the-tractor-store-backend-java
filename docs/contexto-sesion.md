@@ -1,6 +1,6 @@
 # Contexto de sesión — handoff del backend
 
-Estado **tras fusionar el PR #5** (redactado el 2026-11-26), para que cualquiera (el autor u otra persona) retome el proyecto sin historial previo.
+Estado a 2026-11-26: **PR #5 abierto** (aún no fusionado; `main` sigue en el merge del PR #3) y continuación de la 004 completada en su rama. Sirve para que cualquiera (el autor u otra persona) retome el proyecto sin historial previo.
 Este documento resume y enlaza; la fuente de verdad sigue siendo la tabla "Fuente de verdad" de `CLAUDE.md`
 (constitución, `docs/api-contract.md`, `docs/backlog.md`, `docs/adr/`, `specs/NNN-*/`).
 
@@ -17,7 +17,8 @@ contrato del front Angular de micro-frontends del Tractor Store, **que no cambia
 | 001 `esqueleto-modular` | Proyecto Boot 4.1 + Maven, 5 módulos con capas hexagonales, `Modulith.verify()` + ArchUnit, Spotless, compose con Postgres, Actuator, CI (build + gitleaks) | [#1](https://github.com/JesusJs/the-tractor-store-backend-java/pull/1) | Fusionada 2026-11-19 |
 | 002 `catalogo` (fusiona persistencia, errores y catálogo) | Flyway V2/V3 con el dataset, JPA, Testcontainers, formato de error único + `traceId`, endpoints de catálogo según el front (ADR 0008), módulo técnico `shared` (ADR 0009), fixtures negativos de ArchUnit | [#2](https://github.com/JesusJs/the-tractor-store-backend-java/pull/2) | Fusionada 2026-11-24 |
 | 003 `calidad-sonar` | JaCoCo (unit + IT, 80 % de líneas global), SonarCloud con Quality Gate Sonar way como check obligatorio, `TESTING.md`, Oscar como code owner (ADR 0010) | [#3](https://github.com/JesusJs/the-tractor-store-backend-java/pull/3) | Fusionada 2026-11-25 |
-| 004 `inventario-pedidos` (fusiona inventario, carrito-sesión y pedidos; ADR 0011) | **P1** `GET /inventory/{sku}` y `GET /cart` (crea `ts_session`, carrito vacío: el carrito vive en `localStorage` del front). **P2** `POST /orders` y `GET /orders/{id}` con recibo (IVA 21 % `HALF_UP`), descuento de stock atómico con `UPDATE … WHERE stock >= :qty` y ligado a la sesión. Seed V4, esquema V5 | [#5](https://github.com/JesusJs/the-tractor-store-backend-java/pull/5) | Fusionada tras la review de Oscar (A01–A15; decisiones en `specs/004-inventario-pedidos/review.md`) |
+| 004 `inventario-pedidos` (fusiona inventario, carrito-sesión y pedidos; ADR 0011) | **P1** `GET /inventory/{sku}` y `GET /cart` (crea `ts_session`, carrito vacío: el carrito vive en `localStorage` del front). **P2** `POST /orders` y `GET /orders/{id}` con recibo (IVA 21 % `HALF_UP`), descuento de stock atómico con `UPDATE … WHERE stock >= :qty` y ligado a la sesión. Seed V4, esquema V5 | [#5](https://github.com/JesusJs/the-tractor-store-backend-java/pull/5) | **Abierto** (sin fusionar a 2026-11-26); review de Oscar A01–A15 con decisiones en `specs/004-inventario-pedidos/review.md` |
+| Continuación de la 004 (misma spec, rama `004-eventos-pedidos`, apilada sobre `004-inventario-pedidos`) | Guardas ArchUnit FR-028..FR-030 con fixtures negativas; **P3** `OrderPlaced` con outbox (`spring-modulith-starter-jpa`, V6 del Event Publication Registry) y listener en `notifications`; pulido (Swagger, quickstart completo, SC-007) | Sin PR todavía | Hecha en la rama el 2026-11-26 (T055–T078); `./mvnw clean verify` en verde; falta `/review-spec` y PR |
 
 El PR #4 (`tmp/sc-002-quality-gate`) fue una prueba desechable del Quality Gate de la 003: está cerrado a propósito.
 
@@ -25,8 +26,10 @@ La revisión de la 004 y sus decisiones (corregido / diferido / aceptado) están
 
 ## 3. Qué hay en `main`
 
-Specs 001, 002, 003 y 004 (merge del PR #5): inventario, `GET /cart` (solo sesión; carrito en `localStorage` del
-front hasta la spec 005\*) y pedidos. Migraciones aplicadas en `main`: V1–V5 (V4 `inventory_stock`, V5 `order_*`). Las migraciones aplicadas no se editan nunca: siempre una nueva.
+Specs 001, 002 y 003 (último merge: PR #3). Migraciones en `main`: V1–V3. La 004 (inventario, `GET /cart` solo con
+sesión, con el carrito en `localStorage` del front hasta la spec 005\*, y pedidos; V4 `inventory_stock`, V5 `order_*`)
+llega con el PR #5, **abierto**. La rama `004-eventos-pedidos` añade encima V6 (`event_publication`, DDL v2 literal de
+Modulith 2.1.1). Las migraciones aplicadas no se editan nunca: siempre una nueva.
 
 ## 4. Pendientes priorizados
 
@@ -34,10 +37,9 @@ Fechas del backlog acordadas el 2026-11-26, sujetas a confirmación con el mento
 
 1. **PR corto de cierre de la 003** (review del PR #5, A10; 2026-11-27): puntos 2 y 4–7 de la aprobación del PR #3 y
    el `diff` vacío del ruleset. Responder y resolver el hilo C17 del PR #3.
-2. **Continuación de la 004** (rama `004-eventos-pedidos`; 2026-11-30): la fase 5 (guardas ArchUnit FR-028..FR-030
-   con fixtures negativas, T055–T061, y el comentario de `ArchitectureRules`; A11) ya está hecha en la rama; falta
-   **P3**: `OrderPlaced` con outbox (`spring-modulith-starter-jpa`, V6 del Event Publication Registry) y listener en
-   `notifications` (T062–T073), y el pulido T074, T077–T078.
+2. **Continuación de la 004** (rama `004-eventos-pedidos`): fases 5–7 **hechas** el 2026-11-26 (T055–T078, sin
+   casillas abiertas en `tasks.md`). Falta `/review-spec`, `/pr` y `/log-practica`. La rama está apilada sobre
+   `004-inventario-pedidos` (PR #5, abierto): su PR debe ir contra esa rama o esperar a que el #5 se fusione.
 3. **005\* `carrito-servidor`** (2026-12-01; A01): los 4 endpoints de la guía con `ts_session`, precio real de la
    variante y stock, y `CartService` del front consumiéndolos
    ([issue del front](https://github.com/JesusJs/the-tractore-store/issues/1)). Hasta entonces, en la demo solo
@@ -56,7 +58,7 @@ Fechas del backlog acordadas el 2026-11-26, sujetas a confirmación con el mento
    prod, README/DEPLOYMENT.md, `actions/*` por SHA + Dependabot, `SONAR_TOKEN` a *Scoped Organization Token*, Σ
    cantidad por SKU y prefijo `__Host-`.
 
-Orden de recorte si falta tiempo (backlog): 009 (dejar un E2E), P3 de la 004, 010 (CD manual).
+Orden de recorte si falta tiempo (backlog): 009 (dejar un E2E), 010 (CD manual).
 
 ## 5. Arrancar en local
 

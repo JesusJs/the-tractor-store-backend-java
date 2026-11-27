@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-24
 
-**Status**: Implemented (2026-11-26; P1 y P2. La fase 5 y la P3 se difirieron a la continuación de la 004 en la rama `004-eventos-pedidos`, 2026-11-30; review del PR #5 en `review.md`)
+**Status**: Implemented (P1 y P2 el 2026-11-26 en el PR #5, abierto a 2026-11-26; review en `review.md`. La fase 5, la P3 y el pulido, diferidos en la review 004, se completaron el 2026-11-26 en la rama `004-eventos-pedidos`, pendiente de `/review-spec` y PR)
 
 **Input**: User description: "@docs/prompts/specify-004-inventario-pedidos.md — Funcionalidad inventario y pedidos (una sola spec; fusiona 006 `inventario`, 007 `carrito-sesion` y 008 `pedidos-eventos` del backlog, reducidas por la ADR 0011). Como visitante quiero ver si una variante tiene stock y confirmar mi pedido sin registrarme, y ver después el recibo con subtotal, IVA y total, para recogerlo en una tienda. Como frontend (ya implementado, no cambia) necesito que inventario, carrito y pedidos respondan con la forma que consumo hoy y que el backend cree la cookie de sesión. Como equipo queremos que precio, IVA y stock sean autoridad del backend, que el descuento de stock sea atómico y que el patrón de eventos con outbox quede demostrado. P1 stock y sesión; P2 confirmar y consultar pedido; P3 evento `OrderPlaced` con outbox. Incluye la deuda de arquitectura de las reviews 001 #15 y 002 #3 y #12. Fuera de alcance: carrito en servidor, reserva de stock, reposición, emails reales, validar `extraPickups` contra tiendas, caché, cambios en el front."
 
