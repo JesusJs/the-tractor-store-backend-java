@@ -32,8 +32,9 @@ front hasta la spec 005\*) y pedidos. Migraciones aplicadas en `main`: V1–V5 (
 
 Fechas del backlog acordadas el 2026-11-26, sujetas a confirmación con el mentor; demo y cierre el **2026-12-03**.
 
-1. **PR corto de cierre de la 003** (review del PR #5, A10; 2026-11-27): puntos 2 y 4–7 de la aprobación del PR #3 y
-   el `diff` vacío del ruleset. Responder y resolver el hilo C17 del PR #3.
+1. **PR corto de cierre de la 003** (review del PR #5, A10): en el PR #9 (abierto, draft) desde la rama
+   `003-cierre-salvaguardas`; pasa a hecho cuando se fusione (puntos 2 y 4–7 de la aprobación del PR #3, `diff` vacío del ruleset); el hilo C17 del
+   PR #3 está resuelto.
 2. **Continuación de la 004** (rama `004-eventos-pedidos`; 2026-11-30): la fase 5 (guardas ArchUnit FR-028..FR-030
    con fixtures negativas, T055–T061, y el comentario de `ArchitectureRules`; A11) ya está hecha en la rama; falta
    **P3**: `OrderPlaced` con outbox (`spring-modulith-starter-jpa`, V6 del Event Publication Registry) y listener en
@@ -52,7 +53,8 @@ Fechas del backlog acordadas el 2026-11-26, sujetas a confirmación con el mento
    - Ante un 409 (`OUT_OF_STOCK`) el usuario ve un error genérico: `http-error.interceptor.ts` convierte cualquier
      error HTTP en `Server error code …` y descarta el código del contrato.
    - Sonar con cobertura en el front: el repo del front no tiene configuración de Sonar.
-6. **009 y fila 010 `entrega-final`** (por replanificar con el mentor; recortables): CD con smoke test, logs JSON en
+6. **009 y fila 010 `entrega-final`** (009 por replanificar con el mentor; 010: C10 el 2026-12-03 y el resto el 2026-12-10,
+   sujetas a confirmación; recortables salvo C10): CD con smoke test, logs JSON en
    prod, README/DEPLOYMENT.md, `actions/*` por SHA + Dependabot, `SONAR_TOKEN` a *Scoped Organization Token*, Σ
    cantidad por SKU y prefijo `__Host-`.
 

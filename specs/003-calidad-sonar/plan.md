@@ -53,7 +53,7 @@ plan gratuito → Quality Gate Sonar way; demo el 2026-11-25
 | IV. Datos | Sin cambios; migraciones excluidas solo de cobertura/duplicación. | ✅ (n/a) |
 | V. Eventos internos | No aplica. | ✅ (n/a) |
 | VI. Seguridad proporcionada | `SONAR_TOKEN` solo como secreto en `env` de un paso; nunca en pom, workflow ni `-D`; gitleaks sigue primero. Check de Sonar fijado a la app (`integration_id`). | ✅ |
-| VII. Simplicidad y plazo | **Viola la lista de fuera de alcance** (SonarCloud). Se resuelve con ADR 0010 + constitución v1.2.0 como primeras tareas (FR-001); ver Complexity Tracking. Resto mínimo: un job, un `.exec`, sin `qualitygate.wait`, sin umbral local extra. | ⚠️ → ✅ tras ADR 0010 |
+| VII. Simplicidad y plazo | **Viola la lista de fuera de alcance** (SonarCloud). Se resuelve con ADR 0010 + constitución v1.2.0 como primeras tareas (FR-001); ver Complexity Tracking. Resto mínimo: un job, un `.exec`, sin `qualitygate.wait`, sin umbral local extra (enmendado por C03 de la review del PR #3: `jacoco:check` ≥ 80 % de líneas global en `verify`). | ⚠️ → ✅ tras ADR 0010 |
 | VIII. Entregable y operable | Imagen, health y despliegue sin cambios. | ✅ |
 | Restricciones técnicas | Sin cambios de versión mayor; plugins de build nuevos con versión exacta. La v1.2.0 los añade a la lista. | ✅ |
 | Flujo | Rama `003-calidad-sonar`, un PR, conventional commits; ADR antes de tocar código. La v1.2.0 añade "Quality Gate aprobado" a la condición de merge. | ✅ |

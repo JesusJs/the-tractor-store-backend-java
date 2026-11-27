@@ -66,6 +66,15 @@ público. Solo `JesusJs` marca un hotspot como *Safe* o un issue como *False Pos
 cada marca comenta en el PR con enlace y justificación, que Oscar (único revisor y code owner) valida antes de aprobar. No se
 desactivan reglas globalmente sin documentarlo aquí.
 
+## Abrir un PR
+
+- El PR se crea como **draft** al crearlo (`/pr`), sin revisor. El CI (job `build`, que incluye
+  gitleaks y *Quality analysis*) y el check `SonarCloud Code Analysis` solo corren en `pull_request` y
+  `push` contra `main`: un push a una rama sin PR no ejecuta nada (review del PR #3, punto 5).
+- Pasa a *ready for review*, y entonces se añade a Oscar como revisor, solo si (a) la `/review-spec` del
+  PR está cerrada en `specs/NNN-*/review.md`, (b) `gh pr checks` está en verde y (c) el dueño lo
+  confirma explícitamente (review del PR #9, R04/R05/R07).
+
 ## Operación de `SONAR_TOKEN`
 
 - Token actual: **token personal** de `JesusJs` (*My Account → Security → Personal Tokens*), creado el
@@ -73,7 +82,10 @@ desactivan reglas globalmente sin documentarlo aquí.
   no hace falta rotarlo antes del cierre (1-3 dic); rótalo antes del **2027-02-13**. Pasar a un
   *Scoped Organization Token* (no ligado a un usuario) queda diferido a la fila 010 del backlog (FR-015
   parcial).
-- Rotación: SonarCloud → *My Account → Security* → token nuevo con caducidad (anota la fecha aquí); después `gh secret set SONAR_TOKEN` (pide el valor por consola, nunca en la línea de comandos)
+- Rotación: el objetivo es un **Scoped Organization Token** de la organización `jesusjs`, no ligado a un
+  usuario y con el mínimo permiso que ofrezca SonarCloud (análisis del proyecto) (FR-015, fila 010 del backlog). Un
+  token personal (*My Account → Security*) solo se admite como transición documentada aquí, con su
+  motivo y su fecha (review del PR #9, R06). Crea el token nuevo con caducidad (anota la fecha aquí); después `gh secret set SONAR_TOKEN` (pide el valor por consola, nunca en la línea de comandos)
   y revoca el anterior. Nunca se escribe el valor en el repo, en `-D` ni en logs.
 - Token caducado, inválido o ausente → **Quality analysis** rojo (403) y merge bloqueado: rótalo.
 - SonarCloud caído → el dueño comenta la causa en el PR y **espera la aprobación explícita de Oscar en el

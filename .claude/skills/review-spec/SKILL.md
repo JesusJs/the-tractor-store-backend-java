@@ -12,11 +12,19 @@ argument-hint: "[NNN opcional; por defecto la spec de la rama actual]"
    - `spec-reviewer`
    - `architecture-reviewer`
    - `security-reviewer`
-4. Ejecuta `./mvnw -q verify` (si falla, es hallazgo BLOQUEANTE).
-5. Consolida en `specs/NNN-*/review.md`:
+4. Pasa a los tres subagentes, además, estos checks (patrones encontrados en las reviews humanas de los PR #3 y #5); cada incumplimiento es un hallazgo:
+   - Componente nuevo en `shared` → exige ADR y registro en el principio II de la constitución.
+   - Validación coherente entre body, path y query: el mismo dato (id, SKU, texto libre) usa el mismo patrón compartido en las tres entradas.
+   - Cada propiedad que cambia por perfil (`application-*.yml`) tiene un test que comprueba su valor en cada perfil.
+   - Tests de concurrencia con latch de arranque y timeout en cada espera (`await(…, SECONDS)`, `get(…, SECONDS)`).
+   - Datos de seed no duplicados a mano en tests o scripts: se reaplica la migración que los define.
+   - Los tests afirman **exactamente** lo que pide la spec ("exactamente uno" → `== 1`, no `contains`; "misma transacción" → fallo antes y después del punto crítico).
+   - Cada regla ArchUnit tiene una fixture negativa por **rama** (método/clase, Spring/Jakarta, interfaz/clase), no solo por regla.
+5. Ejecuta `./mvnw -q verify` (si falla, es hallazgo BLOQUEANTE).
+6. Consolida en `specs/NNN-*/review.md`:
    ```
    # Revisión NNN — fecha
    | # | Severidad (BLOQUEANTE/ALTA/MEDIA/BAJA) | Revisor | Archivo:línea | Hallazgo | Propuesta |
    ```
    Elimina duplicados y descarta hallazgos que no puedas sustentar con el código.
-6. Muéstrame la tabla y pregúntame cuáles corriges. No corrijas nada sin mi confirmación.
+7. Muéstrame la tabla y pregúntame cuáles corriges. No corrijas nada sin mi confirmación.

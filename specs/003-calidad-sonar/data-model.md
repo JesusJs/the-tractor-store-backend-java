@@ -46,15 +46,21 @@ Precondición: todas las suites en verde en el mismo job (FR-009).
 | Ámbito | cobertura y/o duplicación |
 | Justificación | obligatoria, en `TESTING.md` |
 
-Lista cerrada en [research.md R5](research.md#r5-exclusiones-fr-010). Añadir un patrón fuera de
-esa lista exige justificación escrita en `TESTING.md` y revisión en el PR.
+Tres listas sincronizadas en `pom.xml`: `sonar.coverage.exclusions` y los `<excludes>` de las ejecuciones
+`report` y `check` de JaCoCo. La lista vigente está en
+[`TESTING.md`](../../TESTING.md#exclusiones-de-cobertura) (research R5 es la decisión original, enmendada
+por T034 y por C01 de la review del PR #3). Añadir un patrón exige justificación escrita en `TESTING.md`
+y revisión en el PR.
 
 ## Ruleset de `main`
 
 | Campo | Antes | Después |
 |---|---|---|
 | `required_status_checks` | `build` | `build` + check de la app de SonarCloud (nombre real, con `integration_id`) |
-| Resto de reglas | sin cambios | sin cambios |
+| `integration_id` de `build` | — | 15368 (app `github-actions`, T034) |
+| Revisión | sin aprobación obligatoria | 1 aprobación de code owner, `dismiss_stale_reviews_on_push` y `required_review_thread_resolution` (PR #3, C12/N06) |
+| Checks estrictos | no | `strict_required_status_checks_policy` true (N06) |
+| Bypass | ninguno (`bypass_actors: []`) | ninguno (`bypass_actors: []`; comprobado contra el ruleset activo el 2026-11-27, R10) |
 
 Fuente versionada: `docs/github/ruleset-main.json`, que MUST coincidir con el ruleset activo.
 
@@ -64,5 +70,5 @@ Fuente versionada: `docs/github/ruleset-main.json`, que MUST coincidir con el ru
 |---|---|
 | Nombre | `SONAR_TOKEN` (ya creado como secreto del repositorio) |
 | Uso | solo `env` del paso "Quality analysis" |
-| Alcance | token de análisis del proyecto (mínimo posible, FR-015) |
+| Alcance | token personal de `JesusJs` con sus permisos sobre `jesusjs` (FR-015 parcial; migrar a *Scoped Organization Token* en la fila 010) |
 | Rotación | documentada en `TESTING.md` sin valor |

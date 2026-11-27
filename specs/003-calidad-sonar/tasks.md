@@ -11,8 +11,9 @@ description: "Tareas de implementación de 003 — Calidad con SonarCloud"
 [data-model.md](data-model.md), [contracts/ci-quality-check.md](contracts/ci-quality-check.md),
 [quickstart.md](quickstart.md)
 
-**Tests**: esta spec no añade código de producción (ningún fichero bajo `src/` cambia), así que
-no hay tareas de test unitario/integración nuevas. Las suites existentes alimentan la cobertura y
+**Tests**: esta spec no añade código de producción (ningún fichero bajo `src/main/` cambia; bajo
+`src/test/` solo cambia `GlobalExceptionHandlerTest`: `traceId` fijo en `d79f2c9`, C21, y su comentario, N08), así que no hay tareas de
+test unitario/integración nuevas. Las suites existentes alimentan la cobertura y
 la validación es de **pipeline**: tareas de verificación con resultado esperado explícito
 (quickstart §1–§6) y el PR de prueba de SC-002 (rojo sin tests → verde con tests).
 
@@ -30,7 +31,8 @@ en varias fases: las tareas sobre el mismo fichero **no** llevan `[P]` entre sí
 
 Proyecto Maven único en la raíz del repositorio. Ficheros tocados: `pom.xml`,
 `.github/workflows/ci.yml`, `docs/github/ruleset-main.json`, `TESTING.md` (nuevo),
-`.claude/skills/testing-strategy/SKILL.md`. Nada bajo `src/`.
+`.claude/skills/testing-strategy/SKILL.md`. Nada bajo `src/main/`; bajo `src/test/`, solo
+`GlobalExceptionHandlerTest` (`traceId` fijo en `d79f2c9`, C21, y su comentario, N08).
 
 ---
 
@@ -40,7 +42,7 @@ Proyecto Maven único en la raíz del repositorio. Ficheros tocados: `pom.xml`,
 `pom.xml` o el workflow.
 
 - [X] T001 Verificar que el gobierno de FR-001 ya está aplicado (commit `6d3a3b6`): `docs/adr/0010-sonarcloud-en-alcance-sonar-way.md` con `Estado: aceptada`; `.specify/memory/constitution.md` en `**Version**: 1.2.0` con SonarCloud fuera de la lista "Fuera de alcance" del principio VII, JaCoCo + SonarCloud en Restricciones técnicas y "Quality Gate de SonarCloud aprobado" en la condición de merge del Flujo; `docs/backlog.md` (§Fuera de alcance) y `docs/requisitos.md` (fila SonarCloud → ADR 0010) actualizados. Si falta algo, completarlo en esos ficheros antes de seguir
-- [X] T002 (dueño) Confirmar en SonarCloud y GitHub los prerrequisitos de quickstart.md §Prerrequisitos: organización `jesusjs`, proyecto `JesusJs_the-tractor-store-backend-java`, *Automatic Analysis* desactivado, Quality Gate **Sonar way** asignado, *New Code* = "Previous version" (R7), permisos *Administer Issues* y *Administer Security Hotspots* solo para `JesusJs` (R8, FR-004a), secreto de repositorio `SONAR_TOKEN` existente (FR-015; **parcialmente diferido** a la fila 010 del backlog: el alcance mínimo del token no está verificado, review del PR #3, N01) y app de GitHub de SonarCloud instalada en `JesusJs/the-tractor-store-backend-java`
+- [X] T002 (dueño) Confirmar en SonarCloud y GitHub los prerrequisitos de quickstart.md §Prerrequisitos: organización `jesusjs`, proyecto `JesusJs_the-tractor-store-backend-java`, *Automatic Analysis* desactivado, Quality Gate **Sonar way** asignado, *New Code* = "Previous version" (R7), permisos *Administer Issues* y *Administer Security Hotspots* solo para `JesusJs` (R8, FR-004a), secreto de repositorio `SONAR_TOKEN` existente (FR-015; **parcialmente diferido** a la fila 010 del backlog: verificado que es un token personal de `JesusJs`, no un token de alcance mínimo; migrar a un *Scoped Organization Token* queda en la fila 010, review del PR #3, N01) y app de GitHub de SonarCloud instalada en `JesusJs/the-tractor-store-backend-java`
 
 **Checkpoint**: gobierno aceptado y servicio preparado; se puede tocar build y CI.
 
@@ -83,7 +85,7 @@ bloqueado; añadir tests → verde y merge habilitado.
 - [X] T012 [US1] Commit (`build: add jacoco aggregated coverage and sonarcloud analysis`), push de `003-calidad-sonar` y apertura del PR contra `main` (requiere que `002-catalogo` esté fusionada en `main`; si no, rebasar primero). Verificar en el PR: paso **Quality analysis** en verde sin el valor del token en su log, check de SonarCloud en verde y resumen del Quality Gate en la conversación (quickstart §3, US1-1, SC-004)
 - [X] T013 [US1] Anotar el **nombre exacto** del check publicado por la app de SonarCloud en el PR de T012 y su `app_id`/`integration_id` (`gh api repos/JesusJs/the-tractor-store-backend-java/commits/<sha>/check-runs --jq '.check_runs[] | {name, app: .app.id}'`) para el ruleset (R6) → **Resultado**: check `SonarCloud Code Analysis`, app `sonarqubecloud`, `integration_id` `12526` (commit `758ac55`).
 - [X] T014 [US1] Actualizar `docs/github/ruleset-main.json`: en la regla `required_status_checks`, mantener `{"context": "build"}` y añadir `{"context": "<nombre exacto de T013>", "integration_id": <id de T013>}`; el resto de reglas sin cambios (FR-006, data-model §Ruleset)
-- [X] T015 [US1] (dueño, tras confirmar en chat) Aplicar el JSON al ruleset activo `main-protection` con `gh api -X PUT repos/JesusJs/the-tractor-store-backend-java/rulesets/<ID> --input docs/github/ruleset-main.json` y comprobar con los dos `gh api` de quickstart §4 que los checks obligatorios son `build` + SonarCloud y coinciden con `docs/github/ruleset-main.json` → **Resultado**: aplicado por el dueño al ruleset `27647920`; `gh api repos/JesusJs/the-tractor-store-backend-java/rules/branches/main` devuelve `build` + `SonarCloud Code Analysis` (`integration_id` 12526), igual que `docs/github/ruleset-main.json`. **Desfase detectado** en la review del PR #3 (C11): el `integration_id` 15368 de `build`, añadido al JSON en T034, no llegó al ruleset activo. Se aplica con el PUT de C11/C12/N06 tras el merge (ver `review.md`, decisiones del PR #3).
+- [X] T015 [US1] (dueño, tras confirmar en chat) Aplicar el JSON al ruleset activo `main-protection` con `gh api -X PUT repos/JesusJs/the-tractor-store-backend-java/rulesets/<ID> --input docs/github/ruleset-main.json` y comprobar con los dos `gh api` de quickstart §4 que los checks obligatorios son `build` + SonarCloud y coinciden con `docs/github/ruleset-main.json` → **Resultado**: aplicado por el dueño al ruleset `27647920`; `gh api repos/JesusJs/the-tractor-store-backend-java/rules/branches/main` devuelve `build` + `SonarCloud Code Analysis` (`integration_id` 12526), igual que `docs/github/ruleset-main.json`. **Desfase detectado** en la review del PR #3 (C11): el `integration_id` 15368 de `build`, añadido al JSON en T034, no llegaba al ruleset activo. Resuelto con el PUT de C11/C12/N06, aplicado por el dueño el 2026-11-25 a las 22:00:14Z; `diff` vacío de `.rules` comprobado el 2026-11-27 (ver `review.md`, decisiones del PR #3).
 - [X] T016 [US1] Validación SC-002 (quickstart §5): rama temporal `tmp/sc-002-quality-gate` desde `003-calidad-sonar` con una clase de dominio con lógica de ≥ 20 líneas en `src/main/java/com/tractorstore/catalog/domain/model/` y **sin** tests → PR: check de SonarCloud rojo ("Coverage on New Code < 80 %", no neutral/skipped, FR-007) y merge bloqueado; añadir su test unitario → verde y merge habilitado. Cerrar el PR **sin fusionar** y borrar la rama local y remota; anotar los enlaces de ambas ejecuciones en la descripción del PR de 003 → **Resultado** (PR #4, cerrado sin fusionar; rama borrada): con `PriceRange` sin tests, condición `new_coverage` = **0,0 %** (umbral 80) → gate `ERROR`, check `SonarCloud Code Analysis` en *failure* y `mergeStateStatus` = `BLOCKED` ([run](https://github.com/JesusJs/the-tractor-store-backend-java/actions/runs/45445521831)); con `PriceRangeTest`, `new_coverage` = 100 % → gate `OK` y `mergeStateStatus` = `CLEAN` ([run](https://github.com/JesusJs/the-tractor-store-backend-java/actions/runs/45446150303)).
 
 **Checkpoint**: el Quality Gate bloquea merges en `main` (MVP).
@@ -111,10 +113,10 @@ de `infrastructure/web/dto` y `ApiError` no cuentan (`CorsConfiguration` sí cue
 
 ---
 
-## Phase 5: User Story 3 - Los revisores ven issues y Quality Gate en el propio PR (Priority: P3)
+## Phase 5: User Story 3 - El revisor ve issues y Quality Gate en el propio PR (Priority: P3)
 
 **Goal**: Oscar ve en el PR el resumen del Quality Gate y los issues sin cuenta en
-SonarCloud, y saben cómo se tratan hotspots y falsos positivos.
+SonarCloud, y sabe cómo se tratan hotspots y falsos positivos.
 
 **Independent Test**: abrir el enlace del resumen del PR en una ventana privada (sin sesión) y
 llegar a la lista de issues nuevos en < 1 minuto (SC-007).
@@ -152,7 +154,7 @@ la fecha del merge (quickstart §6).
 - [X] T026 Añadir a `TESTING.md` la sección "Quality Gate" (FR-004, FR-011): condiciones de Sonar way sobre código nuevo (cobertura ≥ 80 %, duplicación ≤ 3 %, ratings A en fiabilidad/seguridad/mantenibilidad = 0 bugs y 0 vulnerabilidades nuevos, 100 % hotspots revisados); diferencia aceptada 85 % → 80 % por el plan gratuito con enlace a `docs/adr/0010-sonarcloud-en-alcance-sonar-way.md`; regla de cambios pequeños (< 20 líneas nuevas: cobertura y duplicación no aplican); PRs solo de documentación o ficheros excluidos pasan; el análisis solo corre si todas las suites pasan (FR-009)
 - [X] T027 Añadir a `TESTING.md` la sección "Operación" (FR-015, R9, edge cases): token inválido o ausente → paso **Quality analysis** rojo y merge bloqueado; caída del servicio → el dueño quita temporalmente el check de SonarCloud del ruleset, comenta la causa en el PR, fusiona y restaura el check (y `docs/github/ruleset-main.json` sigue reflejando el estado normal); PRs desde forks quedan bloqueados (aceptado); creación y rotación de `SONAR_TOKEN` (SonarCloud → *My Account → Security*, token de análisis del proyecto, actualizar el secreto de GitHub, revocar el anterior) **sin incluir ningún valor**
 - [X] T028 [P] Actualizar `.claude/skills/testing-strategy/SKILL.md` (FR-012): sustituir "Cobertura objetivo 80% (JaCoCo), excluyendo records DTO, `config` y la clase `Application`" por el umbral del Quality Gate Sonar way (80 % en código nuevo, bloquea el merge vía SonarCloud; sin umbral local adicional), las exclusiones exactas de R5 (incluidas migraciones y `ApiError`; `CorsProperties` y entidades JPA **no** se excluyen) y un enlace a `TESTING.md`
-- [X] T029 [P] Enlazar `TESTING.md` desde la sección de pruebas/comandos de `README.md` (una línea) para que los revisores lo encuentren
+- [X] T029 [P] Enlazar `TESTING.md` desde la sección de pruebas/comandos de `README.md` (una línea) para que el revisor (Oscar) lo encuentre
 - [X] T030 Medir SC-006: comparar la duración del job `build` del PR de 003 con la última ejecución del PR de 002 (`gh run list --branch 002-catalogo --workflow CI --limit 1 --json databaseId,createdAt,updatedAt` y lo mismo para `003-calidad-sonar`); si supera +5 min, añadir a `.github/workflows/ci.yml` caché de `~/.sonar/cache` con `actions/cache` (R10). Anotar ambas duraciones en la descripción del PR → **Resultado**: job `build` de 002 (run 45436546313) 1 min 12 s; de 003 (run 45444398931) 2 min 10 s → +58 s, por debajo de +5 min: sin caché de `~/.sonar/cache`.
 - [X] T031 Comprobar SC-005 sin manejar el valor del token: el paso **Secret scan** (gitleaks, que recorre todo el historial) del PR está en verde, `grep -rn "sonar.token\|sonar.login\|SONAR_TOKEN=" pom.xml .github/ docs/ TESTING.md` da 0 resultados fuera de la referencia `${{ secrets.SONAR_TOKEN }}` de `.github/workflows/ci.yml`, y el log del paso **Quality analysis** solo muestra `***` donde aparece el secreto. (dueño) Si quiere la búsqueda literal del valor, la hace él en local → **Resultado**: **Secret scan** en verde (run 45444398931); el `grep` da 0 resultados y la única referencia es `${{ secrets.SONAR_TOKEN }}` en `ci.yml:53`; el log de **Quality analysis** (run 45439615276) muestra `SONAR_TOKEN: ***`.
 - [X] T032 Ejecutar `./mvnw spotless:apply` y `./mvnw verify` finales y recorrer quickstart.md §1–§6 marcando cada resultado esperado; actualizar `**Status**` de `specs/003-calidad-sonar/spec.md` a implementada cuando todo esté en verde → **Parcial**: `spotless:apply` sin cambios y `./mvnw clean verify` en verde (159 unit + 65 IT); quickstart §1–§5 comprobados; §6 y el cambio de `**Status**` esperan al merge (T021, T025). → **Cerrada 2026-11-25**: quickstart §6 comprobado con T025 y `**Status**` de `spec.md` → Implemented.
@@ -238,8 +240,9 @@ el primer Quality Gate exigido ya mida la cobertura real.
 
 ## Notes
 
-- Ningún fichero bajo `src/` cambia (la clase de T016 vive solo en una rama temporal que se
-  borra).
+- Ningún fichero bajo `src/main/` cambia (la clase de T016 vivió solo en una rama temporal ya
+  borrada); bajo `src/test/` solo cambia `GlobalExceptionHandlerTest` (`traceId` fijo en `d79f2c9`, C21, y su
+  comentario, N08).
 - El valor de `SONAR_TOKEN` nunca se lee, escribe ni imprime; solo se referencia como
   `${{ secrets.SONAR_TOKEN }}`.
 - T015 modifica una configuración de GitHub compartida: confirmar en chat antes de ejecutarlo.
