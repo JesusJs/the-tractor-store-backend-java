@@ -32,6 +32,7 @@ import org.springframework.modulith.events.CompletedEventPublications;
 import org.springframework.modulith.events.EventPublication;
 import org.springframework.modulith.events.IncompleteEventPublications;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.util.StringUtils;
 
 /**
  * A failing listener leaves {@link OrderPlaced} pending in the registry; resubmitting it delivers
@@ -45,6 +46,9 @@ class OrderPlacedRetryIT {
 
   private static final String SKU = "AU-07-YE";
   private static final Duration TIMEOUT = Duration.ofSeconds(10);
+
+  /** Only this listener's publication: another listener of OrderPlaced has its own row (C8). */
+  private static final String LISTENER = "%OrderPlacedListener%";
 
   @Autowired private PlaceOrderUseCase placeOrder;
   @Autowired private IncompleteEventPublications incomplete;
@@ -133,7 +137,12 @@ class OrderPlacedRetryIT {
 
     await().atMost(TIMEOUT).until(() -> completed.findAll().stream().anyMatch(ofThisOrder::test));
     assertThat(status()).isEqualTo("COMPLETED");
-    assertThat(output.getOut()).contains("Confirmation email sent for order " + orderId);
+    // SC-006: exactly one notification despite the failed first attempt (review C1).
+    assertThat(notifier.calls()).isEqualTo(2);
+    assertThat(
+            StringUtils.countOccurrencesOf(
+                output.getOut(), "Confirmation email sent for order " + orderId))
+        .isEqualTo(1);
     assertThat(
             jdbc.queryForObject(
                 "select count(*) from order_order where id = ?", Integer.class, orderId))
@@ -143,9 +152,11 @@ class OrderPlacedRetryIT {
   private String status() {
     return jdbc
         .queryForList(
-            "select status from event_publication where serialized_event like ?",
+            "select status from event_publication"
+                + " where serialized_event like ? and listener_id like ?",
             String.class,
-            "%" + orderId + "%")
+            "%" + orderId + "%",
+            LISTENER)
         .stream()
         .findFirst()
         .orElse(null);

@@ -22,7 +22,12 @@ final class OrderTestData {
 
   private OrderTestData() {}
 
+  /**
+   * Also empties {@code event_publication}: with a reused container, a pending publication of an
+   * old order would be resubmitted on startup and spoil the next IT (review C10).
+   */
   static void restoreSeed(JdbcTemplate jdbc) {
+    jdbc.update("delete from event_publication");
     jdbc.update("delete from order_line");
     jdbc.update("delete from order_order");
     jdbc.update("delete from inventory_stock");
