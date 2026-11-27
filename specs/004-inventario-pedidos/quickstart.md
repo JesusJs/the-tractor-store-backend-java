@@ -2,12 +2,13 @@
 
 Guía para comprobar de punta a punta que la funcionalidad cumple la spec. Las formas exactas están
 en [contracts/](contracts/), y las tablas y el dataset en [data-model.md](data-model.md). Las
-secciones siguen las prioridades: §2–§3 = P1, §4–§5 = P2 (objetivo de esta noche), §6–§7 = P3.
+secciones siguen las prioridades: §2–§3 = P1, §4–§5 = P2, §6–§7 = P3.
 
 ## Prerrequisitos
 
 - Java 21, Docker en marcha, `jq` y `curl`.
-- Rama `004-inventario-pedidos`.
+- Rama `004-eventos-pedidos` (P1 y P2 vienen de `004-inventario-pedidos`, PR #5; P3 y las guardas de la fase 5
+  solo están en esta rama).
 - Para §5, el repo del front con dependencias instaladas: primero se arrancan los remotes y
   después el shell con `--skipRemotes` (Nx).
 
@@ -28,9 +29,14 @@ Esperado: verde. Incluye los tests de dominio (`StockItemTest`, `MoneyTest`, `Va
 
 Esperado: verde. Añade `StockPersistenceIT`, `OrderPersistenceIT`, `CatalogPersistenceIT`
 ampliado, `InventoryApiIT`, `CartApiIT`, `OrderApiIT`, `OrderConcurrencyIT`, `ApplicationIT`
-(9 paths) y, con P3, `OrderPlacedEventIT` y `OrderPlacedRetryIT`.
+(9 paths), `OrderPlacedEventIT` y `OrderPlacedRetryIT`.
 
 ## 2. Arrancar contra una BD vacía
+
+> `docker compose down -v` **borra el volumen** de tu BD local (pedidos de prueba incluidos). Para no perderla,
+> usa un proyecto de compose aparte con su propio volumen y puerto (p. ej. `DB_PORT=55433 docker compose -p
+> ts-qs004 up -d --wait postgres`, la app con el mismo `DB_PORT` y `docker compose -p ts-qs004 exec postgres …`
+> en los `psql` de esta guía) y bórralo al acabar con `docker compose -p ts-qs004 down -v`.
 
 ```bash
 docker compose down -v
@@ -44,8 +50,8 @@ docker compose up -d postgres
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-Esperado en el log: Flyway aplica hasta `5 - order schema` (o `6 - event publication registry`
-con P3) y el servidor escucha en el **5271**.
+Esperado en el log: Flyway aplica hasta `6 - event publication registry` y el servidor escucha en el
+**5271**.
 
 ```bash
 docker compose exec postgres psql -U tractor -d tractor -c "select count(*) total, count(*) filter (where stock = 0) agotados from inventory_stock"

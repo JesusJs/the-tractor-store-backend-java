@@ -201,13 +201,13 @@ aplicación → adaptadores). Entre US2 y US3 va la fase transversal de guardas 
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-> **Ya no está diferida**: se difirió en la review 004 (2026-11-25) y se retoma el 2026-11-26 en la rama `004-eventos-pedidos` (apilada sobre `004-inventario-pedidos`).
+> **Ya no está diferida**: se difirió en la review 004 (2026-11-25) y se retomó el 2026-11-26 en la rama `004-eventos-pedidos` (apilada sobre `004-inventario-pedidos`). Completada.
 
-- [ ] T074 [P] Revisar Swagger UI en `http://localhost:5271/swagger-ui.html`: tags `Inventory`, `Cart` y `Orders` con descripción, respuestas y errores de las 4 operaciones (quickstart §8, FR-031)
+- [X] T074 [P] Revisar Swagger UI en `http://localhost:5271/swagger-ui.html`: tags `Inventory`, `Cart` y `Orders` con descripción, respuestas y errores de las 4 operaciones (quickstart §8, FR-031). Comprobado el 2026-11-26: los 3 tags con descripción, `POST /orders` (201/400/404/409/500), `GET /orders/{id}` (200/404/500), `GET /inventory/{sku}` (200/400/404/500), `GET /cart` (200/500) y las 5 de `Catalog`
 - [X] T075 [P] Anotar en `docs/backlog.md` (o en la spec de despliegue `despliegue-azure-esqueleto`) los riesgos de R4 (`SameSite=Lax` con dominios distintos en Azure) y R13 (`republish-outstanding-events-on-restart` con varias réplicas). Hecho en la fila 006\* `despliegue-azure-esqueleto` del backlog, junto con mismo origen o `SameSite=None; Secure` + CORS, límites de frecuencia y de cuerpo (64 KB) en el ingress y `nosniff` (review del PR #5, A04)
 - [X] T076 Ejecutar `./mvnw spotless:apply` y `./mvnw verify` completo; comprobar cobertura JaCoCo de las clases nuevas para el Quality Gate de SonarCloud (ADR 0010)
-- [ ] T077 Recorrer `specs/004-inventario-pedidos/quickstart.md` de §1 a §8 contra una BD vacía y marcar cualquier desviación
-- [ ] T078 Comprobar SC-007 en local: `POST /orders` y `GET /orders/{id}` < 1 s cada uno (`curl -w '%{time_total}'`)
+- [X] T077 Recorrer `specs/004-inventario-pedidos/quickstart.md` de §1 a §8 contra una BD vacía y marcar cualquier desviación. Hecho el 2026-11-26 con un Postgres desechable (`docker compose -p ts-qs004`, `DB_PORT=55433`) para no borrar la BD local: §1–§8 sin desviaciones de comportamiento, incluido §5 con el front real (sin errores de consola ni peticiones fallidas). Solo se corrigió texto desactualizado del quickstart (rama y `docker compose down -v`)
+- [X] T078 Comprobar SC-007 en local: `POST /orders` y `GET /orders/{id}` < 1 s cada uno (`curl -w '%{time_total}'`). Medido el 2026-11-26, 5 repeticiones: `POST` 16–22 ms, `GET` 6–7 ms
 
 ---
 
