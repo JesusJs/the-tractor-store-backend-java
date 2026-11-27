@@ -2,12 +2,13 @@
 
 Guía para comprobar de punta a punta que la funcionalidad cumple la spec. Las formas exactas están
 en [contracts/](contracts/), y las tablas y el dataset en [data-model.md](data-model.md). Las
-secciones siguen las prioridades: §2–§3 = P1, §4–§5 = P2 (objetivo de esta noche), §6–§7 = P3.
+secciones siguen las prioridades: §2–§3 = P1, §4–§5 = P2, §6–§7 = P3.
 
 ## Prerrequisitos
 
 - Java 21, Docker en marcha, `jq` y `curl`.
-- Rama `004-inventario-pedidos`.
+- Rama `004-eventos-pedidos` (P1 y P2 ya están en `main` desde el PR #5, fusionado el 2026-11-26; P3 y las guardas
+  de la fase 5 solo están en esta rama hasta que se fusione su PR).
 - Para §5, el repo del front con dependencias instaladas: primero se arrancan los remotes y
   después el shell con `--skipRemotes` (Nx).
 
@@ -20,7 +21,10 @@ secciones siguen las prioridades: §2–§3 = P1, §4–§5 = P2 (objetivo de es
 Esperado: verde. Incluye los tests de dominio (`StockItemTest`, `MoneyTest`, `VatTest`,
 `OrderTest`, `OrderIdTest`), los `*ServiceTest`, `SessionCookiesTest`, `GlobalExceptionHandlerTest`
 (con el 409), los `*ControllerTest`, `ModularityTests`, `HexagonalArchitectureTests` y
-`ArchitectureRulesSelfTests` (una fixture negativa por regla nueva, SC-008).
+`ArchitectureRulesSelfTests` (una fixture negativa por cada rama de las reglas nuevas: tablas por
+`@ElementCollection`, `@CollectionTable`, `@JoinTable` y `@SecondaryTable`; puertos interfaz y clase;
+`@Transactional` de Spring en método y clase y de `jakarta.transaction`; `application` sin Spring extra,
+JPA, Hibernate ni Jackson; SC-008).
 
 ```bash
 ./mvnw verify
@@ -28,9 +32,15 @@ Esperado: verde. Incluye los tests de dominio (`StockItemTest`, `MoneyTest`, `Va
 
 Esperado: verde. Añade `StockPersistenceIT`, `OrderPersistenceIT`, `CatalogPersistenceIT`
 ampliado, `InventoryApiIT`, `CartApiIT`, `OrderApiIT`, `OrderConcurrencyIT`, `ApplicationIT`
-(9 paths) y, con P3, `OrderPlacedEventIT` y `OrderPlacedRetryIT`.
+(9 paths), `OrderPlacedEventIT`, `OrderPlacedRollbackIT` (rollback tras publicar: sin fila ni log) y
+`OrderPlacedRetryIT` (exactamente un aviso tras el reintento).
 
 ## 2. Arrancar contra una BD vacía
+
+> `docker compose down -v` **borra el volumen** de tu BD local (pedidos de prueba incluidos). Para no perderla,
+> usa un proyecto de compose aparte con su propio volumen y puerto (p. ej. `DB_PORT=55433 docker compose -p
+> ts-qs004 up -d --wait postgres`, la app con el mismo `DB_PORT` y `docker compose -p ts-qs004 exec postgres …`
+> en los `psql` de esta guía) y bórralo al acabar con `docker compose -p ts-qs004 down -v`.
 
 ```bash
 docker compose down -v
@@ -44,8 +54,8 @@ docker compose up -d postgres
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-Esperado en el log: Flyway aplica hasta `5 - order schema` (o `6 - event publication registry`
-con P3) y el servidor escucha en el **5271**.
+Esperado en el log: Flyway aplica hasta `6 - event publication registry` y el servidor escucha en el
+**5271**.
 
 ```bash
 docker compose exec postgres psql -U tractor -d tractor -c "select count(*) total, count(*) filter (where stock = 0) agotados from inventory_stock"
@@ -187,10 +197,6 @@ y recibo con subtotal 6200, IVA 1302 y total 7502. Antes de presentar, `scripts/
 
 ## 6. P3: evento y log
 
-> **Diferido** (review 004): la P3 no se implementa en esta rama; llega con la continuación de la 004
-> (rama `004-eventos-pedidos`, 2026-11-30). `OrderPlaced`, `OrderPlacedRetryIT` y la tabla
-> `event_publication` aún no existen: esta sección queda como guía para esa continuación.
-
 Tras confirmar un pedido (§4 o §5), el log de la app muestra (asíncrono, tras el commit):
 
 ```text
@@ -207,10 +213,6 @@ El reintento (AS-3.3) lo cubre `OrderPlacedRetryIT`; no se prueba a mano.
 
 ## 7. Guardas de arquitectura (FR-025, FR-026, SC-008)
 
-> **Diferido en parte** (review 004 y review del PR #5, A09): `OrderPlaced` todavía no existe; llega con la P3
-> en la continuación de la 004 (rama `004-eventos-pedidos`, 2026-11-30). Hasta entonces la prueba del listener
-> (FR-025) no se puede hacer; la de FR-026 sí.
-
 Prueba manual de FR-026: añadir temporalmente en `inventory` (p. ej. en `GetStockService`) un parámetro de
 constructor de tipo `com.tractorstore.catalog.api.CatalogApi` y ejecutar:
 
@@ -218,8 +220,9 @@ constructor de tipo `com.tractorstore.catalog.api.CatalogApi` y ejecutar:
 ./mvnw test -Dtest=ModularityTests
 ```
 Esperado: **falla** por dependencia no permitida `inventory → catalog` (`allowedDependencies = "shared"`).
-Revertir el cambio. Con la P3, el mismo procedimiento con un listener de `OrderPlaced` en `inventory` debe
-fallar por `inventory → order` (ciclo).
+Revertir el cambio. El mismo procedimiento con un listener de `OrderPlaced` en `inventory` (p. ej. una clase
+`@Component` con un método `@ApplicationModuleListener void on(OrderPlaced event)`) debe fallar con
+`Cycle detected` y `Module 'inventory' depends on named interface(s) 'order :: api'`. Revertir el cambio.
 
 ## 8. Swagger (FR-031)
 

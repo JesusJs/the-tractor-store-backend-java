@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ class ApplicationIT {
   void openApiDocumentHasExactlyTheDeliveredPaths() {
     Map<String, Object> paths = apiDocs().read("$.paths");
 
-    // Five catalog paths plus inventory, cart (004 P1) and orders (004 P2); T061 checks the tags.
+    // Five catalog paths plus inventory, cart (004 P1) and orders (004 P2).
     assertThat(paths)
         .containsOnlyKeys(
             Stream.concat(
@@ -77,6 +78,21 @@ class ApplicationIT {
                             String[].class))
                     .as("%s %s error schema", path, status)
                     .containsOnly("#/components/schemas/ApiError"));
+  }
+
+  @ParameterizedTest(name = "{1} {0} → {2}")
+  @CsvSource({
+    "/api/v1/inventory/{sku}, get, Inventory",
+    "/api/v1/cart, get, Cart",
+    "/api/v1/orders, post, Orders",
+    "/api/v1/orders/{id}, get, Orders"
+  })
+  void everyInventoryCartAndOrderOperationIsTagged(String path, String method, String tag) {
+    DocumentContext docs = apiDocs();
+    String operation = "$.paths['" + path + "']." + method;
+
+    assertThat(docs.read(operation + ".tags", String[].class)).containsExactly(tag);
+    assertThat(docs.read(operation + ".summary", String.class)).isNotBlank();
   }
 
   @Test

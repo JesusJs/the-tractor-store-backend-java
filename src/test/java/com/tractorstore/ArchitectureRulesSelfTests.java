@@ -26,8 +26,23 @@ class ArchitectureRulesSelfTests {
         violation("sharedentity", ArchitectureRules::sharedHasNoEntities),
         violation("tableprefix", ArchitectureRules::tablesArePrefixedWithModule),
         violation("collectionprefix", ArchitectureRules::tablesArePrefixedWithModule),
+        violation("elementcollection", ArchitectureRules::tablesArePrefixedWithModule),
+        violation("manytomany", ArchitectureRules::tablesArePrefixedWithModule),
+        violation("onetomany", ArchitectureRules::tablesArePrefixedWithModule),
+        violation("secondarytable", ArchitectureRules::tablesArePrefixedWithModule),
+        violation("domainjakarta", ArchitectureRules::domainIsFrameworkFree),
         violation("portin", ArchitectureRules::useCasesLiveInPortIn),
-        violation("portout", ArchitectureRules::domainRepositoriesLiveInPortOut));
+        violation("portout", ArchitectureRules::domainPortsLiveInPortOut),
+        violation("domaingateway", ArchitectureRules::domainPortsLiveInPortOut),
+        violation("gatewayclass", ArchitectureRules::domainPortsLiveInPortOut),
+        violation("domainapp", ArchitectureRules::domainDoesNotDependOnApplication),
+        violation("appspring", ArchitectureRules::applicationUsesOnlyServiceAndTransactional),
+        violation("appjpa", ArchitectureRules::applicationUsesOnlyServiceAndTransactional),
+        violation("apphibernate", ArchitectureRules::applicationUsesOnlyServiceAndTransactional),
+        violation("appjackson", ArchitectureRules::applicationUsesOnlyServiceAndTransactional),
+        violation("txoutsideapp", ArchitectureRules::transactionalOnlyInApplication),
+        violation("txclass", ArchitectureRules::transactionalOnlyInApplication),
+        violation("txjakarta", ArchitectureRules::transactionalOnlyInApplication));
   }
 
   private static Arguments violation(String fixture, Function<String, ArchRule> rule) {

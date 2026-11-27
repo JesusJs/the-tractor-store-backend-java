@@ -1,27 +1,44 @@
 package com.tractorstore;
 
+import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.INTERFACES;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.belongToAnyOf;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleNameEndingWith;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.CompositeArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SecondaryTable;
+import jakarta.persistence.SecondaryTables;
 import jakarta.persistence.Table;
-import java.util.Optional;
 import org.springframework.data.repository.Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Architecture rules of the constitution (FR-004, FR-005, FR-028). Each rule is built from a root
- * package so {@code ArchitectureRulesSelfTests} can prove it fails on fixtures that live outside
- * {@code com.tractorstore} (where Spring would otherwise scan their
+ * Architecture rules of the constitution (FR-004, FR-005, FR-028..FR-030). Each rule is built from
+ * a root package so {@code ArchitectureRulesSelfTests} can prove it fails on fixtures that live
+ * outside {@code com.tractorstore} (where Spring would otherwise scan their
  * {@code @Entity}/{@code @Component}).
  */
 public final class ArchitectureRules {
@@ -39,8 +56,13 @@ public final class ArchitectureRules {
   public static final ArchRule SHARED_HAS_NO_ENTITIES = sharedHasNoEntities(ROOT);
   public static final ArchRule TABLES_ARE_PREFIXED_WITH_MODULE = tablesArePrefixedWithModule(ROOT);
   public static final ArchRule USE_CASES_LIVE_IN_PORT_IN = useCasesLiveInPortIn(ROOT);
-  public static final ArchRule DOMAIN_REPOSITORIES_LIVE_IN_PORT_OUT =
-      domainRepositoriesLiveInPortOut(ROOT);
+  public static final ArchRule DOMAIN_PORTS_LIVE_IN_PORT_OUT = domainPortsLiveInPortOut(ROOT);
+  public static final ArchRule DOMAIN_DOES_NOT_DEPEND_ON_APPLICATION =
+      domainDoesNotDependOnApplication(ROOT);
+  public static final ArchRule APPLICATION_USES_ONLY_SERVICE_AND_TRANSACTIONAL =
+      applicationUsesOnlyServiceAndTransactional(ROOT);
+  public static final ArchRule TRANSACTIONAL_ONLY_IN_APPLICATION =
+      transactionalOnlyInApplication(ROOT);
 
   private ArchitectureRules() {}
 
@@ -52,11 +74,12 @@ public final class ArchitectureRules {
         .dependOnClassesThat()
         .resideInAnyPackage(
             "org.springframework..",
-            "jakarta.persistence..",
+            "jakarta..",
             "com.fasterxml.jackson..",
             "tools.jackson..",
-            "org.hibernate..")
-        .because("domain and shared errors must be plain Java (FR-004, ADR 0009)");
+            "org.hibernate..",
+            "io.swagger..")
+        .because("domain and shared errors must be plain Java (FR-004, FR-029, ADR 0009)");
   }
 
   static ArchRule webDoesNotUsePersistence(String root) {
@@ -92,7 +115,9 @@ public final class ArchitectureRules {
         .because("dependencies point inwards: adapters depend on the core, never the reverse");
   }
 
-  /** Empty allowed only here: {@code catalog.api} stays empty until spec 007 (research R11). */
+  /**
+   * Empty allowed only here: {@code cart.api} and {@code notifications.api} are still empty (T060).
+   */
   static ArchRule apiDoesNotExposeInternals(String root) {
     return noClasses()
         .that()
@@ -146,17 +171,101 @@ public final class ArchitectureRules {
         .because("inbound ports (use case interfaces) live in application.port.in (ADR 0001)");
   }
 
-  static ArchRule domainRepositoriesLiveInPortOut(String root) {
+  /**
+   * Every domain interface is an outbound port, and so is any {@code *Repository}/{@code *Gateway}.
+   */
+  static ArchRule domainPortsLiveInPortOut(String root) {
     return classes()
         .that()
         .resideInAPackage(root + "..domain..")
+        .and(INTERFACES.or(simpleNameEndingWith("Repository")).or(simpleNameEndingWith("Gateway")))
         .and()
-        .haveSimpleNameEndingWith("Repository")
+        .doNotHaveSimpleName("package-info")
         .should()
         .resideInAPackage(root + "..domain.port.out..")
-        .because("outbound ports (domain repositories) live in domain.port.out (ADR 0001)");
+        .because("outbound ports live in domain.port.out (ADR 0001, FR-029)");
   }
 
+  static ArchRule domainDoesNotDependOnApplication(String root) {
+    return noClasses()
+        .that()
+        .resideInAPackage(root + "..domain..")
+        .should()
+        .dependOnClassesThat()
+        .resideInAPackage(root + "..application..")
+        .because("the domain is the innermost layer (FR-030)");
+  }
+
+  /**
+   * Of the frameworks, use cases only see their bean and transaction annotations: no other Spring,
+   * and no JPA, Hibernate or Jackson, which belong to the adapters (FR-030, review C4).
+   */
+  static ArchRule applicationUsesOnlyServiceAndTransactional(String root) {
+    return noClasses()
+        .that()
+        .resideInAPackage(root + "..application..")
+        .should()
+        .dependOnClassesThat(
+            resideInAPackage("org.springframework..")
+                .and(
+                    not(
+                        belongToAnyOf(
+                            Service.class,
+                            Transactional.class,
+                            Propagation.class,
+                            Isolation.class)))
+                .or(
+                    resideInAnyPackage(
+                        "jakarta.persistence..",
+                        "org.hibernate..",
+                        "com.fasterxml.jackson..",
+                        "tools.jackson..")))
+        .because(
+            "use cases only declare their bean and transaction boundary; persistence and JSON are"
+                + " adapter concerns (FR-030)");
+  }
+
+  /**
+   * Only a <em>direct</em> annotation violates: {@code @ApplicationModuleListener} is
+   * meta-annotated with {@code @Transactional} and is allowed in infrastructure (research R16).
+   */
+  static ArchRule transactionalOnlyInApplication(String root) {
+    String spring = "org.springframework.transaction.annotation.Transactional";
+    String jakarta = "jakarta.transaction.Transactional";
+    String because = "the transaction boundary is the use case (FR-030)";
+    ArchRule onClasses =
+        noClasses()
+            .that()
+            .resideInAPackage(root + "..")
+            .and()
+            .resideOutsideOfPackage(root + "..application..")
+            .should()
+            .beAnnotatedWith(spring)
+            .orShould()
+            .beAnnotatedWith(jakarta)
+            .because(because);
+    ArchRule onMethods =
+        noMethods()
+            .that()
+            .areDeclaredInClassesThat()
+            .resideInAPackage(root + "..")
+            .and()
+            .areDeclaredInClassesThat()
+            .resideOutsideOfPackage(root + "..application..")
+            .should()
+            .beAnnotatedWith(spring)
+            .orShould()
+            .beAnnotatedWith(jakarta)
+            .because(because);
+    return CompositeArchRule.of(onClasses).and(onMethods);
+  }
+
+  /**
+   * Accepted limitation (review C7): only the fields declared in the entity itself are checked, so
+   * a collection or join table mapped in a {@code @MappedSuperclass}, an {@code @Embeddable} or on
+   * a getter escapes the rule. Today every entity uses field access without inheritance; revisit
+   * the rule if that changes.
+   */
   private static ArchCondition<JavaClass> haveTablesPrefixedWithTheirModule(String root) {
     return new ArchCondition<>("map only tables prefixed with their module") {
       @Override
@@ -164,21 +273,78 @@ public final class ArchitectureRules {
         String prefix = moduleOf(root, entity) + "_";
         String table = entity.tryGetAnnotationOfType(Table.class).map(Table::name).orElse("");
         requirePrefix(entity, "@Table", table, prefix, events);
+        entity
+            .tryGetAnnotationOfType(SecondaryTable.class)
+            .ifPresent(t -> requirePrefix(entity, "@SecondaryTable", t.name(), prefix, events));
+        entity
+            .tryGetAnnotationOfType(SecondaryTables.class)
+            .ifPresent(
+                all -> {
+                  for (SecondaryTable t : all.value()) {
+                    requirePrefix(entity, "@SecondaryTable", t.name(), prefix, events);
+                  }
+                });
         for (JavaField field : entity.getFields()) {
-          tableName(field, CollectionTable.class)
-              .ifPresent(name -> requirePrefix(entity, "@CollectionTable", name, prefix, events));
-          tableName(field, JoinTable.class)
-              .ifPresent(name -> requirePrefix(entity, "@JoinTable", name, prefix, events));
+          checkCollectionTable(entity, field, prefix, events);
+          checkJoinTable(entity, field, prefix, events);
         }
       }
     };
   }
 
-  private static Optional<String> tableName(JavaField field, Class<?> annotation) {
-    if (annotation == CollectionTable.class) {
-      return field.tryGetAnnotationOfType(CollectionTable.class).map(CollectionTable::name);
-    }
-    return field.tryGetAnnotationOfType(JoinTable.class).map(JoinTable::name);
+  /** A default collection table is named {@code <entity>_<field>}, never with the prefix. */
+  private static void checkCollectionTable(
+      JavaClass entity, JavaField field, String prefix, ConditionEvents events) {
+    field
+        .tryGetAnnotationOfType(CollectionTable.class)
+        .ifPresentOrElse(
+            t -> requirePrefix(entity, "@CollectionTable", t.name(), prefix, events),
+            () -> {
+              if (field.isAnnotatedWith(ElementCollection.class)) {
+                missing(entity, field, "@ElementCollection", "@CollectionTable", events);
+              }
+            });
+  }
+
+  /**
+   * Only the owning side ({@code mappedBy} empty) of a {@code @ManyToMany} names the table. A
+   * unidirectional {@code @OneToMany} without {@code @JoinColumn} also gets a default join table.
+   */
+  private static void checkJoinTable(
+      JavaClass entity, JavaField field, String prefix, ConditionEvents events) {
+    field
+        .tryGetAnnotationOfType(JoinTable.class)
+        .ifPresentOrElse(
+            t -> requirePrefix(entity, "@JoinTable", t.name(), prefix, events),
+            () -> {
+              boolean owningManyToMany =
+                  field
+                      .tryGetAnnotationOfType(ManyToMany.class)
+                      .map(m -> m.mappedBy().isEmpty())
+                      .orElse(false);
+              if (owningManyToMany) {
+                missing(entity, field, "@ManyToMany", "@JoinTable", events);
+              }
+              boolean defaultOneToManyJoinTable =
+                  field
+                          .tryGetAnnotationOfType(OneToMany.class)
+                          .map(m -> m.mappedBy().isEmpty())
+                          .orElse(false)
+                      && !field.isAnnotatedWith(JoinColumn.class)
+                      && !field.isAnnotatedWith(JoinColumns.class);
+              if (defaultOneToManyJoinTable) {
+                missing(entity, field, "@OneToMany without @JoinColumn", "@JoinTable", events);
+              }
+            });
+  }
+
+  private static void missing(
+      JavaClass entity, JavaField field, String mapping, String table, ConditionEvents events) {
+    events.add(
+        SimpleConditionEvent.violated(
+            entity,
+            "%s.%s is %s without explicit %s"
+                .formatted(entity.getName(), field.getName(), mapping, table)));
   }
 
   private static void requirePrefix(

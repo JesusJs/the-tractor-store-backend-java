@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-24
 
-**Status**: Implemented (2026-11-26; P1 y P2. La fase 5 y la P3 se difirieron a la continuación de la 004 en la rama `004-eventos-pedidos`, 2026-11-30; review del PR #5 en `review.md`)
+**Status**: Implemented (P1 y P2 fusionadas en `main` el 2026-11-26 con el PR #5; review en `review.md`. La fase 5, la P3 y el pulido, diferidos en la review 004, se completaron el 2026-11-26 en la rama `004-eventos-pedidos`, rebasada sobre `main`, con su `/review-spec` (C1–C12) hecha; pendiente de PR)
 
 **Input**: User description: "@docs/prompts/specify-004-inventario-pedidos.md — Funcionalidad inventario y pedidos (una sola spec; fusiona 006 `inventario`, 007 `carrito-sesion` y 008 `pedidos-eventos` del backlog, reducidas por la ADR 0011). Como visitante quiero ver si una variante tiene stock y confirmar mi pedido sin registrarme, y ver después el recibo con subtotal, IVA y total, para recogerlo en una tienda. Como frontend (ya implementado, no cambia) necesito que inventario, carrito y pedidos respondan con la forma que consumo hoy y que el backend cree la cookie de sesión. Como equipo queremos que precio, IVA y stock sean autoridad del backend, que el descuento de stock sea atómico y que el patrón de eventos con outbox quede demostrado. P1 stock y sesión; P2 confirmar y consultar pedido; P3 evento `OrderPlaced` con outbox. Incluye la deuda de arquitectura de las reviews 001 #15 y 002 #3 y #12. Fuera de alcance: carrito en servidor, reserva de stock, reposición, emails reales, validar `extraPickups` contra tiendas, caché, cambios en el front."
 
@@ -149,7 +149,7 @@ en el reintento.
 **Acceptance Scenarios**:
 
 1. **Given** un pedido que se confirma con éxito, **When** termina la confirmación, **Then** se
-   publica un único `OrderPlaced { orderId, sessionId, lines[sku, quantity] }` y notificaciones
+   publica un único `OrderPlaced { orderId, lines[sku, quantity] }` y notificaciones
    registra en el log "email enviado" con ese `orderId`.
 2. **Given** una confirmación que falla (sin stock, SKU inexistente, validación), **When**
    termina, **Then** no se publica ningún `OrderPlaced`.
@@ -275,7 +275,7 @@ en el reintento.
 **Evento `OrderPlaced` (P3)**
 
 - **FR-022**: Al confirmar un pedido con éxito MUST publicarse, dentro de la misma transacción,
-  el evento `OrderPlaced { orderId, sessionId, lines: [{ sku, quantity }] }`, definido en la cara
+  el evento `OrderPlaced { orderId, lines: [{ sku, quantity }] }`, definido en la cara
   pública del módulo de pedidos. Si la confirmación falla, no se publica.
 - **FR-023**: La entrega MUST apoyarse en el registro de publicaciones de eventos (outbox) de
   Spring Modulith con su tabla creada por migración Flyway, copiando el DDL PostgreSQL de la
@@ -327,7 +327,8 @@ build)**
   mitades hacia arriba.
 - **VariantView** (cara pública del catálogo): sku, productId, productName, variantName, price,
   image.
-- **OrderPlaced** (evento): orderId, sessionId, líneas (sku, quantity).
+- **OrderPlaced** (evento): orderId, líneas (sku, quantity). Sin `sessionId`: ningún consumidor lo usa
+  y el evento se guarda en `event_publication` (minimización, review C5 del 2026-11-26).
 - **Cart**: vista siempre vacía con la forma del front; sin persistencia.
 
 ## Success Criteria *(mandatory)*

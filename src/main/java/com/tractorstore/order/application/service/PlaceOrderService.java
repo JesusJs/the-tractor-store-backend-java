@@ -14,6 +14,7 @@ import com.tractorstore.order.domain.model.Money;
 import com.tractorstore.order.domain.model.Order;
 import com.tractorstore.order.domain.model.OrderId;
 import com.tractorstore.order.domain.model.OrderLine;
+import com.tractorstore.order.domain.port.out.OrderEventsGateway;
 import com.tractorstore.order.domain.port.out.OrderRepository;
 import java.time.Clock;
 import java.time.Instant;
@@ -28,7 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Confirms an order in a single transaction (research R9): any failure after a stock decrease rolls
- * every decrease back, so nothing is half done.
+ * every decrease back, so nothing is half done. {@code OrderPlaced} is published in that same
+ * transaction, so a rolled back order publishes nothing (research R13).
  */
 @Service
 class PlaceOrderService implements PlaceOrderUseCase {
@@ -39,13 +41,19 @@ class PlaceOrderService implements PlaceOrderUseCase {
   private final CatalogApi catalog;
   private final InventoryApi inventory;
   private final OrderRepository orders;
+  private final OrderEventsGateway events;
   private final Clock clock;
 
   PlaceOrderService(
-      CatalogApi catalog, InventoryApi inventory, OrderRepository orders, Clock clock) {
+      CatalogApi catalog,
+      InventoryApi inventory,
+      OrderRepository orders,
+      OrderEventsGateway events,
+      Clock clock) {
     this.catalog = catalog;
     this.inventory = inventory;
     this.orders = orders;
+    this.events = events;
     this.clock = clock;
   }
 
@@ -72,6 +80,7 @@ class PlaceOrderService implements PlaceOrderUseCase {
             Instant.now(clock).truncatedTo(ChronoUnit.MILLIS));
     lines.stream().sorted(BY_SKU).forEach(this::decreaseStock);
     orders.save(order);
+    events.orderPlaced(order);
     return order;
   }
 
