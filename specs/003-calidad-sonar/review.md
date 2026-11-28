@@ -71,7 +71,7 @@ revisor y code owner**: Steven sale del proyecto. Esto sustituye la decisión #3
 | C08 | MEDIA | Corregido | `on: push` y `pull_request` solo para `main`; `concurrency` `ci-${{ github.ref }}` que cancela solo en PR (nunca en `main`). Contrato `ci-quality-check.md` (disparadores) y T025 actualizados. Caché de `~/.sonar/cache` no añadida (opcional). | `b21cd82` |
 | N04 | BAJA | Corregido | `if:` de *Quality analysis*: PR con `base_ref == 'main'` o push a `refs/heads/main`. | `b21cd82` |
 | C22 | BAJA | Corregido | Badge de Quality Gate de SonarCloud en el README y "→ análisis de calidad (SonarCloud)" en la sección de CI. | `b21cd82` |
-| C05 | BAJA | Corregido | Fila "organización de Quind → organización personal `jesusjs`" en `docs/requisitos.md` y en ADR 0010 (contexto y tabla de diferencias). | `ab88c4f` |
+| C05 | BAJA | Corregido | Fila "organización de Quind → organización personal `jesusjs`" en `docs/requisitos.md` y en ADR 0010 (contexto y nota bajo la tabla de diferencias; movida en el PR de cierre, R13). | `ab88c4f` |
 | C13 | BAJA | Corregido | `TESTING.md`: quitar temporalmente el check por caída de SonarCloud exige comentar la causa y la **aprobación explícita de Oscar en el PR**; además lo refuerza C12. | `ab88c4f` |
 | C14 | BAJA | Corregido | Fecha exacta: el token caduca el **2027-02-20** (creado el 2026-11-23); no hace falta rotarlo antes del cierre; recordatorio para rotarlo antes del 2027-02-13. | `ab88c4f` |
 | N01 | BAJA | Corregido (FR-015 parcial) | Verificado por el dueño: es un **token personal** de `JesusJs` con sus permisos sobre la organización `jesusjs`. `TESTING.md` lo documenta tal cual; T002 anota que FR-015 queda parcialmente diferido; migrar a un *Scoped Organization Token* va a la fila 010. | `ab88c4f` |
@@ -93,7 +93,7 @@ revisor y code owner**: Steven sale del proyecto. Esto sustituye la decisión #3
 
 ### Aplicar el ruleset (C11, C12, N06): lo ejecutó el dueño el 2026-11-25 a las 22:00:14Z
 
-Comprobado el 2026-11-27 en el PR de cierre de 003: `diff` vacío de `.rules`, `.enforcement` y `.conditions` entre el ruleset activo y el JSON.
+Comprobado el 2026-11-27 en el PR de cierre de 003: `diff` vacío de `.rules`, `.enforcement`, `.conditions` y `.bypass_actors` (`[]`) entre el ruleset activo y el JSON (`bypass_actors` añadido en R10).
 
 Orden recomendado: fusionar el PR #3 y comprobar que `CODEOWNERS` de `main` es válido **antes** del PUT;
 con un code owner inválido y `bypass_actors: []`, exigir su aprobación podría bloquear los merges.
@@ -113,3 +113,58 @@ Verificación (ambos lados iguales, salida vacía de `diff`):
 ```bash
 diff <(gh api repos/JesusJs/the-tractor-store-backend-java/rulesets/27647920 | jq -S '.rules') <(jq -S '.rules' docs/github/ruleset-main.json) && echo "ruleset activo = JSON"
 ```
+
+---
+
+# Revisión 003 (PR de cierre, rama `003-cierre-salvaguardas`, PR #9) — 2026-11-27
+
+`./mvnw -q verify` en verde (exit 0). Ningún fichero bajo `src/` cambia. Los 7 checks de las reviews de los PR #3 y #5
+(`shared`, validación body/path/query, propiedades por perfil, concurrencia, seed, aserciones exactas, fixtures ArchUnit
+por rama) no aplican: no hay código, tests, `application-*.yml`, migraciones ni reglas ArchUnit nuevos.
+
+| # | Severidad | Revisor | Archivo:línea | Hallazgo | Propuesta |
+|---|---|---|---|---|---|
+| R01 | MEDIA | spec, seguridad | `docs/backlog.md:25` | La fila 010 (destino de N01/FR-015, C02, C10, N05) no tiene fecha ("Por replanificar con el mentor"); incumple la regla nueva de `CLAUDE.md:69` ("con número de spec y fecha"). | Fecha provisional para 010 (o al menos para la migración del token, ≤ 2027-02-13) o issue `mentor-condition`. |
+| R02 | MEDIA | spec | `specs/003-calidad-sonar/tasks.md:15`, `:34`, `:244` | Falso que en `src/test/` "solo cambia un comentario": `d79f2c9` cambió la lógica de `GlobalExceptionHandlerTest` (traceId fijo, +5/−1); N08 (`ab88c4f`) solo el comentario. | "solo cambia `GlobalExceptionHandlerTest`: traceId fijo (`d79f2c9`, C21) y su comentario (N08)". |
+| R03 | MEDIA | arquitectura | PR #9 (timeline) | Incumple la regla nueva de `TESTING.md:74-75`: creado draft a las 21:38:56Z y *ready* a las 21:42:24Z, antes de esta `/review-spec`. | `gh pr ready 9 --undo` hasta cerrar esta revisión, o registrar aquí la excepción "PR previo a la regla". |
+| R04 | MEDIA | arquitectura, seguridad | `.claude/skills/pr/SKILL.md:14` vs `TESTING.md:74-75` | El paso 7 pasa a *ready* solo con checks en verde; TESTING.md exige además `/review-spec` cerrada. No dice si esperar a los checks ni pide confirmación antes de `gh pr ready`. | Paso 7: `gh pr checks --watch`; si verdes y `review.md` sin hallazgos sin decisión, pedir confirmación y `gh pr ready`; si no, dejar draft y avisar. |
+| R05 | MEDIA | arquitectura | `TESTING.md:71-72` vs `.claude/skills/pr/SKILL.md:8,12` | "Draft desde el primer push" choca con `/pr`, cuyo primer push es el paso 5, tras exigir verify y review sin bloqueantes. Nadie abre ese draft antes. | (a) Paso explícito en el flujo de `CLAUDE.md`: primer push → `gh pr create --draft`; o (b) TESTING.md: "el PR se crea como draft en `/pr`". |
+| R06 | MEDIA | seguridad | `TESTING.md:84`, `.github/workflows/ci.yml:57-63` | El procedimiento de rotación vuelve a generar un token **personal** con todos los permisos de `JesusJs` (puede cambiar el Quality Gate que alimenta). Mitigado: `pull_request` (no `_target`), `contents: read`, caducidad 2027-02-20; residual: colaboradores con escritura y acciones fijadas por tag (C10). | En la próxima rotación, token con solo *Execute Analysis* o *Scoped Organization Token*; reescribir `TESTING.md:84`. |
+| R07 | BAJA | arquitectura | `.claude/skills/pr/SKILL.md:14` | `gh pr create --draft … --reviewer` pide revisión a Oscar mientras es draft (PR #9: `review_requested` 21:38:58Z); TESTING.md dice que entra al pasar a *ready*. | Quitar `--reviewer` del create y `gh pr edit --add-reviewer oscarmoraquind` tras `gh pr ready`. |
+| R08 | BAJA | seguridad | `.claude/skills/pr/SKILL.md:9` | La pasada de coherencia hace un commit `docs` sin visto bueno explícito del usuario. | "corrígelas en un commit `docs` tras mi confirmación". |
+| R09 | BAJA | seguridad | `CLAUDE.md:72` | La regla de infraestructura solo pide `git branch --show-current`; no recoge la confirmación explícita que exigen `tasks.md` (Notes) y `TESTING.md:87-88`. | Añadir "y confirmación explícita del usuario; Claude no ejecuta `gh api -X PUT …/rulesets` ni `gh secret set`". |
+| R10 | BAJA | spec, seguridad | `docs/practicas-ia.md:11`; §"Aplicar el ruleset" de este fichero; `data-model.md:59-64` | La bitácora dice que `bypass_actors` "no se pudo comparar"; hoy `gh api …/rulesets/27647920` devuelve `bypass_actors: []` igual que el JSON. `data-model.md` no registra la fila de bypass. | Añadir `bypass_actors` a la comprobación, matizar la bitácora y fila "Bypass: ninguno" en `data-model.md`. |
+| R11 | BAJA | spec | `docs/contexto-sesion.md:35-37`; `specs/004-inventario-pedidos/review.md:68` (A10) | El cierre se da por "hecho" con el PR #9 abierto sin fusionar; A10 cita solo `27948ab` (1 de 4 commits). | "en el PR #9 (abierto)" y pasar a Hecho tras el merge; citar el PR #9. |
+| R12 | BAJA | spec | `specs/003-calidad-sonar/plan.md:56` | "sin umbral local extra" contradice la ejecución `check` de JaCoCo ≥ 80 % (C03) que ya refleja `spec.md:288`. | Nota "enmendado por C03". |
+| R13 | BAJA | arquitectura | `specs/003-calidad-sonar/review.md:74` (C05) | Dice "ADR 0010 (contexto y tabla de diferencias)", pero esta rama saca la fila de la tabla. | "(contexto y nota bajo la tabla; movida en el PR de cierre)". |
+| R14 | BAJA | arquitectura | `docs/adr/0010-sonarcloud-en-alcance-sonar-way.md:44-46` | Se edita una ADR aceptada sin nota, cuando la propia ADR usa "Enmienda (…)" (línea 53). | "Aclaración 2026-11-27: la fila de la organización sale de la tabla del Quality Gate; sin cambio de decisión". |
+| R15 | BAJA | arquitectura | `docs/adr/0010-sonarcloud-en-alcance-sonar-way.md:72` | "para el revisor (Oscar) sin cuenta" se lee como que Oscar no tiene cuenta; la spec dice "no necesita". | "para el revisor (Oscar), que no necesita cuenta en SonarCloud". |
+| R16 | BAJA | arquitectura | `TESTING.md:71-72` | gitleaks y *Quality analysis* son pasos del job `build`, no checks; falta el check `SonarCloud Code Analysis`. Los triggers (`push`/`pull_request` a `main`) sí son correctos. | "El CI (job `build`, con gitleaks y *Quality analysis*) y el check de SonarCloud solo corren…". |
+| R17 | BAJA | arquitectura | `CLAUDE.md:69` | La regla de desviaciones no menciona que, si toca la constitución o una ADR aceptada, la Gobernanza exige además una ADR. | "…y, si afecta a la constitución o a una ADR aceptada, `/adr` antes de tocar código". |
+
+Descartado: la afirmación del `spec-reviewer` de que el PR #9 cumplió la regla del draft (el paso a *ready* fue anterior
+a esta revisión; ver R03).
+
+## Decisiones (2026-11-27, JesusJs): corregir todos
+
+| # | Estado | Decisión / cómo se corrigió | Commit |
+|---|---|---|---|
+| R01 | Corregido | Fila 010 fechada: C10 (`actions/*` por SHA + Dependabot `github-actions`) el **2026-12-03**, resto el **2026-12-10**, sujetas a confirmación con el mentor; C10 con issue `mentor-condition` JesusJs/the-tractor-store-backend-java#10. | `bffd343` |
+| R02 | Corregido | `tasks.md` (3 frases): `GlobalExceptionHandlerTest` cambia por `traceId` fijo (`d79f2c9`, C21) y su comentario (N08). | `acb7e51` |
+| R03 | Corregido | El dueño devolvió el PR #9 a draft; pasa a *ready* solo él, con esta revisión cerrada. | — (GitHub) |
+| R04 | Corregido | `/pr` paso 9: *ready* solo con (a) `/review-spec` cerrada en `review.md`, (b) `gh pr checks` en verde y (c) confirmación explícita del dueño; entonces `gh pr ready` + `--add-reviewer`. | `bc70e6c` |
+| R05 | Corregido | `TESTING.md` §Abrir un PR: "draft al crear el PR" (`/pr`), alineado con el flujo. | `bc70e6c` |
+| R06 | Corregido | `TESTING.md` §Rotación: objetivo *Scoped Organization Token* (FR-015, fila 010); el personal solo como transición documentada con motivo y fecha. | `bc70e6c` |
+| R07 | Corregido | `/pr` paso 7: `gh pr create --draft` sin `--reviewer`; el revisor se añade al pasar a *ready*. | `bc70e6c` |
+| R08 | Corregido | `/pr` paso 2 y `CLAUDE.md`: el commit `docs` de la pasada de coherencia espera la confirmación del dueño. | `bc70e6c` |
+| R09 | Corregido | `CLAUDE.md`: cambios de infraestructura con confirmación explícita; sin ella no se ejecutan `gh api -X PUT …/rulesets`, `gh secret set`, `terraform apply` ni cambios en Azure. | `bc70e6c` |
+| R10 | Corregido | `bypass_actors: []` comparado contra el ruleset activo (igual); añadido a la comprobación de este fichero, a la bitácora y a `data-model.md`. | `acb7e51` y este commit |
+| R11 | Corregido | `contexto-sesion.md` y A10 de la review 004: "en el PR #9 (abierto, draft)"; pasa a Hecho tras el merge. | `acb7e51` |
+| R12 | Corregido | `plan.md`: nota "enmendado por C03". | `acb7e51` |
+| R13 | Corregido | Fila C05: "nota bajo la tabla de diferencias". | este commit |
+| R14 | Corregido | ADR 0010: nota **Aclaración** fechada, sin reescribir la decisión. | `acb7e51` |
+| R15 | Corregido | ADR 0010: "que no necesita cuenta en SonarCloud". | `acb7e51` |
+| R16 | Corregido | `TESTING.md`: job `build` (con gitleaks y *Quality analysis*) y check `SonarCloud Code Analysis`. | `bc70e6c` |
+| R17 | Corregido | `CLAUDE.md`: desviación que afecte a la constitución o a una ADR aceptada → `/adr` antes de tocar código. | `bc70e6c` |
+
+Revisión cerrada: ningún hallazgo queda sin decisión.
