@@ -30,6 +30,9 @@ No hay hallazgos BLOQUEANTES ni ALTOS. Cada hallazgo se contrastó con el códig
 - Acciones fijadas por tag y no por SHA, y `distributionSha256Sum` en el wrapper (seguridad): ya están en la fila 010 del backlog (review 001 #8 y #9) y esta rama no los cambia.
 
 ## Pendiente después del merge (declarado en tasks.md, no es un defecto)
+
+> Cerrado el 2026-11-27 (PR de cierre de 003): T021, T025 y T032 marcadas en `tasks.md`, `Status` de spec.md en *Implemented* y ruleset activo `27647920` igual al JSON (ver abajo). SC-001 se mide en los PRs posteriores.
+
 - T021 / SC-003: cobertura en SonarCloud con el análisis de `main`. En local ya se ve `CategoryRepositoryAdapter` con 9/9 líneas.
 - T025 / US4-1: análisis de `main` y paso *skipped* en un push a otra rama.
 - T032: quickstart §6 y `Status` de spec.md:7 a implementada.
@@ -82,7 +85,7 @@ revisor y code owner**: Steven sale del proyecto. Esto sustituye la decisión #3
 | C10 | INFO | Diferido a la fila 010 | Fijar `actions/*` por SHA + Dependabot `github-actions`, marcado como prioritario por exponer `SONAR_TOKEN`. | `ab88c4f` (backlog) |
 | C02 | BAJA | Diferido a la fila 010 | Test de paridad entre las listas de exclusión de Sonar y JaCoCo (tras C01 quedan 3 patrones Java + migraciones). | `ab88c4f` (backlog) |
 | N05 | NIT | Diferido a la fila 010 | gitleaks descargado y ejecutado en `$RUNNER_TEMP`. | `ab88c4f` (backlog) |
-| C17 | MEDIA | Diferido a un PR de seguimiento | Numerar y fechar `despliegue-azure-esqueleto`, replanificar 006–010 hacia el 1-3 dic y actualizar la fecha de demo en `CLAUDE.md` y la constitución: es replanificación del backlog, fuera del alcance de 003. | — |
+| C17 | MEDIA | Corregido en el PR #5 (hilo del PR #3 resuelto) | Numerar y fechar `despliegue-azure-esqueleto`, replanificar 006–010 hacia el 1-3 dic y actualizar la fecha de demo en `CLAUDE.md` y la constitución: se hizo en el PR #5 (A02): demo el 2026-12-03, despliegue como 006\* con fecha 2026-12-02. | `caac6be`, `8a26281`, `a2a3d7e` |
 | C04 | NIT | Se deja como está | `append=true` sobre un único `.exec`, documentado en `TESTING.md`. | — |
 | C09 | — | Retirado por el revisor | Job `quality` con `sonar.qualitygate.wait=true`: no se publica. | — |
 | C06, C07, C21 | Elogio | — | Sin cambios. | — |
