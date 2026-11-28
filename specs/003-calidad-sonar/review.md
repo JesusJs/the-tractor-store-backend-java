@@ -59,8 +59,8 @@ revisor y code owner**: Steven sale del proyecto. Esto sustituye la decisión #3
 | ID | Sev. | Decisión | Qué se hizo | Commit |
 |---|---|---|---|---|
 | C12 | ALTA | Corregido | `CODEOWNERS` solo con `@oscarmoraquind` (login verificado con `gh api …/collaborators`; `stevenMetiorQuind` no es colaborador). Skill `/pr` con `--reviewer oscarmoraquind`. Menciones a Steven como revisor quitadas de `TESTING.md`, ADR 0010, spec.md y tasks.md (`CLAUDE.md`, la constitución y `practicas-ia.md` no lo mencionaban; se conserva la cita literal del *Input* en spec.md:9). Ruleset JSON: `required_approving_review_count` 1, `require_code_owner_review` true, `dismiss_stale_reviews_on_push` true. | `8d7767a` |
-| C11 | MEDIA | Corregido (PUT pendiente del dueño) | El JSON ya tenía `integration_id: 15368` en `build`; falta aplicarlo al ruleset activo `27647920`. Nota de desfase en T015. Claude no ejecuta el PUT: comando abajo. | `8d7767a`, `ab88c4f` |
-| N06 | BAJA | Corregido (PUT pendiente del dueño) | `strict_required_status_checks_policy` true y `required_review_thread_resolution` true en el JSON; van en el mismo PUT. | `8d7767a` |
+| C11 | MEDIA | Corregido (PUT aplicado por el dueño el 2026-11-25 a las 22:00:14Z) | El JSON ya tenía `integration_id: 15368` en `build`; llegó al ruleset activo `27647920` con el PUT del 2026-11-25 a las 22:00:14Z (comando abajo). Nota de desfase en T015. | `8d7767a`, `ab88c4f` |
+| N06 | BAJA | Corregido (PUT aplicado el 2026-11-25 a las 22:00:14Z) | `strict_required_status_checks_policy` true y `required_review_thread_resolution` true en el JSON; aplicados con el mismo PUT. | `8d7767a` |
 | C01 | MEDIA | Corregido | Quitados `src/main/java/com/tractorstore/*/api/**` e `**/infrastructure/config/**` de `sonar.coverage.exclusions` y de los `<excludes>` de JaCoCo. Hoy solo contienen `package-info.java`: la cobertura no cambia (98 % de líneas). Se reintroducirán, justificadas, en el PR que cree clases sin lógica. | `77ec18f` |
 | N02 | MEDIA | Corregido | Eliminado el párrafo "Regla del paquete `api`" de `TESTING.md`; la tabla y el texto dicen ahora que `api` e `infrastructure/config` no se excluyen. | `77ec18f` |
 | C03 | MEDIA | Corregido | Ejecución `check` de JaCoCo en `verify` con `dataFile` `jacoco.exec`, los mismos `<excludes>` que `report` y regla `BUNDLE`/`LINE`/`COVEREDRATIO` ≥ 0,80. Probado: con 0,80 → *All coverage checks have been met*; con 0,99 → *lines covered ratio is 0.98, but expected minimum is 0.99* y BUILD FAILURE. Enmienda en ADR 0010, `TESTING.md` y skill `testing-strategy`. | `77ec18f` |
@@ -86,9 +86,11 @@ revisor y code owner**: Steven sale del proyecto. Esto sustituye la decisión #3
 | C04 | NIT | Se deja como está | `append=true` sobre un único `.exec`, documentado en `TESTING.md`. | — |
 | C09 | — | Retirado por el revisor | Job `quality` con `sonar.qualitygate.wait=true`: no se publica. | — |
 | C06, C07, C21 | Elogio | — | Sin cambios. | — |
-| C23 | Plan | En curso | Tras el push: pasar el PR a *ready* con Oscar como revisor, fusionar, aplicar el PUT y cerrar T021/T025/T032 y el `Status` de spec.md en un PR corto de cierre. | — |
+| C23 | Plan | Hecho | Tras el push: pasar el PR a *ready* con Oscar como revisor, fusionar, aplicar el PUT y cerrar T021/T025/T032 y el `Status` de spec.md en un PR corto de cierre. | — |
 
-### Aplicar el ruleset (C11, C12, N06): lo ejecuta el dueño
+### Aplicar el ruleset (C11, C12, N06): lo ejecutó el dueño el 2026-11-25 a las 22:00:14Z
+
+Comprobado el 2026-11-27 en el PR de cierre de 003: `diff` vacío de `.rules`, `.enforcement` y `.conditions` entre el ruleset activo y el JSON.
 
 Orden recomendado: fusionar el PR #3 y comprobar que `CODEOWNERS` de `main` es válido **antes** del PUT;
 con un code owner inválido y `bypass_actors: []`, exigir su aprobación podría bloquear los merges.

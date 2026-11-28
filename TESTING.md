@@ -66,6 +66,14 @@ público. Solo `JesusJs` marca un hotspot como *Safe* o un issue como *False Pos
 cada marca comenta en el PR con enlace y justificación, que Oscar (único revisor y code owner) valida antes de aprobar. No se
 desactivan reglas globalmente sin documentarlo aquí.
 
+## Abrir un PR
+
+- Abre el PR como **draft** desde el primer push de la rama. El CI (`build`, gitleaks y *Quality
+  analysis*) solo corre en `pull_request` y `push` contra `main`: un push a una rama sin PR no ejecuta
+  nada (review del PR #3, punto 5).
+- Pásalo a *ready for review*, con Oscar como revisor, cuando el CI esté en verde y la revisión propia
+  (`/review-spec`) esté cerrada.
+
 ## Operación de `SONAR_TOKEN`
 
 - Token actual: **token personal** de `JesusJs` (*My Account → Security → Personal Tokens*), creado el

@@ -41,7 +41,9 @@ Gate es **Sonar way**.
 | Duplicación ≤ 3 % | Duplicación ≤ 3 % | Igual |
 | Ratings A | Ratings A (fiabilidad, seguridad, mantenibilidad) | Igual |
 | 100 % hotspots revisados | 100 % hotspots revisados | Igual |
-| Proyecto en la organización de Quind | Organización personal `jesusjs` | Desviación aceptada (C05) |
+
+Fuera del Quality Gate hay otra diferencia: la spec pedía el proyecto en la organización de Quind y
+está en la organización personal `jesusjs` (desviación aceptada, C05; registrada en `docs/requisitos.md`).
 
 Además, Sonar way **no aplica** las condiciones de cobertura y duplicación cuando el código
 nuevo tiene menos de 20 líneas (*fudge factor*, activo por defecto en la organización; según la
@@ -67,7 +69,7 @@ ni se añade un umbral de ramas, para no producir bloqueos que la guía no exige
 
 ## Consecuencias
 - Positivas: bloqueo automático de bugs, vulnerabilidades, duplicación y hotspots sin revisar
-  en código nuevo; cobertura real visible en cada PR; resumen en el PR para revisores sin
+  en código nuevo; cobertura real visible en cada PR; resumen en el PR para el revisor (Oscar) sin
   cuenta (proyecto público).
 - Negativas / deuda aceptada: cobertura de código nuevo al 80 % y no al 85 %; cambios de menos
   de 20 líneas no se miden por cobertura/duplicación; dependencia de un servicio externo (si

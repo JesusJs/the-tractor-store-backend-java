@@ -104,9 +104,9 @@ del análisis, y que las clases excluidas no cuentan en el porcentaje.
 
 ---
 
-### User Story 3 - Los revisores ven issues y Quality Gate en el propio PR (Priority: P3)
+### User Story 3 - El revisor ve issues y Quality Gate en el propio PR (Priority: P3)
 
-Como revisor (Oscar), queremos ver en la conversación del PR un resumen del Quality
+Como revisor (Oscar), quiero ver en la conversación del PR un resumen del Quality
 Gate (aprobado/fallido, bugs, vulnerabilidades, code smells, cobertura y duplicación del código
 nuevo) y los issues señalados, sin tener que entrar en otra herramienta ni tener cuenta en ella.
 
@@ -162,7 +162,7 @@ rama `main` con fecha del merge.
   procedimiento se documenta y la excepción se registra en el PR.
 - **Falsos positivos y hotspots**: solo el dueño del repositorio marca en el servicio un issue
   como falso positivo o un hotspot como seguro, y por cada marca deja en el PR un comentario con
-  el enlace y la justificación; los revisores lo validan antes de aprobar. No se desactivan
+  el enlace y la justificación; el revisor (Oscar) lo valida antes de aprobar. No se desactivan
   reglas globalmente sin dejarlo documentado.
 - **Tests de integración fallidos**: si falla la suite, no se publica un análisis con cobertura
   parcial que pueda dar un Quality Gate engañoso.
@@ -285,4 +285,5 @@ rama `main` con fecha del merge.
   de esta spec se abrirá (o rebasará) cuando 002 esté en `main`.
 - El revisor (Oscar) no necesita cuenta en el servicio para ver el resultado.
 - El umbral orientativo del 80 % global de la skill `testing-strategy` se sustituye por el
-  80 % sobre código nuevo del Quality Gate Sonar way; no hay un segundo umbral de cobertura que falle el build en local.
+  80 % sobre código nuevo del Quality Gate Sonar way. Además, desde la review del PR #3 (C03), la
+  ejecución `check` de JaCoCo hace fallar `./mvnw verify` si la cobertura global de líneas baja del 80 %.
