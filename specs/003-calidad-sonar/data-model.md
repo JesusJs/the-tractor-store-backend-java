@@ -60,6 +60,7 @@ y revisión en el PR.
 | `integration_id` de `build` | — | 15368 (app `github-actions`, T034) |
 | Revisión | sin aprobación obligatoria | 1 aprobación de code owner, `dismiss_stale_reviews_on_push` y `required_review_thread_resolution` (PR #3, C12/N06) |
 | Checks estrictos | no | `strict_required_status_checks_policy` true (N06) |
+| Bypass | ninguno (`bypass_actors: []`) | ninguno (`bypass_actors: []`; comprobado contra el ruleset activo el 2026-11-27, R10) |
 
 Fuente versionada: `docs/github/ruleset-main.json`, que MUST coincidir con el ruleset activo.
 

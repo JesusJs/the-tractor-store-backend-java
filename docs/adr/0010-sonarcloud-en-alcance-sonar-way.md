@@ -45,6 +45,9 @@ Gate es **Sonar way**.
 Fuera del Quality Gate hay otra diferencia: la spec pedía el proyecto en la organización de Quind y
 está en la organización personal `jesusjs` (desviación aceptada, C05; registrada en `docs/requisitos.md`).
 
+**Aclaración (PR de cierre de 003, review del PR #9, R14, 2026-11-27)**: la fila de la organización sale de la
+tabla porque no es una condición del Quality Gate sobre código nuevo; no cambia la decisión.
+
 Además, Sonar way **no aplica** las condiciones de cobertura y duplicación cuando el código
 nuevo tiene menos de 20 líneas (*fudge factor*, activo por defecto en la organización; según la
 documentación oficial, un administrador del proyecto puede desactivarlo, y se mantiene activo). Se acepta: los cambios tan pequeños los revisa Oscar (code owner),
@@ -69,8 +72,8 @@ ni se añade un umbral de ramas, para no producir bloqueos que la guía no exige
 
 ## Consecuencias
 - Positivas: bloqueo automático de bugs, vulnerabilidades, duplicación y hotspots sin revisar
-  en código nuevo; cobertura real visible en cada PR; resumen en el PR para el revisor (Oscar) sin
-  cuenta (proyecto público).
+  en código nuevo; cobertura real visible en cada PR; resumen en el PR para el revisor (Oscar), que no
+  necesita cuenta en SonarCloud (proyecto público).
 - Negativas / deuda aceptada: cobertura de código nuevo al 80 % y no al 85 %; cambios de menos
   de 20 líneas no se miden por cobertura/duplicación; dependencia de un servicio externo (si
   cae, el merge queda bloqueado hasta que el dueño relaje el ruleset; procedimiento en

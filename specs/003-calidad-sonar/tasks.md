@@ -12,7 +12,7 @@ description: "Tareas de implementación de 003 — Calidad con SonarCloud"
 [quickstart.md](quickstart.md)
 
 **Tests**: esta spec no añade código de producción (ningún fichero bajo `src/main/` cambia; bajo
-`src/test/` solo cambia un comentario de `GlobalExceptionHandlerTest`, N08), así que no hay tareas de
+`src/test/` solo cambia `GlobalExceptionHandlerTest`: `traceId` fijo en `d79f2c9`, C21, y su comentario, N08), así que no hay tareas de
 test unitario/integración nuevas. Las suites existentes alimentan la cobertura y
 la validación es de **pipeline**: tareas de verificación con resultado esperado explícito
 (quickstart §1–§6) y el PR de prueba de SC-002 (rojo sin tests → verde con tests).
@@ -31,8 +31,8 @@ en varias fases: las tareas sobre el mismo fichero **no** llevan `[P]` entre sí
 
 Proyecto Maven único en la raíz del repositorio. Ficheros tocados: `pom.xml`,
 `.github/workflows/ci.yml`, `docs/github/ruleset-main.json`, `TESTING.md` (nuevo),
-`.claude/skills/testing-strategy/SKILL.md`. Nada bajo `src/main/`; bajo `src/test/`, solo el
-comentario de `GlobalExceptionHandlerTest` (N08).
+`.claude/skills/testing-strategy/SKILL.md`. Nada bajo `src/main/`; bajo `src/test/`, solo
+`GlobalExceptionHandlerTest` (`traceId` fijo en `d79f2c9`, C21, y su comentario, N08).
 
 ---
 
@@ -241,7 +241,8 @@ el primer Quality Gate exigido ya mida la cobertura real.
 ## Notes
 
 - Ningún fichero bajo `src/main/` cambia (la clase de T016 vivió solo en una rama temporal ya
-  borrada); bajo `src/test/` solo cambia el comentario de `GlobalExceptionHandlerTest` (N08).
+  borrada); bajo `src/test/` solo cambia `GlobalExceptionHandlerTest` (`traceId` fijo en `d79f2c9`, C21, y su
+  comentario, N08).
 - El valor de `SONAR_TOKEN` nunca se lee, escribe ni imprime; solo se referencia como
   `${{ secrets.SONAR_TOKEN }}`.
 - T015 modifica una configuración de GitHub compartida: confirmar en chat antes de ejecutarlo.
