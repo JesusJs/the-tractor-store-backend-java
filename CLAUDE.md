@@ -66,8 +66,9 @@ docker compose up -d postgres     # BD local
 
 ## Reglas de trabajo (salvaguardas de las reviews de los PR #3 y #5)
 - Todo lo diferido lleva fila en `docs/backlog.md` con número de spec y fecha, y nunca contradice una regla de su propio `tasks.md`.
-- Desviarse de la guía o de `docs/requisitos.md` exige una decisión del mentor registrada en `docs/requisitos.md`.
+- Desviarse de la guía o de `docs/requisitos.md` exige una decisión del mentor registrada en `docs/requisitos.md` y, si afecta a la constitución o a una ADR aceptada, una ADR (`/adr`) antes de tocar código.
 - Antes de cada commit: `git diff --cached --stat` y comprobar que el contenido coincide con el mensaje.
 - Los scripts de edición (bash, python por `heredoc`) empiezan con `set -euo pipefail` o fallan si un reemplazo no encuentra el texto.
-- Antes de cualquier cambio de infraestructura (ruleset, secretos, Terraform, Azure): `git branch --show-current`.
+- Antes de cualquier cambio de infraestructura (ruleset, secretos, Terraform, Azure): `git branch --show-current` y mi **confirmación explícita** en el chat; sin ella no se ejecuta `gh api -X PUT …/rulesets`, `gh secret set`, `terraform apply` ni cambios en Azure.
+- La pasada de coherencia de `/pr` me muestra las discrepancias y espera mi confirmación antes de su commit `docs`.
 - Compromisos con el mentor con fecha → issue con la etiqueta `mentor-condition` (plantilla en `.github/ISSUE_TEMPLATE/mentor-condition.md`).
