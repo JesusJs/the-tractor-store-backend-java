@@ -53,7 +53,8 @@ Fechas del backlog acordadas el 2026-11-26, sujetas a confirmación con el mento
    - Ante un 409 (`OUT_OF_STOCK`) el usuario ve un error genérico: `http-error.interceptor.ts` convierte cualquier
      error HTTP en `Server error code …` y descarta el código del contrato.
    - Sonar con cobertura en el front: el repo del front no tiene configuración de Sonar.
-6. **009 y fila 010 `entrega-final`** (por replanificar con el mentor; recortables): CD con smoke test, logs JSON en
+6. **009 y fila 010 `entrega-final`** (009 por replanificar con el mentor; 010: C10 el 2026-12-03 y el resto el 2026-12-10,
+   sujetas a confirmación; recortables salvo C10): CD con smoke test, logs JSON en
    prod, README/DEPLOYMENT.md, `actions/*` por SHA + Dependabot, `SONAR_TOKEN` a *Scoped Organization Token*, Σ
    cantidad por SKU y prefijo `__Host-`.
 
